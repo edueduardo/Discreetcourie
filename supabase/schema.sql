@@ -239,6 +239,189 @@ CREATE POLICY "Public tracking access" ON deliveries
 CREATE POLICY "Public tracking events" ON delivery_events
   FOR SELECT USING (true);
 
+-- ============================================
+-- DISCREET CONCIERGE - Premium Services Tables
+-- ============================================
+
+-- Service tier enum
+CREATE TYPE service_tier AS ENUM (
+  'courier',
+  'discreet', 
+  'concierge',
+  'fixer'
+);
+
+-- Task category enum
+CREATE TYPE task_category AS ENUM (
+  'delivery',
+  'discreet_delivery',
+  'purchase',
+  'errand',
+  'retrieval',
+  'representation',
+  'waiting',
+  'special'
+);
+
+-- Task status enum
+CREATE TYPE task_status AS ENUM (
+  'requested',
+  'quoted',
+  'accepted',
+  'in_progress',
+  'completed',
+  'cancelled'
+);
+
+-- Concierge Tasks Table
+CREATE TABLE concierge_tasks (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  client_id UUID REFERENCES clients(id) ON DELETE SET NULL,
+  
+  -- Task details
+  service_tier service_tier NOT NULL DEFAULT 'concierge',
+  category task_category NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  description TEXT NOT NULL,
+  special_instructions TEXT,
+  
+  -- Location (if applicable)
+  location_address TEXT,
+  location_contact VARCHAR(255),
+  location_phone VARCHAR(50),
+  
+  -- Purchase details (if purchase task)
+  purchase_items JSONB,
+  purchase_budget DECIMAL(10, 2),
+  purchase_receipt_url TEXT,
+  
+  -- Status & Pricing
+  status task_status DEFAULT 'requested',
+  quoted_price DECIMAL(10, 2),
+  final_price DECIMAL(10, 2),
+  paid BOOLEAN DEFAULT FALSE,
+  
+  -- Privacy - NO TRACE MODE
+  no_trace_mode BOOLEAN DEFAULT FALSE,
+  auto_delete_at TIMESTAMPTZ,
+  
+  -- Proof
+  proof_photos TEXT[],
+  notes TEXT,
+  
+  -- NDA
+  nda_required BOOLEAN DEFAULT FALSE,
+  nda_signed BOOLEAN DEFAULT FALSE,
+  nda_signed_at TIMESTAMPTZ,
+  
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  completed_at TIMESTAMPTZ
+);
+
+CREATE INDEX idx_tasks_client ON concierge_tasks(client_id);
+CREATE INDEX idx_tasks_status ON concierge_tasks(status);
+CREATE INDEX idx_tasks_tier ON concierge_tasks(service_tier);
+CREATE INDEX idx_tasks_auto_delete ON concierge_tasks(auto_delete_at) WHERE auto_delete_at IS NOT NULL;
+
+-- Secure Messages Table (Encrypted Chat)
+CREATE TABLE secure_messages (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  task_id UUID REFERENCES concierge_tasks(id) ON DELETE CASCADE,
+  sender_type VARCHAR(10) NOT NULL CHECK (sender_type IN ('client', 'admin')),
+  sender_id UUID,
+  content TEXT NOT NULL,
+  encrypted BOOLEAN DEFAULT TRUE,
+  read BOOLEAN DEFAULT FALSE,
+  auto_delete_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_messages_task ON secure_messages(task_id);
+CREATE INDEX idx_messages_auto_delete ON secure_messages(auto_delete_at) WHERE auto_delete_at IS NOT NULL;
+
+-- NDA Documents Table
+CREATE TABLE nda_documents (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
+  version VARCHAR(20) NOT NULL DEFAULT '1.0',
+  signed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  ip_address VARCHAR(45),
+  user_agent TEXT,
+  signature_data TEXT,
+  terms_accepted JSONB NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_nda_client ON nda_documents(client_id);
+
+-- VIP Clients (upgraded to premium tiers)
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS is_vip BOOLEAN DEFAULT FALSE;
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS vip_tier service_tier;
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS nda_signed BOOLEAN DEFAULT FALSE;
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS direct_line VARCHAR(50);
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS retainer_active BOOLEAN DEFAULT FALSE;
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS retainer_amount DECIMAL(10, 2);
+
+-- Trigger for auto-updating concierge tasks
+CREATE TRIGGER update_tasks_updated_at
+  BEFORE UPDATE ON concierge_tasks
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at();
+
+-- Function to auto-delete no-trace records
+CREATE OR REPLACE FUNCTION cleanup_no_trace_records()
+RETURNS void AS $$
+BEGIN
+  -- Delete expired tasks
+  DELETE FROM concierge_tasks 
+  WHERE no_trace_mode = TRUE 
+    AND auto_delete_at IS NOT NULL 
+    AND auto_delete_at < NOW();
+  
+  -- Delete expired messages
+  DELETE FROM secure_messages 
+  WHERE auto_delete_at IS NOT NULL 
+    AND auto_delete_at < NOW();
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function to set auto-delete date (7 days after completion)
+CREATE OR REPLACE FUNCTION set_auto_delete_on_complete()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.status = 'completed' AND NEW.no_trace_mode = TRUE THEN
+    NEW.auto_delete_at = NOW() + INTERVAL '7 days';
+    NEW.completed_at = NOW();
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER task_completion_auto_delete
+  BEFORE UPDATE ON concierge_tasks
+  FOR EACH ROW
+  WHEN (OLD.status IS DISTINCT FROM NEW.status)
+  EXECUTE FUNCTION set_auto_delete_on_complete();
+
+-- RLS for new tables
+ALTER TABLE concierge_tasks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE secure_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE nda_documents ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow authenticated users" ON concierge_tasks
+  FOR ALL USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Allow authenticated users" ON secure_messages
+  FOR ALL USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Allow authenticated users" ON nda_documents
+  FOR ALL USING (auth.role() = 'authenticated');
+
+-- ============================================
+-- END DISCREET CONCIERGE TABLES
+-- ============================================
+
 -- Sample data for testing
 INSERT INTO clients (name, company, email, phone, privacy_level) VALUES
   ('Medical Office', 'Columbus Medical Center', 'contact@colmed.com', '(614) 555-0101', 'city_only'),

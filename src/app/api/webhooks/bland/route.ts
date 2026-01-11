@@ -20,7 +20,12 @@ export async function POST(request: NextRequest) {
 
     const supabase = createClient()
 
-    // Extract delivery info from the call
+    // Detect service type from variables or analysis
+    const serviceType = variables?.service_type || analysis?.service_type || 'courier'
+    const taskCategory = variables?.task_category || analysis?.task_category || 'delivery'
+    const noTraceRequested = variables?.no_trace_requested || analysis?.no_trace_requested || false
+
+    // Extract delivery/task info from the call
     const extractedData = {
       pickup_address: variables?.pickup_address || analysis?.pickup_address,
       delivery_address: variables?.delivery_address || analysis?.delivery_address,
@@ -29,6 +34,14 @@ export async function POST(request: NextRequest) {
       preferred_time: variables?.preferred_time || analysis?.preferred_time,
       caller_name: variables?.caller_name || analysis?.caller_name,
       caller_phone: from,
+      // Concierge-specific fields
+      service_type: serviceType,
+      task_category: taskCategory,
+      task_description: variables?.description || analysis?.description,
+      location: variables?.location || analysis?.location,
+      urgency: variables?.urgency || analysis?.urgency || 'flexible',
+      no_trace_requested: noTraceRequested,
+      callback_time: variables?.callback_time || analysis?.callback_time,
     }
 
     // Store the call record
@@ -51,33 +64,56 @@ export async function POST(request: NextRequest) {
       console.error('Error storing call:', callError)
     }
 
-    // If we have enough info, create a pending delivery
-    if (extractedData.pickup_address && extractedData.delivery_address) {
-      // Check if client exists by phone
-      let clientId = null
-      const { data: existingClient } = await supabase
+    // Check if client exists by phone, or create new
+    let clientId = null
+    const { data: existingClient } = await supabase
+      .from('clients')
+      .select('id')
+      .eq('phone', from)
+      .single()
+
+    if (existingClient) {
+      clientId = existingClient.id
+    } else {
+      // Create new client
+      const { data: newClient } = await supabase
         .from('clients')
+        .insert({
+          name: extractedData.caller_name || 'Phone Customer',
+          phone: from,
+          privacy_level: noTraceRequested ? 'none' : 'status_only',
+        })
         .select('id')
-        .eq('phone', from)
         .single()
+      
+      clientId = newClient?.id
+    }
 
-      if (existingClient) {
-        clientId = existingClient.id
-      } else {
-        // Create new client
-        const { data: newClient } = await supabase
-          .from('clients')
+    // Handle based on service type
+    if (serviceType === 'concierge' || serviceType === 'fixer' || taskCategory !== 'delivery') {
+      // Create concierge task
+      if (clientId) {
+        const { error: taskError } = await supabase
+          .from('concierge_tasks')
           .insert({
-            name: extractedData.caller_name || 'Phone Customer',
-            phone: from,
-            privacy_level: 'status_only',
+            client_id: clientId,
+            service_tier: serviceType === 'fixer' ? 'fixer' : 'concierge',
+            category: taskCategory,
+            title: extractedData.task_description?.substring(0, 100) || 'Phone Request',
+            description: extractedData.task_description || transcript || 'Details to be confirmed via callback',
+            special_instructions: extractedData.special_instructions,
+            location_address: extractedData.location || extractedData.pickup_address,
+            status: 'requested',
+            no_trace_mode: noTraceRequested,
+            nda_required: serviceType === 'fixer',
           })
-          .select('id')
-          .single()
-        
-        clientId = newClient?.id
-      }
 
+        if (taskError) {
+          console.error('Error creating concierge task:', taskError)
+        }
+      }
+    } else if (extractedData.pickup_address && extractedData.delivery_address) {
+      // Standard delivery flow
       if (clientId) {
         // Generate tracking code
         const trackingCode = `DC-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
@@ -94,6 +130,7 @@ export async function POST(request: NextRequest) {
             delivery_notes: extractedData.special_instructions,
             status: 'pending',
             priority: 'standard',
+            is_confidential: serviceType === 'discreet',
             price: 0, // To be set by admin
             bland_call_id: call_id,
           })
@@ -115,7 +152,11 @@ export async function POST(request: NextRequest) {
     // TODO: Send notification to Eduardo (SMS/Push)
     // This could integrate with Twilio or other notification service
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ 
+      success: true,
+      service_type: serviceType,
+      task_category: taskCategory 
+    })
   } catch (error) {
     console.error('Webhook error:', error)
     return NextResponse.json(
