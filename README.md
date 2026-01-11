@@ -1,140 +1,313 @@
 # Discreet Courier Columbus
 
-Professional discrete courier delivery management system for Columbus, OH.
+**"One Driver. No Trace."**
 
-## Features
+Professional discrete courier and personal concierge service for Columbus, OH. From simple deliveries to VIP privacy-first services.
 
-### Admin Panel (Eduardo)
-- **Dashboard** - Overview of today's deliveries, revenue, and calls
-- **Deliveries Management** - Create, edit, track, and complete deliveries
-- **Client Management** - Manage B2B clients and contacts
-- **Bland.ai Integration** - AI-powered phone assistant for booking
-- **Proof of Delivery** - Photo and signature capture
-- **Financial Tracking** - Revenue, invoices, and payments
+## 🌟 Features
 
-### Client Portal
-- **Delivery Tracking** - Real-time status updates
-- **Proof of Delivery** - View photos and signatures
-- **History** - Past deliveries and receipts
-- **Invoices** - View and download invoices
+### **4-Tier Service System**
 
-### Public Pages
-- **Landing Page** - Professional business presence
+1. **Standard Courier** ($35-50) - Document and package delivery
+2. **Discreet Courier** ($50-75) - Confidential deliveries with privacy protection
+3. **Personal Concierge** ($75-150/hr) - We buy, fetch, and handle tasks you cannot or prefer not to do
+4. **The Fixer (VIP)** ($200-500/task) - Complex situations handled with absolute confidence and discretion
+
+### 🔐 **VIP Premium Features**
+
+- **Cofre Humano (Human Vault)** - Secure storage of sensitive items, documents, and secrets
+- **Última Vontade (Last Will)** - Posthumous message/item delivery with configurable triggers
+- **Guardian Mode 24/7** - Round-the-clock availability with direct line access
+- **Ritual de Destruição** - Complete data deletion with video proof
+- **Operação Fênix** - Help clients escape difficult situations discreetly
+- **Comunicação Fantasma** - Self-destructing encrypted messages
+- **Pacto de Lealdade** - Mutual NDA between provider and client
+- **Procurador de Sombras** - Act, speak, and represent on client's behalf
+- **Cápsula do Tempo** - Time-delayed delivery (months or years)
+- **Santuário** - Exclusive vetting process for VIP clients
+
+### 📊 **Admin Panel**
+
+- **Dashboard** - Real-time overview of deliveries, revenue, and alerts
+- **Deliveries Management** - Standard courier operations
+- **Concierge Tasks** - Premium service requests and tracking
+- **Vault Management** - Human vault items with expiration tracking
+- **Client Management** - VIP clients with code names (SHADOW-7842)
+- **Destruction Portal** - Data deletion with audit trail
+- **Bland.ai Integration** - AI phone assistant for automated bookings
+- **Financial Tracking** - Revenue, retainers, and invoicing
+
+### 👤 **Client Portal**
+
+- **VIP Dashboard** - Guardian Mode status, vault items, secure chat
+- **Task Management** - Request and track concierge services
+- **Secure Messaging** - Encrypted chat with auto-delete
+- **Data Destruction** - Self-service complete data deletion
+- **Last Will Configuration** - Set up posthumous deliveries
+- **No-Trace Mode** - Auto-delete after 7 days
+
+### 🌐 **Public Pages**
+
+- **Landing Page** - Service tiers and features
+- **Concierge Services** - Premium offerings showcase
 - **Track Delivery** - Public tracking by code
+- **NDA Signature** - Digital agreement signing
 
-## Tech Stack
+## 🛠️ Tech Stack
 
-- **Framework**: Next.js 14 (App Router)
-- **Database**: Supabase (PostgreSQL)
-- **Auth**: Supabase Auth
-- **Styling**: Tailwind CSS
-- **Components**: shadcn/ui
+- **Framework**: Next.js 14.0.4 (App Router)
+- **Database**: Supabase (PostgreSQL + Auth + Storage)
+- **Authentication**: Supabase Auth with Row Level Security
+- **Styling**: Tailwind CSS 3.3
+- **UI Components**: shadcn/ui with Radix primitives
 - **Icons**: Lucide React
+- **External Services**:
+  - Bland.ai (AI phone assistant)
+  - Twilio (SMS notifications - optional)
 - **Deployment**: Vercel
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 
 - Node.js 18+
 - npm or yarn
-- Supabase account
-- Bland.ai account (for AI phone assistant)
+- Supabase account ([supabase.com](https://supabase.com))
+- Bland.ai account ([bland.ai](https://bland.ai)) - optional
+- Twilio account ([twilio.com](https://twilio.com)) - optional
 
 ### Installation
 
-1. Clone the repository:
+1. **Clone the repository:**
 ```bash
 git clone https://github.com/edueduardo/Discreetcourie.git
-cd Discreetcourie/discreet-courier
+cd Discreetcourie
 ```
 
-2. Install dependencies:
+2. **Install dependencies:**
 ```bash
 npm install
 ```
 
-3. Set up environment variables:
+3. **Set up environment variables:**
 ```bash
 cp .env.example .env.local
 ```
 
-4. Configure your environment variables in `.env.local`
+Edit `.env.local` with your actual credentials:
+- Supabase URL and keys
+- Bland.ai API key (optional)
+- Twilio credentials (optional)
+- Encryption key for VIP features
 
-5. Run the database migrations (in Supabase SQL editor):
+4. **Set up Supabase database:**
+
+Go to your Supabase project → SQL Editor and run:
+
 ```sql
--- See supabase/schema.sql for full schema
+-- First, run the base schema
+-- Copy contents of supabase/schema.sql and execute
+
+-- Then, run the VIP features migration
+-- Copy contents of supabase/migration_vip_features.sql and execute
 ```
 
-6. Start the development server:
+5. **Configure Bland.ai webhook (optional):**
+
+In your Bland.ai dashboard, set webhook URL to:
+```
+https://your-domain.vercel.app/api/webhooks/bland
+```
+
+6. **Start the development server:**
 ```bash
 npm run dev
 ```
 
-7. Open [http://localhost:3000](http://localhost:3000)
+7. **Open [http://localhost:3000](http://localhost:3000)**
 
-## Database Schema
+Default admin access: Navigate to `/admin`
 
-### Tables
+## 📁 Project Structure
 
-- **clients** - Customer information
-- **deliveries** - Delivery orders
+```
+/
+├── src/
+│   ├── app/
+│   │   ├── page.tsx                    # Public landing
+│   │   ├── login/                      # Authentication
+│   │   ├── track/                      # Public tracking
+│   │   ├── concierge/                  # Premium services
+│   │   │   ├── page.tsx                # Services landing
+│   │   │   └── request/                # Request form (4-step wizard)
+│   │   ├── admin/                      # Admin panel
+│   │   │   ├── page.tsx                # Dashboard
+│   │   │   ├── deliveries/             # Delivery management
+│   │   │   ├── concierge/              # Concierge tasks
+│   │   │   ├── vault/                  # Human vault
+│   │   │   ├── destruction/            # Data destruction
+│   │   │   ├── clients/                # Client management
+│   │   │   ├── calls/                  # Bland.ai calls
+│   │   │   └── finances/               # Financial reports
+│   │   ├── portal/                     # Client portal (VIP)
+│   │   │   ├── page.tsx                # VIP dashboard
+│   │   │   ├── deliveries/             # Delivery history
+│   │   │   └── invoices/               # Invoicing
+│   │   └── api/
+│   │       └── webhooks/bland/         # Bland.ai webhook
+│   ├── components/
+│   │   ├── ui/                         # shadcn/ui components
+│   │   └── concierge/                  # Premium features
+│   │       ├── NoTraceIndicator.tsx
+│   │       ├── NoTraceToggle.tsx
+│   │       ├── NDASignature.tsx
+│   │       ├── PurchaseForm.tsx
+│   │       └── SecureChat.tsx
+│   ├── lib/
+│   │   ├── supabase/                   # Supabase clients
+│   │   │   ├── client.ts               # Browser client
+│   │   │   ├── server.ts               # Server client
+│   │   │   └── middleware.ts           # Auth middleware
+│   │   └── utils.ts
+│   ├── types/
+│   │   └── index.ts                    # Complete type definitions
+│   └── middleware.ts                   # Next.js middleware
+├── supabase/
+│   ├── schema.sql                      # Base database schema
+│   └── migration_vip_features.sql      # VIP features migration
+├── docs/
+│   ├── DiscreetCourier_MASTER_PRD.docx # Complete PRD
+│   └── bland-ai-concierge-script.md    # AI assistant script
+├── .env.example                        # Environment variables template
+├── package.json
+└── README.md
+```
+
+## 🗄️ Database Schema
+
+### Core Tables
+- **users** - Admin users
+- **clients** - Customers with privacy codes (SHADOW-7842)
+- **deliveries** - Standard delivery orders
 - **delivery_events** - Tracking history
 - **bland_calls** - AI phone call records
+- **invoices** / **invoice_items** - B2B billing
 
-## Bland.ai Webhook
+### VIP Tables
+- **concierge_tasks** - Premium service requests
+- **vault_items** - Human vault storage
+- **service_agreements** - NDAs and pacts
+- **secure_messages** - Encrypted chat
+- **nda_documents** - Digital signatures
+- **delivery_proofs** - Photos and signatures
+- **destruction_log** - Data deletion audit trail
+- **settings** - System configuration
 
-The system receives Bland.ai call data at:
-```
-POST /api/webhooks/bland
-```
+## 🔐 Security & Privacy Features
 
-Configure this URL in your Bland.ai dashboard.
+- **Row Level Security (RLS)** on all tables
+- **Code Names** instead of real names (SHADOW-7842)
+- **Encrypted Fields** for VIP client data
+- **No-Trace Mode** with auto-deletion (7 days)
+- **Vetting System** for VIP client approval
+- **Mutual NDA** (Pacto de Lealdade)
+- **Data Destruction** with audit trail
+- **Anonymous Payment** options
 
-## Deployment
+## 📱 Bland.ai Integration
 
-### Vercel
+The system automatically:
+- Receives phone calls via Bland.ai
+- Detects service type (delivery vs concierge)
+- Extracts order details from conversation
+- Creates clients and orders automatically
+- Detects no-trace requests
+- Handles VIP service inquiries
 
-1. Push to GitHub
-2. Import to Vercel
-3. Add environment variables
-4. Deploy
+Webhook endpoint: `POST /api/webhooks/bland`
 
-## Project Structure
+## 🚀 Deployment
 
-```
-src/
-├── app/
-│   ├── (public)/
-│   │   ├── page.tsx         # Landing page
-│   │   ├── track/           # Public tracking
-│   │   └── login/           # Authentication
-│   ├── admin/               # Admin panel
-│   │   ├── page.tsx         # Dashboard
-│   │   ├── deliveries/      # Delivery management
-│   │   ├── clients/         # Client management
-│   │   ├── calls/           # Bland.ai calls
-│   │   └── finances/        # Financial reports
-│   ├── portal/              # Client portal
-│   │   ├── page.tsx         # Client dashboard
-│   │   ├── deliveries/      # Client's deliveries
-│   │   └── invoices/        # Client invoices
-│   └── api/
-│       └── webhooks/
-│           └── bland/       # Bland.ai webhook
-├── components/
-│   └── ui/                  # shadcn/ui components
-├── lib/
-│   ├── supabase/           # Supabase clients
-│   └── utils.ts            # Utility functions
-└── types/
-    └── index.ts            # TypeScript types
+### Vercel (Recommended)
+
+1. **Push to GitHub:**
+```bash
+git add .
+git commit -m "Initial deployment"
+git push origin main
 ```
 
-## License
+2. **Import to Vercel:**
+   - Go to [vercel.com](https://vercel.com)
+   - Import your GitHub repository
+   - Framework preset: Next.js
+
+3. **Add Environment Variables:**
+   - Copy all variables from `.env.local`
+   - Paste in Vercel project settings
+   - **Important**: Set `NEXT_PUBLIC_APP_URL` to your Vercel URL
+
+4. **Deploy:**
+   - Vercel will automatically deploy
+   - Get your production URL (e.g., `discreetcourie.vercel.app`)
+
+5. **Update Bland.ai Webhook:**
+   - Change webhook URL to: `https://your-domain.vercel.app/api/webhooks/bland`
+
+6. **Run Database Migrations:**
+   - Execute `schema.sql` in Supabase SQL Editor
+   - Execute `migration_vip_features.sql` in Supabase SQL Editor
+
+### Custom Domain (Optional)
+
+1. Add domain in Vercel project settings
+2. Configure DNS records as instructed
+3. Update `NEXT_PUBLIC_APP_URL` in environment variables
+
+## 📋 Post-Deployment Checklist
+
+- [ ] Supabase database schema deployed
+- [ ] VIP features migration executed
+- [ ] Environment variables configured in Vercel
+- [ ] Bland.ai webhook URL updated
+- [ ] Test admin panel access
+- [ ] Test public tracking
+- [ ] Test concierge request form
+- [ ] Verify Bland.ai webhook receives calls
+- [ ] Test SMS notifications (if Twilio configured)
+- [ ] Review RLS policies and security
+
+## 🎯 Roadmap
+
+### Phase 1 ✅ (Current)
+- Setup + Auth + Schema + Dashboard
+- Standard courier operations
+- VIP features foundation
+
+### Phase 2 (Next)
+- Real authentication with Supabase
+- API endpoints for vault and destruction
+- Encrypted chat backend
+- Payment processing (Stripe)
+
+### Phase 3 (Future)
+- Mobile driver app
+- Real-time tracking (WebSockets)
+- Automated routing optimization
+- Email notifications
+- Analytics and reporting
+
+## 📞 Support
+
+**Discreet Courier Columbus**
+- Phone: (614) 500-3080
+- Email: eduardo@discreetcourier.com
+- Location: Columbus, OH
+
+## 📄 License
 
 Private - All rights reserved.
 
-## Support
+---
 
-Contact: eduardo@discreetcourier.com
+**Built with Next.js 14, Supabase, and privacy-first principles.**
