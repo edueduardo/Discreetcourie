@@ -15,16 +15,22 @@ import {
   Settings,
   LogOut,
   Menu,
-  X
+  X,
+  UserCheck,
+  Archive,
+  Flame
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/admin/deliveries', icon: Truck, label: 'Deliveries' },
+  { href: '/admin/concierge', icon: UserCheck, label: 'Concierge Tasks' },
+  { href: '/admin/vault', icon: Archive, label: 'Vault' },
   { href: '/admin/clients', icon: Users, label: 'Clients' },
   { href: '/admin/calls', icon: Phone, label: 'Bland.ai Calls' },
   { href: '/admin/finances', icon: DollarSign, label: 'Finances' },
+  { href: '/admin/destruction', icon: Flame, label: 'Destruction' },
   { href: '/admin/settings', icon: Settings, label: 'Settings' },
 ]
 

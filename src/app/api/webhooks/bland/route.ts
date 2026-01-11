@@ -56,6 +56,7 @@ export async function POST(request: NextRequest) {
         transcript,
         summary,
         extracted_data: extractedData,
+        service_type: serviceType, // delivery or concierge
       })
       .select()
       .single()
