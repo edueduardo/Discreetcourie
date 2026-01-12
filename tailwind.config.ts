@@ -50,6 +50,38 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Discreet Concierge - UX Psychology Colors
+        discreet: {
+          // Cores Base (Escuras = Confidencialidade)
+          void: '#0a0a0f',      // Fundo principal - noir absoluto
+          deep: '#0f0f17',      // Fundo secundário
+          surface: '#1a1a2e',   // Cards e containers
+          
+          // Bordas e Divisores
+          border: '#2d3748',    // Borda padrão
+          'border-hover': '#4a5568', // Borda hover
+          
+          // Accent (Vermelho = Urgência controlada)
+          accent: '#e94560',    // CTA principal
+          'accent-hover': '#d63d56',
+          'accent-muted': '#e94560',
+          
+          // Texto
+          'text-primary': '#ffffff',
+          'text-secondary': '#a0aec0',
+          'text-muted': '#718096',
+          
+          // Status
+          'status-success': '#48bb78',
+          'status-warning': '#ecc94b',
+          'status-danger': '#f56565',
+          'status-info': '#4299e1',
+          
+          // Privacy Levels
+          'privacy-normal': '#4299e1',
+          'privacy-discreet': '#9f7aea',
+          'privacy-notrace': '#e94560',
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
