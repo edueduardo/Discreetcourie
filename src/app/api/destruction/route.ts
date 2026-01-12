@@ -28,44 +28,44 @@ export async function POST(request: NextRequest) {
   // Contadores de itens destruídos
   const items_destroyed: Record<string, number> = {}
   
-  // 1. Deletar mensagens
+  // 1. Contar e deletar mensagens
   const { count: messagesCount } = await supabase
     .from('secure_messages')
-    .delete()
-    .eq('client_id', client_id)
     .select('*', { count: 'exact', head: true })
+    .eq('client_id', client_id)
+  await supabase.from('secure_messages').delete().eq('client_id', client_id)
   items_destroyed.messages = messagesCount || 0
   
-  // 2. Deletar tarefas concierge
+  // 2. Contar e deletar tarefas concierge
   const { count: tasksCount } = await supabase
     .from('concierge_tasks')
-    .delete()
-    .eq('client_id', client_id)
     .select('*', { count: 'exact', head: true })
+    .eq('client_id', client_id)
+  await supabase.from('concierge_tasks').delete().eq('client_id', client_id)
   items_destroyed.tasks = tasksCount || 0
   
-  // 3. Deletar itens do cofre
+  // 3. Contar e deletar itens do cofre
   const { count: vaultCount } = await supabase
     .from('vault_items')
-    .delete()
-    .eq('client_id', client_id)
     .select('*', { count: 'exact', head: true })
+    .eq('client_id', client_id)
+  await supabase.from('vault_items').delete().eq('client_id', client_id)
   items_destroyed.vault_items = vaultCount || 0
   
-  // 4. Deletar entregas
+  // 4. Contar e deletar entregas
   const { count: ordersCount } = await supabase
     .from('deliveries')
-    .delete()
-    .eq('client_id', client_id)
     .select('*', { count: 'exact', head: true })
+    .eq('client_id', client_id)
+  await supabase.from('deliveries').delete().eq('client_id', client_id)
   items_destroyed.orders = ordersCount || 0
   
-  // 5. Deletar acordos
+  // 5. Contar e deletar acordos
   const { count: agreementsCount } = await supabase
     .from('service_agreements')
-    .delete()
-    .eq('client_id', client_id)
     .select('*', { count: 'exact', head: true })
+    .eq('client_id', client_id)
+  await supabase.from('service_agreements').delete().eq('client_id', client_id)
   items_destroyed.agreements = agreementsCount || 0
   
   // 6. Criar log de destruição (ANTES de deletar cliente)
