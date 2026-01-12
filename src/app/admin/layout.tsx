@@ -18,7 +18,8 @@ import {
   X,
   UserCheck,
   Archive,
-  Flame
+  Flame,
+  AlertTriangle
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -31,6 +32,7 @@ const navItems = [
   { href: '/admin/calls', icon: Phone, label: 'Bland.ai Calls' },
   { href: '/admin/finances', icon: DollarSign, label: 'Finances' },
   { href: '/admin/destruction', icon: Flame, label: 'Destruction' },
+  { href: '/admin/emergency', icon: AlertTriangle, label: 'Emergency Protocols' },
   { href: '/admin/settings', icon: Settings, label: 'Settings' },
 ]
 
