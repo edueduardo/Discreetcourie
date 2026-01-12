@@ -1,496 +1,365 @@
 'use client'
 
 import { useState } from 'react'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   AlertTriangle,
+  Shield,
   Phone,
   Clock,
-  Shield,
   Plus,
-  Edit,
+  Play,
+  Pause,
   Trash2,
-  Power,
-  PowerOff,
   User,
+  Bell,
+  CheckCircle2
 } from 'lucide-react'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-
-// Emergency Protocol Type
-interface EmergencyProtocol {
-  id: string
-  protocol_name: string
-  trigger_condition: string
-  actions: string[]
-  notification_order: string[]
-  escalation_time_minutes: number
-  status: 'active' | 'inactive' | 'triggered'
-  priority: 'critical' | 'high' | 'medium' | 'low'
-  last_triggered?: string
-  created_at: string
-}
-
-interface EmergencyContact {
-  id: string
-  name: string
-  role: string
-  phone: string
-  email?: string
-  priority: number
-  available_24_7: boolean
-}
 
 // Demo data
-const demoProtocols: EmergencyProtocol[] = [
+const demoProtocols = [
   {
     id: '1',
-    protocol_name: 'Guardian Mode Check-in Failure',
-    trigger_condition: 'VIP client misses 2 consecutive check-ins',
-    actions: [
-      'Call client direct line',
-      'Send SMS to backup number',
-      'Contact emergency contact',
-      'Dispatch to last known location if no response',
+    client_code: 'SHADOW-4521',
+    client_name: 'VIP Client Alpha',
+    protocol_name: 'Silent Alarm',
+    trigger_condition: 'Code word: "umbrella"',
+    actions: ['Call 911', 'Notify emergency contact', 'Delete all records'],
+    emergency_contacts: [
+      { name: 'John Doe', phone: '614-555-0101', relation: 'Attorney' },
+      { name: 'Jane Smith', phone: '614-555-0102', relation: 'Family' }
     ],
-    notification_order: ['Eduardo', 'Backup Driver', 'Emergency Services'],
-    escalation_time_minutes: 30,
-    status: 'active',
-    priority: 'critical',
-    last_triggered: '2026-01-09T14:23:00Z',
-    created_at: '2026-01-01T00:00:00Z',
+    is_active: true,
+    last_triggered_at: null,
+    created_at: '2024-01-10T10:00:00Z'
   },
   {
     id: '2',
-    protocol_name: 'Vault Item Expiration',
-    trigger_condition: 'Vault item reaches expiration date',
-    actions: [
-      'Notify client 7 days before',
-      'Notify client 24 hours before',
-      'Execute delivery or destruction per agreement',
+    client_code: 'GHOST-7892',
+    client_name: 'Corporate Executive',
+    protocol_name: 'Extraction Protocol',
+    trigger_condition: 'No check-in for 48 hours',
+    actions: ['Contact security team', 'Notify family', 'Preserve evidence'],
+    emergency_contacts: [
+      { name: 'Security Team', phone: '614-555-0200', relation: 'Security' }
     ],
-    notification_order: ['Client', 'Eduardo'],
-    escalation_time_minutes: 1440, // 24 hours
-    status: 'active',
-    priority: 'high',
-    created_at: '2026-01-01T00:00:00Z',
+    is_active: true,
+    last_triggered_at: '2024-01-05T15:30:00Z',
+    created_at: '2024-01-01T08:00:00Z'
   },
   {
     id: '3',
-    protocol_name: 'Última Vontade Trigger',
-    trigger_condition: 'Last Will check-in missed for configured period',
-    actions: [
-      'Attempt contact via all channels',
-      'Contact designated executor if no response',
-      'Prepare sealed item for delivery',
-      'Execute delivery to beneficiary',
-    ],
-    notification_order: ['Client', 'Executor', 'Eduardo', 'Legal Counsel'],
-    escalation_time_minutes: 720, // 12 hours
-    status: 'active',
-    priority: 'critical',
-    last_triggered: '2025-12-15T09:00:00Z',
-    created_at: '2026-01-01T00:00:00Z',
-  },
-  {
-    id: '4',
-    protocol_name: 'Emergency Destruction Request',
-    trigger_condition: 'Client sends code word via SMS or call',
-    actions: [
-      'Immediately stop all active tasks',
-      'Execute complete data deletion',
-      'Record destruction video',
-      'Send confirmation to client backup email',
-    ],
-    notification_order: ['Eduardo', 'System Admin'],
-    escalation_time_minutes: 0, // Immediate
-    status: 'active',
-    priority: 'critical',
-    created_at: '2026-01-01T00:00:00Z',
-  },
-  {
-    id: '5',
-    protocol_name: 'No-Trace Mode Expiration',
-    trigger_condition: 'No-trace task reaches 7-day auto-delete',
-    actions: [
-      'Verify all data marked for deletion',
-      'Execute automated purge',
-      'Remove all traces from logs',
-      'Confirm deletion complete',
-    ],
-    notification_order: ['System', 'Eduardo'],
-    escalation_time_minutes: 0,
-    status: 'active',
-    priority: 'medium',
-    created_at: '2026-01-01T00:00:00Z',
-  },
+    client_code: 'CIPHER-3345',
+    client_name: 'Private Individual',
+    protocol_name: 'Data Destruction',
+    trigger_condition: 'Manual trigger only',
+    actions: ['Destroy all vault items', 'Delete all messages', 'Wipe records'],
+    emergency_contacts: [],
+    is_active: false,
+    last_triggered_at: null,
+    created_at: '2024-01-08T14:00:00Z'
+  }
 ]
 
-const demoContacts: EmergencyContact[] = [
-  {
-    id: '1',
-    name: 'Eduardo (Owner)',
-    role: 'Primary Operator',
-    phone: '+1 (614) 500-3080',
-    email: 'eduardo@discreetcourier.com',
-    priority: 1,
-    available_24_7: true,
-  },
-  {
-    id: '2',
-    name: 'Backup Driver',
-    role: 'Secondary Operator',
-    phone: '+1 (614) 555-0199',
-    priority: 2,
-    available_24_7: false,
-  },
-  {
-    id: '3',
-    name: 'Legal Counsel',
-    role: 'Legal Advisor',
-    phone: '+1 (614) 555-0177',
-    email: 'legal@discreetcourier.com',
-    priority: 3,
-    available_24_7: false,
-  },
-]
+const stats = {
+  total_protocols: 3,
+  active_protocols: 2,
+  triggered_this_month: 1,
+  clients_protected: 3
+}
 
-export default function EmergencyPage() {
+export default function EmergencyProtocolsPage() {
   const [protocols, setProtocols] = useState(demoProtocols)
-  const [contacts] = useState(demoContacts)
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
-  const [selectedProtocol, setSelectedProtocol] = useState<EmergencyProtocol | null>(null)
+  const [showNewForm, setShowNewForm] = useState(false)
+  const [triggerConfirm, setTriggerConfirm] = useState<string | null>(null)
 
-  // Stats
-  const activeProtocols = protocols.filter((p) => p.status === 'active')
-  const criticalProtocols = protocols.filter((p) => p.priority === 'critical')
-  const triggeredToday = protocols.filter((p) => {
-    if (!p.last_triggered) return false
-    const today = new Date().toDateString()
-    return new Date(p.last_triggered).toDateString() === today
-  })
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'critical':
-        return 'text-red-600 bg-red-50'
-      case 'high':
-        return 'text-orange-600 bg-orange-50'
-      case 'medium':
-        return 'text-yellow-600 bg-yellow-50'
-      case 'low':
-        return 'text-blue-600 bg-blue-50'
-      default:
-        return 'text-gray-600 bg-gray-50'
+  const handleTrigger = (id: string) => {
+    if (triggerConfirm === id) {
+      // Execute trigger
+      setProtocols(prev => prev.map(p => 
+        p.id === id 
+          ? { ...p, last_triggered_at: new Date().toISOString() }
+          : p
+      ))
+      setTriggerConfirm(null)
+      alert('🚨 EMERGENCY PROTOCOL TRIGGERED! Actions executed.')
+    } else {
+      setTriggerConfirm(id)
     }
   }
 
-  const getPriorityBadge = (priority: string) => {
-    const colors = getPriorityColor(priority)
-    return (
-      <Badge variant="outline" className={colors}>
-        {priority.toUpperCase()}
-      </Badge>
-    )
-  }
-
-  const toggleProtocolStatus = (id: string) => {
-    setProtocols((prev) =>
-      prev.map((p) =>
-        p.id === id
-          ? {
-              ...p,
-              status: p.status === 'active' ? 'inactive' : 'active',
-            }
-          : p
-      )
-    )
+  const toggleActive = (id: string) => {
+    setProtocols(prev => prev.map(p =>
+      p.id === id ? { ...p, is_active: !p.is_active } : p
+    ))
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <AlertTriangle className="h-8 w-8 text-red-600" />
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            <AlertTriangle className="h-6 w-6 text-red-500" />
             Emergency Protocols
           </h1>
-          <p className="text-muted-foreground">
-            Automated responses for critical situations
-          </p>
+          <p className="text-slate-400">Manage client emergency procedures and panic buttons</p>
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
+        <Button 
+          onClick={() => setShowNewForm(true)}
+          className="bg-red-600 hover:bg-red-700"
+        >
           <Plus className="h-4 w-4 mr-2" />
           New Protocol
         </Button>
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Total Protocols</p>
-              <p className="text-3xl font-bold">{protocols.length}</p>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="bg-slate-800 border-slate-700">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-slate-400 text-sm">Total Protocols</p>
+                <p className="text-2xl font-bold text-white">{stats.total_protocols}</p>
+              </div>
+              <Shield className="h-8 w-8 text-blue-500" />
             </div>
-            <Shield className="h-8 w-8 text-muted-foreground" />
-          </div>
+          </CardContent>
         </Card>
 
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Active</p>
-              <p className="text-3xl font-bold text-green-600">{activeProtocols.length}</p>
+        <Card className="bg-slate-800 border-slate-700">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-slate-400 text-sm">Active</p>
+                <p className="text-2xl font-bold text-green-500">{stats.active_protocols}</p>
+              </div>
+              <CheckCircle2 className="h-8 w-8 text-green-500" />
             </div>
-            <Power className="h-8 w-8 text-green-600" />
-          </div>
+          </CardContent>
         </Card>
 
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Critical Priority</p>
-              <p className="text-3xl font-bold text-red-600">{criticalProtocols.length}</p>
+        <Card className="bg-slate-800 border-slate-700">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-slate-400 text-sm">Triggered (Month)</p>
+                <p className="text-2xl font-bold text-yellow-500">{stats.triggered_this_month}</p>
+              </div>
+              <Bell className="h-8 w-8 text-yellow-500" />
             </div>
-            <AlertTriangle className="h-8 w-8 text-red-600" />
-          </div>
+          </CardContent>
         </Card>
 
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Triggered Today</p>
-              <p className="text-3xl font-bold">{triggeredToday.length}</p>
+        <Card className="bg-slate-800 border-slate-700">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-slate-400 text-sm">Clients Protected</p>
+                <p className="text-2xl font-bold text-white">{stats.clients_protected}</p>
+              </div>
+              <User className="h-8 w-8 text-slate-400" />
             </div>
-            <Clock className="h-8 w-8 text-orange-600" />
-          </div>
+          </CardContent>
         </Card>
       </div>
 
       {/* Protocols List */}
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Active Protocols</h2>
         {protocols.map((protocol) => (
-          <Card
-            key={protocol.id}
-            className={`p-6 ${protocol.status === 'inactive' ? 'opacity-60' : ''}`}
+          <Card 
+            key={protocol.id} 
+            className={`bg-slate-800 border-slate-700 ${
+              !protocol.is_active ? 'opacity-60' : ''
+            }`}
           >
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <AlertTriangle
-                    className={`h-5 w-5 ${
-                      protocol.priority === 'critical' ? 'text-red-600' : 'text-orange-600'
-                    }`}
-                  />
-                  <h3 className="font-semibold text-lg">{protocol.protocol_name}</h3>
-                  {getPriorityBadge(protocol.priority)}
-                  {protocol.status === 'active' ? (
-                    <Badge variant="outline" className="bg-green-50 text-green-700">
-                      Active
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className="bg-gray-50">
-                      Inactive
-                    </Badge>
-                  )}
-                </div>
-
-                <div className="space-y-2 text-sm">
-                  <div>
-                    <span className="text-muted-foreground font-medium">Trigger: </span>
-                    <span>{protocol.trigger_condition}</span>
-                  </div>
-
-                  <div>
-                    <span className="text-muted-foreground font-medium">Actions: </span>
-                    <ul className="list-disc list-inside ml-4 mt-1">
-                      {protocol.actions.map((action, idx) => (
-                        <li key={idx} className="text-muted-foreground">
-                          {action}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div>
-                    <span className="text-muted-foreground font-medium">Escalation: </span>
-                    <span>
-                      {protocol.escalation_time_minutes === 0
-                        ? 'Immediate'
-                        : `${protocol.escalation_time_minutes} minutes`}
-                    </span>
-                  </div>
-
-                  {protocol.last_triggered && (
+            <CardContent className="p-6">
+              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                {/* Protocol Info */}
+                <div className="flex-1 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg ${
+                      protocol.is_active ? 'bg-red-500/20' : 'bg-slate-700'
+                    }`}>
+                      <AlertTriangle className={`h-5 w-5 ${
+                        protocol.is_active ? 'text-red-500' : 'text-slate-500'
+                      }`} />
+                    </div>
                     <div>
-                      <span className="text-muted-foreground font-medium">Last Triggered: </span>
-                      <span className="text-orange-600">
-                        {new Date(protocol.last_triggered).toLocaleString()}
-                      </span>
+                      <h3 className="font-semibold text-white text-lg">
+                        {protocol.protocol_name}
+                      </h3>
+                      <p className="text-sm text-slate-400">
+                        {protocol.client_code} • {protocol.client_name}
+                      </p>
+                    </div>
+                    <Badge variant={protocol.is_active ? 'default' : 'secondary'}>
+                      {protocol.is_active ? 'ACTIVE' : 'INACTIVE'}
+                    </Badge>
+                  </div>
+
+                  {/* Trigger Condition */}
+                  <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-700">
+                    <p className="text-xs text-slate-500 uppercase mb-1">Trigger Condition</p>
+                    <p className="text-white font-mono">{protocol.trigger_condition}</p>
+                  </div>
+
+                  {/* Actions */}
+                  <div>
+                    <p className="text-xs text-slate-500 uppercase mb-2">Actions When Triggered</p>
+                    <div className="flex flex-wrap gap-2">
+                      {protocol.actions.map((action, i) => (
+                        <Badge key={i} variant="outline" className="text-slate-300 border-slate-600">
+                          {action}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Emergency Contacts */}
+                  {protocol.emergency_contacts.length > 0 && (
+                    <div>
+                      <p className="text-xs text-slate-500 uppercase mb-2">Emergency Contacts</p>
+                      <div className="flex flex-wrap gap-3">
+                        {protocol.emergency_contacts.map((contact, i) => (
+                          <div key={i} className="flex items-center gap-2 text-sm">
+                            <Phone className="h-3 w-3 text-slate-500" />
+                            <span className="text-slate-300">{contact.name}</span>
+                            <span className="text-slate-500">({contact.relation})</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Last Triggered */}
+                  {protocol.last_triggered_at && (
+                    <div className="flex items-center gap-2 text-sm text-yellow-500">
+                      <Clock className="h-4 w-4" />
+                      Last triggered: {new Date(protocol.last_triggered_at).toLocaleDateString()}
                     </div>
                   )}
                 </div>
-              </div>
 
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => toggleProtocolStatus(protocol.id)}
-                >
-                  {protocol.status === 'active' ? (
-                    <>
-                      <PowerOff className="h-4 w-4 mr-1" />
-                      Deactivate
-                    </>
-                  ) : (
-                    <>
-                      <Power className="h-4 w-4 mr-1" />
-                      Activate
-                    </>
+                {/* Actions */}
+                <div className="flex flex-col gap-2 lg:min-w-[200px]">
+                  {protocol.is_active && (
+                    <Button
+                      onClick={() => handleTrigger(protocol.id)}
+                      className={`${
+                        triggerConfirm === protocol.id
+                          ? 'bg-red-600 hover:bg-red-700 animate-pulse'
+                          : 'bg-red-500/20 hover:bg-red-500/30 text-red-500'
+                      }`}
+                    >
+                      <Play className="h-4 w-4 mr-2" />
+                      {triggerConfirm === protocol.id ? 'CONFIRM TRIGGER' : 'Trigger Protocol'}
+                    </Button>
                   )}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedProtocol(protocol)}
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Trash2 className="h-4 w-4 text-red-600" />
-                </Button>
+                  
+                  <Button
+                    variant="outline"
+                    onClick={() => toggleActive(protocol.id)}
+                    className="border-slate-600 hover:bg-slate-700"
+                  >
+                    {protocol.is_active ? (
+                      <>
+                        <Pause className="h-4 w-4 mr-2" />
+                        Deactivate
+                      </>
+                    ) : (
+                      <>
+                        <Play className="h-4 w-4 mr-2" />
+                        Activate
+                      </>
+                    )}
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    className="text-red-500 hover:text-red-400 hover:bg-red-500/10"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </Button>
+                </div>
               </div>
-            </div>
+            </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Emergency Contacts */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Emergency Contacts</h2>
-          <Button variant="outline" size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Contact
-          </Button>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {contacts.map((contact) => (
-            <Card key={contact.id} className="p-4">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-3">
-                  <User className="h-5 w-5 text-muted-foreground mt-1" />
-                  <div>
-                    <div className="font-semibold">{contact.name}</div>
-                    <div className="text-sm text-muted-foreground">{contact.role}</div>
-                    <div className="flex items-center gap-2 mt-2 text-sm">
-                      <Phone className="h-3 w-3" />
-                      <span>{contact.phone}</span>
-                    </div>
-                    {contact.email && (
-                      <div className="text-xs text-muted-foreground mt-1">{contact.email}</div>
-                    )}
-                    {contact.available_24_7 && (
-                      <Badge variant="outline" className="mt-2 bg-green-50 text-green-700">
-                        24/7
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-                <Badge variant="secondary">{contact.priority}</Badge>
+      {/* New Protocol Form Modal */}
+      {showNewForm && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <Card className="bg-slate-800 border-slate-700 w-full max-w-lg">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-red-500" />
+                New Emergency Protocol
+              </CardTitle>
+              <CardDescription>
+                Create a new emergency protocol for a client
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="text-sm text-slate-400">Client</label>
+                <select className="w-full mt-1 p-2 bg-slate-900 border border-slate-700 rounded-lg text-white">
+                  <option>Select client...</option>
+                  <option>SHADOW-4521 - VIP Client Alpha</option>
+                  <option>GHOST-7892 - Corporate Executive</option>
+                </select>
               </div>
-            </Card>
-          ))}
+              
+              <div>
+                <label className="text-sm text-slate-400">Protocol Name</label>
+                <input 
+                  type="text"
+                  placeholder="e.g., Silent Alarm, Extraction Protocol"
+                  className="w-full mt-1 p-2 bg-slate-900 border border-slate-700 rounded-lg text-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-slate-400">Trigger Condition</label>
+                <input 
+                  type="text"
+                  placeholder="e.g., Code word: 'umbrella'"
+                  className="w-full mt-1 p-2 bg-slate-900 border border-slate-700 rounded-lg text-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-slate-400">Actions (comma separated)</label>
+                <textarea 
+                  placeholder="Call 911, Notify emergency contact, Delete records"
+                  className="w-full mt-1 p-2 bg-slate-900 border border-slate-700 rounded-lg text-white h-20"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowNewForm(false)}
+                  className="flex-1 border-slate-600"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={() => setShowNewForm(false)}
+                  className="flex-1 bg-red-600 hover:bg-red-700"
+                >
+                  Create Protocol
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-      </div>
-
-      {/* Create Protocol Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Create Emergency Protocol</DialogTitle>
-            <DialogDescription>
-              Define automated response for critical situations
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="protocol_name">Protocol Name</Label>
-              <Input id="protocol_name" placeholder="e.g., Guardian Mode Failure" />
-            </div>
-
-            <div>
-              <Label htmlFor="trigger">Trigger Condition</Label>
-              <Textarea
-                id="trigger"
-                placeholder="Describe what triggers this protocol..."
-                rows={2}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="priority">Priority Level</Label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select priority" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="critical">Critical</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="escalation">Escalation Time (minutes)</Label>
-              <Input
-                id="escalation"
-                type="number"
-                placeholder="0 for immediate"
-                defaultValue="30"
-              />
-            </div>
-
-            <div>
-              <Label>Actions (one per line)</Label>
-              <Textarea placeholder="Call client&#10;Send SMS&#10;Contact emergency contact" rows={4} />
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={() => setIsCreateDialogOpen(false)}>Create Protocol</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      )}
     </div>
   )
 }
