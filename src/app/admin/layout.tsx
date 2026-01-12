@@ -20,7 +20,8 @@ import {
   Archive,
   Flame,
   Shield,
-  Eye
+  Eye,
+  AlertTriangle
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -31,6 +32,7 @@ const navItems = [
   { href: '/admin/vault', icon: Archive, label: 'Vault' },
   { href: '/admin/guardian', icon: Shield, label: 'Guardian Mode' },
   { href: '/admin/vetting', icon: Eye, label: 'VIP Vetting' },
+  { href: '/admin/emergency', icon: AlertTriangle, label: 'Emergency Protocols' },
   { href: '/admin/clients', icon: Users, label: 'Clients' },
   { href: '/admin/calls', icon: Phone, label: 'Bland.ai Calls' },
   { href: '/admin/finances', icon: DollarSign, label: 'Finances' },
