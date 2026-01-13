@@ -16,10 +16,12 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { ArrowLeft, Package, MapPin, User, DollarSign } from 'lucide-react'
+import PricingCalculator from '@/components/PricingCalculator'
 
 export default function NewDeliveryPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [calculatedPrice, setCalculatedPrice] = useState(0)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -240,6 +242,13 @@ export default function NewDeliveryPage() {
           </CardContent>
         </Card>
 
+        {/* Pricing Calculator */}
+        <div className="lg:col-span-2">
+          <PricingCalculator
+            onPriceCalculated={(price, breakdown) => setCalculatedPrice(price)}
+          />
+        </div>
+
         {/* Pricing */}
         <Card className="bg-slate-800 border-slate-700 lg:col-span-2">
           <CardHeader>
@@ -255,8 +264,13 @@ export default function NewDeliveryPage() {
                 <Input
                   type="number"
                   placeholder="45.00"
+                  value={calculatedPrice > 0 ? calculatedPrice.toFixed(2) : ''}
+                  onChange={(e) => setCalculatedPrice(parseFloat(e.target.value) || 0)}
                   className="w-32 bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
                 />
+                {calculatedPrice > 0 && (
+                  <p className="text-xs text-green-500">Auto-calculated from pricing rules</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label className="text-slate-300">Payment Method</Label>
