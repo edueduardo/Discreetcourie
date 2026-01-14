@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -44,90 +44,15 @@ interface Lead {
   created_at: string
 }
 
-const demoLeads: Lead[] = [
-  {
-    id: '1',
-    name: 'Sarah Martinez',
-    company: 'Martinez Law Group',
-    phone: '(614) 555-0111',
-    email: 'smartinez@martinezlaw.com',
-    source: 'cold-call',
-    status: 'new',
-    potential_value: 500,
-    tags: ['law-firm', 'high-priority'],
-    notes: 'Needs document courier for court filings. Very interested.',
-    next_followup: '2026-01-15',
-    created_at: '2026-01-13'
-  },
-  {
-    id: '2',
-    name: 'Dr. James Wilson',
-    company: 'Downtown Medical Clinic',
-    phone: '(614) 555-0222',
-    email: 'jwilson@dmclinic.com',
-    source: 'referral',
-    status: 'contacted',
-    potential_value: 800,
-    tags: ['medical', 'specimens', 'urgent'],
-    notes: 'Referred by Dr. Chen. Needs lab specimen transport 3x/week.',
-    next_followup: '2026-01-14',
-    created_at: '2026-01-12'
-  },
-  {
-    id: '3',
-    name: 'Michael Torres',
-    company: 'Elite Property Management',
-    phone: '(614) 555-0333',
-    email: 'mtorres@eliteproperty.com',
-    source: 'website',
-    status: 'meeting-scheduled',
-    potential_value: 1200,
-    tags: ['real-estate', 'keys', 'documents'],
-    notes: 'Managing 50+ properties. Needs key delivery and document courier.',
-    next_followup: '2026-01-16',
-    created_at: '2026-01-10'
-  },
-  {
-    id: '4',
-    name: 'Lisa Anderson',
-    company: 'Anderson & Associates CPA',
-    phone: '(614) 555-0444',
-    email: 'landerson@aacpa.com',
-    source: 'networking',
-    status: 'proposal-sent',
-    potential_value: 600,
-    tags: ['accounting', 'tax-season', 'urgent'],
-    notes: 'Met at Chamber event. Sent proposal for tax season rush.',
-    next_followup: '2026-01-17',
-    created_at: '2026-01-09'
-  },
-  {
-    id: '5',
-    name: 'Robert Kim',
-    company: 'Tech Solutions Inc',
-    phone: '(614) 555-0555',
-    email: 'rkim@techsolutions.com',
-    source: 'referral',
-    status: 'won',
-    potential_value: 400,
-    tags: ['b2b', 'equipment', 'monthly-contract'],
-    notes: 'Signed contract! Equipment delivery 2x/month starting Feb 1.',
-    created_at: '2026-01-08'
-  },
-  {
-    id: '6',
-    name: 'Jennifer Lopez',
-    company: 'Downtown Pharmacy',
-    phone: '(614) 555-0666',
-    email: 'jlopez@rxdowntown.com',
-    source: 'cold-call',
-    status: 'lost',
-    potential_value: 300,
-    tags: ['pharmacy', 'prescriptions'],
-    notes: 'Already using another service. Follow up in 6 months.',
-    created_at: '2026-01-05'
-  }
-]
+// Status mapping for API compatibility
+const statusMap: Record<string, string> = {
+  'new': 'new',
+  'contacted': 'contacted',
+  'qualified': 'meeting-scheduled',
+  'proposal': 'proposal-sent',
+  'won': 'won',
+  'lost': 'lost'
+}
 
 const statusColumns = [
   { id: 'new', label: 'New Leads', color: 'blue' },
@@ -139,7 +64,39 @@ const statusColumns = [
 ]
 
 export default function LeadsPage() {
-  const [leads, setLeads] = useState<Lead[]>(demoLeads)
+  const [leads, setLeads] = useState<Lead[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchLeads()
+  }, [])
+
+  async function fetchLeads() {
+    try {
+      const res = await fetch('/api/leads')
+      const data = await res.json()
+      if (data.leads) {
+        setLeads(data.leads.map((l: any) => ({
+          id: l.id,
+          name: l.name,
+          company: l.company || '',
+          phone: l.phone || '',
+          email: l.email || '',
+          source: l.source || 'other',
+          status: Object.keys(statusMap).find(k => statusMap[k] === l.status) || l.status || 'new',
+          potential_value: parseFloat(l.potential_value) || 0,
+          tags: l.tags || [],
+          notes: l.notes || '',
+          next_followup: l.next_followup,
+          created_at: l.created_at?.split('T')[0] || new Date().toISOString().split('T')[0]
+        })))
+      }
+    } catch (error) {
+      console.error('Error fetching leads:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
   const [showNewForm, setShowNewForm] = useState(false)
   const [filterSource, setFilterSource] = useState<string>('all')

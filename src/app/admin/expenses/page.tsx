@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -26,7 +26,8 @@ import {
   Trash2,
   Eye,
   Upload,
-  CheckCircle
+  CheckCircle,
+  Loader2
 } from 'lucide-react'
 
 interface Expense {
@@ -60,15 +61,36 @@ const categoryIcons = {
 }
 
 export default function ExpensesPage() {
-  const [expenses, setExpenses] = useState<Expense[]>([
-    { id: '1', description: 'Gas - Fleet Vehicle #1', amount: 78.50, category: 'fuel', date: '2026-01-13', vendor: 'Shell', status: 'approved' },
-    { id: '2', description: 'Oil Change - Van #2', amount: 65.00, category: 'maintenance', date: '2026-01-12', vendor: 'Jiffy Lube', status: 'approved' },
-    { id: '3', description: 'Delivery Bags (10 pack)', amount: 125.00, category: 'supplies', date: '2026-01-11', vendor: 'Amazon', status: 'pending' },
-    { id: '4', description: 'Monthly Insurance Premium', amount: 450.00, category: 'insurance', date: '2026-01-10', vendor: 'State Farm', status: 'approved' },
-    { id: '5', description: 'Tire Replacement', amount: 320.00, category: 'vehicle', date: '2026-01-09', vendor: 'Discount Tire', status: 'approved' },
-    { id: '6', description: 'Gas - Fleet Vehicle #2', amount: 82.30, category: 'fuel', date: '2026-01-08', vendor: 'BP', status: 'approved' },
-    { id: '7', description: 'Brake Pads Replacement', amount: 180.00, category: 'maintenance', date: '2026-01-07', vendor: 'Midas', status: 'pending' },
-  ])
+  const [expenses, setExpenses] = useState<Expense[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchExpenses()
+  }, [])
+
+  async function fetchExpenses() {
+    try {
+      const res = await fetch('/api/expenses')
+      const data = await res.json()
+      if (data.expenses) {
+        setExpenses(data.expenses.map((e: any) => ({
+          id: e.id,
+          description: e.description,
+          amount: parseFloat(e.amount),
+          category: e.category,
+          date: e.date,
+          vendor: e.vendor || '',
+          receiptUrl: e.receipt_url,
+          status: e.status,
+          notes: e.notes
+        })))
+      }
+    } catch (error) {
+      console.error('Error fetching expenses:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const [showNewExpense, setShowNewExpense] = useState(false)
   const [newExpense, setNewExpense] = useState<{
@@ -95,18 +117,39 @@ export default function ExpensesPage() {
     return acc
   }, {} as Record<string, number>)
 
-  const addExpense = () => {
+  const addExpense = async () => {
     if (!newExpense.description || !newExpense.amount || !newExpense.vendor) return
-    setExpenses([{
-      id: Date.now().toString(),
-      description: newExpense.description,
-      amount: parseFloat(newExpense.amount),
-      category: newExpense.category,
-      date: new Date().toISOString().split('T')[0],
-      vendor: newExpense.vendor,
-      status: 'pending',
-      notes: newExpense.notes
-    }, ...expenses])
+    
+    try {
+      const res = await fetch('/api/expenses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          description: newExpense.description,
+          amount: newExpense.amount,
+          category: newExpense.category,
+          vendor: newExpense.vendor,
+          notes: newExpense.notes
+        })
+      })
+      
+      const data = await res.json()
+      if (data.expense) {
+        setExpenses([{
+          id: data.expense.id,
+          description: data.expense.description,
+          amount: parseFloat(data.expense.amount),
+          category: data.expense.category,
+          date: data.expense.date,
+          vendor: data.expense.vendor || '',
+          status: data.expense.status,
+          notes: data.expense.notes
+        }, ...expenses])
+      }
+    } catch (error) {
+      console.error('Error adding expense:', error)
+    }
+    
     setNewExpense({ description: '', amount: '', category: 'fuel', vendor: '', notes: '' })
     setShowNewExpense(false)
   }

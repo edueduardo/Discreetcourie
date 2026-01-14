@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -18,62 +18,47 @@ import {
   CheckCircle2
 } from 'lucide-react'
 
-// Demo data
-const demoProtocols = [
-  {
-    id: '1',
-    client_code: 'SHADOW-4521',
-    client_name: 'VIP Client Alpha',
-    protocol_name: 'Silent Alarm',
-    trigger_condition: 'Code word: "umbrella"',
-    actions: ['Call 911', 'Notify emergency contact', 'Delete all records'],
-    emergency_contacts: [
-      { name: 'John Doe', phone: '614-555-0101', relation: 'Attorney' },
-      { name: 'Jane Smith', phone: '614-555-0102', relation: 'Family' }
-    ],
-    is_active: true,
-    last_triggered_at: null,
-    created_at: '2024-01-10T10:00:00Z'
-  },
-  {
-    id: '2',
-    client_code: 'GHOST-7892',
-    client_name: 'Corporate Executive',
-    protocol_name: 'Extraction Protocol',
-    trigger_condition: 'No check-in for 48 hours',
-    actions: ['Contact security team', 'Notify family', 'Preserve evidence'],
-    emergency_contacts: [
-      { name: 'Security Team', phone: '614-555-0200', relation: 'Security' }
-    ],
-    is_active: true,
-    last_triggered_at: '2024-01-05T15:30:00Z',
-    created_at: '2024-01-01T08:00:00Z'
-  },
-  {
-    id: '3',
-    client_code: 'CIPHER-3345',
-    client_name: 'Private Individual',
-    protocol_name: 'Data Destruction',
-    trigger_condition: 'Manual trigger only',
-    actions: ['Destroy all vault items', 'Delete all messages', 'Wipe records'],
-    emergency_contacts: [],
-    is_active: false,
-    last_triggered_at: null,
-    created_at: '2024-01-08T14:00:00Z'
-  }
-]
-
-const stats = {
-  total_protocols: 3,
-  active_protocols: 2,
-  triggered_this_month: 1,
-  clients_protected: 3
+interface Protocol {
+  id: string
+  client_code: string
+  client_name: string
+  protocol_name: string
+  trigger_condition: string
+  actions: string[]
+  emergency_contacts: { name: string; phone: string; relation: string }[]
+  is_active: boolean
+  last_triggered_at: string | null
+  created_at: string
 }
 
 export default function EmergencyProtocolsPage() {
-  const [protocols, setProtocols] = useState(demoProtocols)
+  const [protocols, setProtocols] = useState<Protocol[]>([])
+  const [loading, setLoading] = useState(true)
   const [showNewForm, setShowNewForm] = useState(false)
   const [triggerConfirm, setTriggerConfirm] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetchProtocols()
+  }, [])
+
+  async function fetchProtocols() {
+    try {
+      const res = await fetch('/api/emergency')
+      const data = await res.json()
+      if (data.protocols) setProtocols(data.protocols)
+    } catch (error) {
+      console.error('Error fetching protocols:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const stats = {
+    total_protocols: protocols.length,
+    active_protocols: protocols.filter(p => p.is_active).length,
+    triggered_this_month: protocols.filter(p => p.last_triggered_at && new Date(p.last_triggered_at) > new Date(Date.now() - 30*24*60*60*1000)).length,
+    clients_protected: new Set(protocols.map(p => p.client_code)).size
+  }
 
   const handleTrigger = (id: string) => {
     if (triggerConfirm === id) {

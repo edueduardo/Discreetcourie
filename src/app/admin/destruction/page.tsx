@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -18,89 +18,38 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { DestructionLog, Client } from '@/types'
 import { Flame, AlertTriangle, Video, Clock, CheckCircle } from 'lucide-react'
 
-// Demo data
-const demoLogs: DestructionLog[] = [
-  {
-    id: '1',
-    customer_code: 'SHADOW-7842',
-    items_destroyed: {
-      orders: 12,
-      tasks: 5,
-      messages: 34,
-      vault_items: 2,
-      proofs: 8,
-    },
-    requested_by: 'customer',
-    reason: 'Customer requested complete data deletion',
-    video_sent: true,
-    executed_at: '2025-12-15T10:30:00Z',
-  },
-  {
-    id: '2',
-    customer_code: 'CIPHER-9921',
-    items_destroyed: {
-      orders: 3,
-      tasks: 1,
-      messages: 15,
-    },
-    requested_by: 'system',
-    reason: 'Auto-delete after 180 days of inactivity',
-    video_sent: false,
-    executed_at: '2025-11-20T03:00:00Z',
-  },
-]
-
-const demoClients: Client[] = [
-  {
-    id: '1',
-    code_name: 'SHADOW-7842',
-    name: 'Confidential Client',
-    email: 'client@example.com',
-    phone: '(614) 555-0001',
-    type: 'b2c',
-    service_level: 4,
-    privacy_level: 'none',
-    is_vip: true,
-    guardian_mode_active: true,
-    pact_signed: true,
-    nda_signed: true,
-    vetting_status: 'approved',
-    preferred_payment: 'anonymous',
-    communication_preference: 'chat',
-    retainer_active: true,
-    last_activity: new Date().toISOString(),
-    created_at: '2025-11-01T00:00:00Z',
-    updated_at: '2026-01-01T00:00:00Z',
-  },
-  {
-    id: '2',
-    code_name: 'GHOST-3391',
-    name: 'VIP Client 2',
-    email: 'client2@example.com',
-    phone: '(614) 555-0002',
-    type: 'b2c',
-    service_level: 4,
-    privacy_level: 'none',
-    is_vip: true,
-    guardian_mode_active: false,
-    pact_signed: true,
-    nda_signed: true,
-    vetting_status: 'approved',
-    preferred_payment: 'normal',
-    communication_preference: 'sms',
-    retainer_active: false,
-    last_activity: new Date().toISOString(),
-    created_at: '2025-10-01T00:00:00Z',
-    updated_at: '2026-01-01T00:00:00Z',
-  },
-]
 
 export default function DestructionPage() {
-  const [logs, setLogs] = useState(demoLogs)
+  const [logs, setLogs] = useState<DestructionLog[]>([])
+  const [clients, setClients] = useState<Client[]>([])
+  const [loading, setLoading] = useState(true)
   const [isDestroyDialogOpen, setIsDestroyDialogOpen] = useState(false)
   const [selectedClient, setSelectedClient] = useState<Client | null>(null)
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
   const [confirmationText, setConfirmationText] = useState('')
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  async function fetchData() {
+    try {
+      const [logsRes, clientsRes] = await Promise.all([
+        fetch('/api/destruction'),
+        fetch('/api/customers')
+      ])
+      
+      const logsData = await logsRes.json()
+      const clientsData = await clientsRes.json()
+      
+      if (logsData.logs) setLogs(logsData.logs)
+      if (clientsData.customers) setClients(clientsData.customers.filter((c: Client) => c.is_vip))
+    } catch (error) {
+      console.error('Error fetching destruction data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const totalDestructions = logs.length
   const customerRequested = logs.filter((l) => l.requested_by === 'customer').length
@@ -172,7 +121,7 @@ export default function DestructionPage() {
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-2">
-              {demoClients.map((client) => (
+              {clients.map((client) => (
                 <Card
                   key={client.id}
                   className="p-4 cursor-pointer hover:bg-accent"

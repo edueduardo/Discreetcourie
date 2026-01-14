@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -24,67 +24,44 @@ import {
 } from '@/components/ui/select'
 import { UserCheck, AlertTriangle, Clock, CheckCircle, XCircle, Eye, UserPlus } from 'lucide-react'
 
-// Demo data
-const demoVettingRecords = [
-  {
-    id: '1',
-    client_id: '1',
-    client_code: 'CIPHER-9921',
-    client_name: 'Potential VIP 1',
-    status: 'pending',
-    source: 'Referral from SHADOW-7842',
-    referral_code: 'REF-SHADOW',
-    risk_assessment: 'low',
-    red_flags: [],
-    created_at: '2026-01-10T00:00:00Z',
-  },
-  {
-    id: '2',
-    client_id: '2',
-    client_code: 'PHANTOM-5543',
-    client_name: 'Potential VIP 2',
-    status: 'in_review',
-    source: 'Direct inquiry',
-    risk_assessment: 'medium',
-    red_flags: ['Inconsistent information', 'No referral'],
-    interview_notes: 'Seems legitimate but needs verification. Claims to be a lawyer.',
-    created_at: '2026-01-08T00:00:00Z',
-  },
-  {
-    id: '3',
-    client_id: '3',
-    client_code: 'GHOST-3391',
-    client_name: 'Approved Client',
-    status: 'approved',
-    source: 'Referral from partner law firm',
-    referral_code: 'REF-LAWFIRM',
-    risk_assessment: 'low',
-    red_flags: [],
-    reviewed_by: 'Eduardo',
-    reviewed_at: '2026-01-05T00:00:00Z',
-    decision_notes: 'Verified attorney. Excellent referral.',
-    created_at: '2026-01-01T00:00:00Z',
-  },
-  {
-    id: '4',
-    client_id: '4',
-    client_code: 'ECHO-1122',
-    client_name: 'Rejected Client',
-    status: 'rejected',
-    source: 'Cold call',
-    risk_assessment: 'high',
-    red_flags: ['Suspicious questions about legal limits', 'Refused to provide identity', 'Asked about illegal activities'],
-    reviewed_by: 'Eduardo',
-    reviewed_at: '2026-01-03T00:00:00Z',
-    decision_notes: 'Too many red flags. Potential legal risk.',
-    created_at: '2025-12-28T00:00:00Z',
-  },
-]
+interface VettingRecord {
+  id: string
+  client_id: string
+  client_code: string
+  client_name: string
+  status: string
+  source: string
+  referral_code?: string
+  risk_assessment: string
+  red_flags: string[]
+  interview_notes?: string
+  reviewed_by?: string
+  reviewed_at?: string
+  decision_notes?: string
+  created_at: string
+}
 
 export default function VettingPage() {
-  const [records, setRecords] = useState(demoVettingRecords)
-  const [selectedRecord, setSelectedRecord] = useState<typeof demoVettingRecords[0] | null>(null)
+  const [records, setRecords] = useState<VettingRecord[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selectedRecord, setSelectedRecord] = useState<VettingRecord | null>(null)
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false)
+
+  useEffect(() => {
+    fetchRecords()
+  }, [])
+
+  async function fetchRecords() {
+    try {
+      const res = await fetch('/api/vetting')
+      const data = await res.json()
+      if (data.records) setRecords(data.records)
+    } catch (error) {
+      console.error('Error fetching vetting records:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const pending = records.filter((r) => r.status === 'pending')
   const inReview = records.filter((r) => r.status === 'in_review')
@@ -122,7 +99,7 @@ export default function VettingPage() {
     )
   }
 
-  const openReview = (record: typeof demoVettingRecords[0]) => {
+  const openReview = (record: VettingRecord) => {
     setSelectedRecord(record)
     setIsReviewDialogOpen(true)
   }

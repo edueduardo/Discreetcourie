@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -23,75 +23,52 @@ import {
 } from '@/components/ui/select'
 import { Shield, Phone, Clock, AlertCircle, UserPlus, CheckCircle } from 'lucide-react'
 
-// Demo data
-const demoGuardianClients = [
-  {
-    id: '1',
-    client_code: 'SHADOW-7842',
-    client_name: 'VIP Client Alpha',
-    direct_line: '614-GUARD-7842',
-    started_at: '2025-11-01T00:00:00Z',
-    expires_at: '2026-11-01T00:00:00Z',
-    monthly_rate: 500,
-    priority_level: 1,
-    total_alerts: 12,
-    last_alert_at: '2026-01-10T03:45:00Z',
-    is_active: true,
-  },
-  {
-    id: '2',
-    client_code: 'GHOST-3391',
-    client_name: 'VIP Client Beta',
-    direct_line: '614-GUARD-3391',
-    started_at: '2025-12-15T00:00:00Z',
-    expires_at: '2026-06-15T00:00:00Z',
-    monthly_rate: 500,
-    priority_level: 2,
-    total_alerts: 3,
-    last_alert_at: '2026-01-05T22:15:00Z',
-    is_active: true,
-  },
-]
+interface GuardianClient {
+  id: string
+  client_code: string
+  client_name: string
+  direct_line: string
+  started_at: string
+  expires_at: string
+  monthly_rate: number
+  priority_level: number
+  total_alerts: number
+  last_alert_at: string | null
+  is_active: boolean
+}
 
-const demoAlerts = [
-  {
-    id: '1',
-    client_code: 'SHADOW-7842',
-    type: 'emergency',
-    message: 'Client requested immediate assistance',
-    created_at: '2026-01-10T03:45:00Z',
-    resolved: true,
-    resolved_at: '2026-01-10T04:15:00Z',
-  },
-  {
-    id: '2',
-    client_code: 'GHOST-3391',
-    type: 'check_in',
-    message: 'Scheduled check-in call',
-    created_at: '2026-01-05T22:15:00Z',
-    resolved: true,
-    resolved_at: '2026-01-05T22:30:00Z',
-  },
-  {
-    id: '3',
-    client_code: 'SHADOW-7842',
-    type: 'urgent',
-    message: 'Need pickup at unusual location',
-    created_at: '2026-01-08T14:00:00Z',
-    resolved: true,
-    resolved_at: '2026-01-08T14:45:00Z',
-  },
-]
-
-const availableClients = [
-  { id: '3', code_name: 'CIPHER-9921', name: 'Potential VIP 1' },
-  { id: '4', code_name: 'PHANTOM-5543', name: 'Potential VIP 2' },
-]
+interface Alert {
+  id: string
+  client_code: string
+  type: string
+  message: string
+  created_at: string
+  resolved: boolean
+  resolved_at: string | null
+}
 
 export default function GuardianPage() {
-  const [clients, setClients] = useState(demoGuardianClients)
-  const [alerts, setAlerts] = useState(demoAlerts)
+  const [clients, setClients] = useState<GuardianClient[]>([])
+  const [alerts, setAlerts] = useState<Alert[]>([])
+  const [loading, setLoading] = useState(true)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  async function fetchData() {
+    try {
+      const res = await fetch('/api/guardian')
+      const data = await res.json()
+      if (data.subscriptions) setClients(data.subscriptions)
+      if (data.alerts) setAlerts(data.alerts)
+    } catch (error) {
+      console.error('Error fetching guardian data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const activeClients = clients.filter((c) => c.is_active)
   const monthlyRevenue = activeClients.reduce((sum, c) => sum + c.monthly_rate, 0)
@@ -285,11 +262,7 @@ function ActivateForm({ onClose }: { onClose: () => void }) {
             <SelectValue placeholder="Choose client" />
           </SelectTrigger>
           <SelectContent>
-            {availableClients.map((client) => (
-              <SelectItem key={client.id} value={client.id}>
-                {client.code_name}
-              </SelectItem>
-            ))}
+            <SelectItem value="new">Add new VIP client</SelectItem>
           </SelectContent>
         </Select>
       </div>

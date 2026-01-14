@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -21,7 +21,8 @@ import {
   Fuel,
   DollarSign,
   Truck,
-  GripVertical
+  GripVertical,
+  Loader2
 } from 'lucide-react'
 
 interface Stop {
@@ -53,12 +54,35 @@ const priorityColors = {
 }
 
 export default function RouteOptimizePage() {
-  const [stops, setStops] = useState<Stop[]>([
-    { id: '1', address: '123 High St, Columbus, OH 43215', clientName: 'VIP Client A', priority: 'high', timeWindow: '09:00-11:00' },
-    { id: '2', address: '456 Main St, Columbus, OH 43215', clientName: 'Client B', priority: 'medium', timeWindow: '10:00-14:00' },
-    { id: '3', address: '789 Oak Ave, Columbus, OH 43215', clientName: 'Client C', priority: 'low' },
-    { id: '4', address: '321 Elm St, Columbus, OH 43215', clientName: 'VIP Client D', priority: 'high', timeWindow: '14:00-16:00' },
-  ])
+  const [stops, setStops] = useState<Stop[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchPendingDeliveries()
+  }, [])
+
+  async function fetchPendingDeliveries() {
+    try {
+      const res = await fetch('/api/orders')
+      const data = await res.json()
+      if (data.orders) {
+        const pendingStops = data.orders
+          .filter((o: any) => ['pending', 'confirmed'].includes(o.status))
+          .map((o: any) => ({
+            id: o.id,
+            address: o.delivery_address || 'No address',
+            clientName: o.clients?.name || 'Unknown',
+            priority: o.is_vip ? 'high' : 'medium',
+            timeWindow: o.scheduled_time || undefined
+          }))
+        setStops(pendingStops)
+      }
+    } catch (error) {
+      console.error('Error fetching deliveries:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
   
   const [newStop, setNewStop] = useState<{ address: string; clientName: string; priority: Stop['priority'] }>({ address: '', clientName: '', priority: 'medium' })
   const [isOptimizing, setIsOptimizing] = useState(false)

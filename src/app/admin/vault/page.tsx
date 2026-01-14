@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -25,117 +25,35 @@ import {
 import { VaultItem, Client } from '@/types'
 import { Package, Calendar, AlertCircle, CheckCircle, Clock, Trash2, Plus } from 'lucide-react'
 
-// Demo data - replace with real Supabase queries
-const demoVaultItems: VaultItem[] = [
-  {
-    id: '1',
-    client_id: '1',
-    item_code: 'V-001',
-    description: 'Envelope lacrado',
-    item_type: 'storage',
-    stored_at: '2026-01-01T00:00:00Z',
-    is_last_will: false,
-    status: 'active',
-    storage_location: 'Safe A - Shelf 1',
-    created_at: '2026-01-01T00:00:00Z',
-    updated_at: '2026-01-01T00:00:00Z',
-  },
-  {
-    id: '2',
-    client_id: '1',
-    item_code: 'V-002',
-    description: 'Caixa pequena',
-    item_type: 'storage',
-    stored_at: '2025-12-15T00:00:00Z',
-    expires_at: '2026-03-15T00:00:00Z',
-    is_last_will: false,
-    status: 'active',
-    storage_location: 'Safe A - Shelf 2',
-    created_at: '2025-12-15T00:00:00Z',
-    updated_at: '2025-12-15T00:00:00Z',
-  },
-  {
-    id: '3',
-    client_id: '2',
-    item_code: 'V-003',
-    description: 'Envelope "Última Vontade"',
-    item_type: 'last_will',
-    stored_at: '2025-11-01T00:00:00Z',
-    is_last_will: true,
-    last_will_recipient_name: 'Maria Silva',
-    last_will_recipient_relation: 'Filha',
-    last_will_trigger: 'no_checkin',
-    last_will_checkin_days: 30,
-    last_will_last_checkin: '2026-01-10T00:00:00Z',
-    status: 'active',
-    storage_location: 'Safe B - Secure',
-    created_at: '2025-11-01T00:00:00Z',
-    updated_at: '2026-01-10T00:00:00Z',
-  },
-  {
-    id: '4',
-    client_id: '3',
-    item_code: 'V-004',
-    description: 'Cápsula do Tempo',
-    item_type: 'time_capsule',
-    stored_at: '2026-01-01T00:00:00Z',
-    deliver_at: '2030-01-01T00:00:00Z',
-    is_last_will: false,
-    status: 'active',
-    storage_location: 'Safe C - Long Term',
-    created_at: '2026-01-01T00:00:00Z',
-    updated_at: '2026-01-01T00:00:00Z',
-  },
-]
-
-const demoClients: Client[] = [
-  {
-    id: '1',
-    code_name: 'SHADOW-7842',
-    name: 'Confidential Client',
-    email: '',
-    phone: '',
-    type: 'b2c',
-    service_level: 4,
-    privacy_level: 'none',
-    is_vip: true,
-    guardian_mode_active: true,
-    pact_signed: true,
-    nda_signed: true,
-    vetting_status: 'approved',
-    preferred_payment: 'anonymous',
-    communication_preference: 'chat',
-    retainer_active: true,
-    last_activity: new Date().toISOString(),
-    created_at: '2025-11-01T00:00:00Z',
-    updated_at: '2026-01-01T00:00:00Z',
-  },
-  {
-    id: '2',
-    code_name: 'GHOST-3391',
-    name: 'VIP Client 2',
-    email: '',
-    phone: '',
-    type: 'b2c',
-    service_level: 4,
-    privacy_level: 'none',
-    is_vip: true,
-    guardian_mode_active: false,
-    pact_signed: true,
-    nda_signed: true,
-    vetting_status: 'approved',
-    preferred_payment: 'normal',
-    communication_preference: 'sms',
-    retainer_active: false,
-    last_activity: new Date().toISOString(),
-    created_at: '2025-10-01T00:00:00Z',
-    updated_at: '2026-01-01T00:00:00Z',
-  },
-]
 
 export default function VaultPage() {
-  const [items, setItems] = useState(demoVaultItems)
+  const [items, setItems] = useState<VaultItem[]>([])
+  const [clients, setClients] = useState<Client[]>([])
+  const [loading, setLoading] = useState(true)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  async function fetchData() {
+    try {
+      const [vaultRes, clientsRes] = await Promise.all([
+        fetch('/api/vault'),
+        fetch('/api/customers')
+      ])
+      
+      const vaultData = await vaultRes.json()
+      const clientsData = await clientsRes.json()
+      
+      if (vaultData.items) setItems(vaultData.items)
+      if (clientsData.customers) setClients(clientsData.customers.filter((c: Client) => c.is_vip))
+    } catch (error) {
+      console.error('Error fetching vault data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const activeItems = items.filter((i) => i.status === 'active')
   const uniqueClients = new Set(items.map((i) => i.client_id)).size
@@ -165,7 +83,7 @@ export default function VaultPage() {
   }
 
   const getClientCodeById = (clientId: string) => {
-    const client = demoClients.find((c) => c.id === clientId)
+    const client = clients.find((c) => c.id === clientId)
     return client?.code_name || 'Unknown'
   }
 
@@ -334,11 +252,8 @@ function AddItemForm({ onClose }: { onClose: () => void }) {
             <SelectValue placeholder="Select client" />
           </SelectTrigger>
           <SelectContent>
-            {demoClients.map((client) => (
-              <SelectItem key={client.id} value={client.id}>
-                {client.code_name}
-              </SelectItem>
-            ))}
+            {/* Clients are loaded dynamically from API */}
+            <SelectItem value="new">Add new client</SelectItem>
           </SelectContent>
         </Select>
       </div>
