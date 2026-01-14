@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -21,7 +21,8 @@ import {
   Clock,
   XCircle,
   Send,
-  ExternalLink
+  ExternalLink,
+  Loader2
 } from 'lucide-react'
 
 interface Payment {
@@ -64,21 +65,45 @@ const statusIcons = {
 
 export default function PaymentsPage() {
   const [searchTerm, setSearchTerm] = useState('')
-  const [payments] = useState<Payment[]>([
-    { id: 'pay_1', clientName: 'VIP Client A', amount: 450.00, status: 'succeeded', method: 'card', date: '2026-01-13', last4: '4242' },
-    { id: 'pay_2', clientName: 'Client B', amount: 125.00, status: 'succeeded', method: 'card', date: '2026-01-13', last4: '1234' },
-    { id: 'pay_3', clientName: 'Client C', amount: 275.00, status: 'pending', method: 'ach', date: '2026-01-12' },
-    { id: 'pay_4', clientName: 'VIP Client D', amount: 850.00, status: 'succeeded', method: 'wire', date: '2026-01-12' },
-    { id: 'pay_5', clientName: 'Client E', amount: 95.00, status: 'failed', method: 'card', date: '2026-01-11', last4: '5678' },
-    { id: 'pay_6', clientName: 'Client F', amount: 200.00, status: 'refunded', method: 'card', date: '2026-01-10', last4: '9012' },
-  ])
+  const [loading, setLoading] = useState(true)
+  const [stripeConfigured, setStripeConfigured] = useState(true)
+  const [payments, setPayments] = useState<Payment[]>([])
+  const [invoices, setInvoices] = useState<Invoice[]>([])
 
-  const [invoices] = useState<Invoice[]>([
-    { id: 'inv_001', clientName: 'VIP Client A', amount: 1250.00, status: 'paid', dueDate: '2026-01-15', items: 3 },
-    { id: 'inv_002', clientName: 'Client B', amount: 450.00, status: 'sent', dueDate: '2026-01-20', items: 2 },
-    { id: 'inv_003', clientName: 'Client C', amount: 780.00, status: 'overdue', dueDate: '2026-01-10', items: 4 },
-    { id: 'inv_004', clientName: 'VIP Client D', amount: 2100.00, status: 'draft', dueDate: '2026-01-25', items: 5 },
-  ])
+  useEffect(() => {
+    async function fetchPayments() {
+      try {
+        const res = await fetch('/api/payments')
+        const data = await res.json()
+        
+        if (data.error === 'Stripe not configured') {
+          setStripeConfigured(false)
+          // Show demo data when Stripe not configured
+          setPayments([
+            { id: 'demo_1', clientName: 'Demo Client', amount: 450.00, status: 'succeeded', method: 'card', date: new Date().toISOString().split('T')[0], last4: '4242' },
+          ])
+        } else if (data.payments) {
+          setPayments(data.payments.map((p: any) => ({
+            id: p.id,
+            clientName: p.customerEmail || 'Guest',
+            amount: p.amount,
+            status: p.status === 'succeeded' ? 'succeeded' : 
+                   p.status === 'processing' ? 'pending' :
+                   p.status === 'canceled' ? 'refunded' : 'failed',
+            method: 'card',
+            date: p.created?.split('T')[0] || new Date().toISOString().split('T')[0],
+            last4: p.last4
+          })))
+        }
+      } catch (error) {
+        console.error('Error fetching payments:', error)
+        setStripeConfigured(false)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchPayments()
+  }, [])
 
   const totalRevenue = payments.filter(p => p.status === 'succeeded').reduce((sum, p) => sum + p.amount, 0)
   const pendingAmount = payments.filter(p => p.status === 'pending').reduce((sum, p) => sum + p.amount, 0)

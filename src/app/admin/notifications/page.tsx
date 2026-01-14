@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -21,7 +21,8 @@ import {
   Bell,
   Settings,
   AlertCircle,
-  Phone
+  Phone,
+  Loader2
 } from 'lucide-react'
 
 interface SMSMessage {
@@ -57,13 +58,36 @@ const statusIcons = {
 }
 
 export default function NotificationsPage() {
-  const [messages] = useState<SMSMessage[]>([
-    { id: '1', to: '+1 614-555-0101', clientName: 'VIP Client A', message: 'Your delivery is on the way! ETA: 15 minutes.', status: 'delivered', timestamp: '2026-01-13 14:32', type: 'delivery_update' },
-    { id: '2', to: '+1 614-555-0102', clientName: 'Client B', message: 'Your package has been delivered. Thank you for choosing Discreet Courier!', status: 'delivered', timestamp: '2026-01-13 14:15', type: 'confirmation' },
-    { id: '3', to: '+1 614-555-0103', clientName: 'Client C', message: 'Reminder: Your scheduled pickup is tomorrow at 10:00 AM.', status: 'sent', timestamp: '2026-01-13 13:45', type: 'reminder' },
-    { id: '4', to: '+1 614-555-0104', clientName: 'VIP Client D', message: 'Your delivery is on the way! ETA: 20 minutes.', status: 'failed', timestamp: '2026-01-13 12:30', type: 'delivery_update' },
-    { id: '5', to: '+1 614-555-0105', clientName: 'Client E', message: 'Your delivery has been confirmed for today.', status: 'queued', timestamp: '2026-01-13 12:00', type: 'confirmation' },
-  ])
+  const [loading, setLoading] = useState(true)
+  const [sending, setSending] = useState(false)
+  const [twilioConfigured, setTwilioConfigured] = useState(true)
+  const [messages, setMessages] = useState<SMSMessage[]>([])
+
+  useEffect(() => {
+    async function fetchMessages() {
+      try {
+        const res = await fetch('/api/sms')
+        const data = await res.json()
+        
+        if (data.messages && data.messages.length > 0) {
+          setMessages(data.messages.map((m: any, i: number) => ({
+            id: m.id || `msg_${i}`,
+            to: m.recipient || 'Unknown',
+            clientName: m.sender_type === 'admin' ? 'Admin' : 'Client',
+            message: m.content || '',
+            status: 'delivered',
+            timestamp: m.created_at || new Date().toISOString(),
+            type: 'custom'
+          })))
+        }
+      } catch (error) {
+        console.error('Error fetching messages:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchMessages()
+  }, [])
 
   const [templates, setTemplates] = useState<SMSTemplate[]>([
     { id: '1', name: 'Delivery En Route', content: 'Your delivery is on the way! ETA: {{eta}} minutes. Track: {{tracking_link}}', variables: ['eta', 'tracking_link'], category: 'Delivery' },
@@ -77,10 +101,47 @@ export default function NotificationsPage() {
   const [showNewTemplate, setShowNewTemplate] = useState(false)
   const [newTemplate, setNewTemplate] = useState({ name: '', content: '', category: 'Delivery' })
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (!newMessage.phone || !newMessage.message) return
-    alert(`SMS would be sent to ${newMessage.phone}: ${newMessage.message}`)
-    setNewMessage({ phone: '', message: '' })
+    setSending(true)
+    
+    try {
+      const res = await fetch('/api/sms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: newMessage.phone,
+          message: newMessage.message
+        })
+      })
+      
+      const data = await res.json()
+      
+      if (data.configured === false) {
+        setTwilioConfigured(false)
+        alert('Twilio not configured. Add TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER to .env')
+      } else if (data.success) {
+        alert(`SMS sent successfully to ${newMessage.phone}!`)
+        // Add to messages list
+        setMessages(prev => [{
+          id: data.messageId || `msg_${Date.now()}`,
+          to: newMessage.phone,
+          clientName: 'Admin',
+          message: newMessage.message,
+          status: 'sent',
+          timestamp: new Date().toISOString(),
+          type: 'custom'
+        }, ...prev])
+        setNewMessage({ phone: '', message: '' })
+      } else {
+        alert(`Failed to send SMS: ${data.message || 'Unknown error'}`)
+      }
+    } catch (error) {
+      console.error('Error sending SMS:', error)
+      alert('Error sending SMS. Check console for details.')
+    } finally {
+      setSending(false)
+    }
   }
 
   const copyTemplate = (content: string) => {
