@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Package, ArrowLeft } from 'lucide-react'
+import { Package, ArrowLeft, AlertCircle, Loader2 } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -15,20 +16,72 @@ export default function LoginPage() {
   const [isAdmin, setIsAdmin] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setError(null)
     
-    // Demo login - replace with Supabase auth
-    setTimeout(() => {
-      if (isAdmin) {
-        router.push('/admin')
-      } else {
-        router.push('/portal')
+    const supabase = createClient()
+    
+    try {
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+      
+      if (authError) {
+        setError(authError.message)
+        setIsLoading(false)
+        return
       }
+      
+      if (data.user) {
+        // Redirect based on role selection
+        if (isAdmin) {
+          router.push('/admin')
+        } else {
+          router.push('/portal')
+        }
+        router.refresh()
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.')
       setIsLoading(false)
-    }, 1000)
+    }
+  }
+
+  const handleSignUp = async () => {
+    setIsLoading(true)
+    setError(null)
+    
+    const supabase = createClient()
+    
+    try {
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        }
+      })
+      
+      if (signUpError) {
+        setError(signUpError.message)
+        setIsLoading(false)
+        return
+      }
+      
+      if (data.user) {
+        setError(null)
+        alert('Check your email for the confirmation link!')
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -82,6 +135,13 @@ export default function LoginPage() {
               </button>
             </div>
 
+            {error && (
+              <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg flex items-center gap-2 text-red-400">
+                <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                <span className="text-sm">{error}</span>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-slate-300">Email</Label>
@@ -112,9 +172,26 @@ export default function LoginPage() {
                 className="w-full bg-blue-600 hover:bg-blue-700"
                 disabled={isLoading}
               >
-                {isLoading ? 'Signing in...' : 'Sign In'}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Signing in...
+                  </>
+                ) : 'Sign In'}
               </Button>
             </form>
+
+            <div className="mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full border-slate-600 text-slate-300 hover:bg-slate-700"
+                onClick={handleSignUp}
+                disabled={isLoading || !email || !password}
+              >
+                Create Account
+              </Button>
+            </div>
 
             <div className="mt-6 text-center">
               <p className="text-slate-500 text-sm">
