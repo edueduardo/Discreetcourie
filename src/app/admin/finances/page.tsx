@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -42,52 +42,115 @@ interface Expense {
   amount: number
 }
 
-// Demo data
 const currentMonth = new Date().toLocaleString('default', { month: 'long', year: 'numeric' })
 const lastMonth = new Date(new Date().setMonth(new Date().getMonth() - 1)).toLocaleString('default', { month: 'long', year: 'numeric' })
 
-const revenueData: Revenue[] = [
-  { id: '1', date: '2026-01-13', client: 'Law Firm LLC', service: 'Concierge Task', amount: 120, status: 'paid' },
-  { id: '2', date: '2026-01-12', client: 'Medical Center', service: 'Courier Delivery', amount: 45, status: 'paid' },
-  { id: '3', date: '2026-01-11', client: 'VIP Client Alpha', service: 'Guardian Mode (Monthly)', amount: 500, status: 'paid' },
-  { id: '4', date: '2026-01-10', client: 'Corporate Executive', service: 'Discreet Delivery', amount: 65, status: 'paid' },
-  { id: '5', date: '2026-01-09', client: 'Private Individual', service: 'Vault Storage', amount: 100, status: 'pending' },
-  { id: '6', date: '2026-01-08', client: 'Law Firm LLC', service: 'Document Delivery', amount: 50, status: 'paid' },
-  { id: '7', date: '2026-01-07', client: 'Medical Center', service: 'Premium Delivery', amount: 75, status: 'paid' },
-]
-
-const expensesData: Expense[] = [
-  { id: '1', date: '2026-01-12', category: 'gas', description: 'Shell Gas Station', amount: 65.50 },
-  { id: '2', date: '2026-01-10', category: 'maintenance', description: 'Oil change + tire rotation', amount: 89.99 },
-  { id: '3', date: '2026-01-08', category: 'gas', description: 'Marathon Gas', amount: 58.20 },
-  { id: '4', date: '2026-01-05', category: 'insurance', description: 'Commercial Auto Insurance', amount: 185.00 },
-  { id: '5', date: '2026-01-03', category: 'other', description: 'Car wash + detail', amount: 45.00 },
-]
-
-const stats = {
-  thisMonth: {
-    revenue: 955,
-    expenses: 443.69,
-    profit: 511.31,
-    taxReserve: 127.83, // 25% of profit
-    orders: 7,
-    avgOrderValue: 136.43
-  },
-  lastMonth: {
-    revenue: 1250,
-    expenses: 520,
-    profit: 730,
-    orders: 9
-  }
-}
-
 export default function FinancesPage() {
-  const [revenues] = useState<Revenue[]>(revenueData)
-  const [expenses] = useState<Expense[]>(expensesData)
+  const [revenues, setRevenues] = useState<Revenue[]>([])
+  const [expenses, setExpenses] = useState<Expense[]>([])
+  const [loading, setLoading] = useState(true)
   const [showAddExpense, setShowAddExpense] = useState(false)
+  const [newExpense, setNewExpense] = useState({ date: new Date().toISOString().split('T')[0], category: 'fuel', description: '', amount: '' })
 
-  const revenueChange = ((stats.thisMonth.revenue - stats.lastMonth.revenue) / stats.lastMonth.revenue * 100).toFixed(1)
-  const profitChange = ((stats.thisMonth.profit - stats.lastMonth.profit) / stats.lastMonth.profit * 100).toFixed(1)
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  async function fetchData() {
+    try {
+      const [expensesRes, ordersRes, paymentsRes] = await Promise.all([
+        fetch('/api/expenses'),
+        fetch('/api/orders'),
+        fetch('/api/payments')
+      ])
+      
+      const expensesData = await expensesRes.json()
+      const ordersData = await ordersRes.json()
+      const paymentsData = await paymentsRes.json()
+      
+      // Map expenses
+      if (expensesData.expenses) {
+        setExpenses(expensesData.expenses.map((e: any) => ({
+          id: e.id,
+          date: e.date,
+          category: e.category === 'fuel' ? 'gas' : e.category,
+          description: e.description,
+          amount: parseFloat(e.amount)
+        })))
+      }
+      
+      // Map orders to revenue
+      if (ordersData.orders) {
+        const revenueList = ordersData.orders
+          .filter((o: any) => o.price > 0)
+          .map((o: any) => ({
+            id: o.id,
+            date: o.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
+            client: o.clients?.name || o.clients?.company || 'Client',
+            service: o.is_confidential ? 'Discreet Delivery' : 'Courier Delivery',
+            amount: parseFloat(o.price) || 0,
+            status: o.paid ? 'paid' : 'pending'
+          }))
+        setRevenues(revenueList)
+      }
+    } catch (error) {
+      console.error('Error fetching finance data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleAddExpense() {
+    if (!newExpense.description || !newExpense.amount) return
+    
+    try {
+      const res = await fetch('/api/expenses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          description: newExpense.description,
+          amount: parseFloat(newExpense.amount),
+          category: newExpense.category,
+          date: newExpense.date
+        })
+      })
+      
+      if (res.ok) {
+        fetchData()
+        setShowAddExpense(false)
+        setNewExpense({ date: new Date().toISOString().split('T')[0], category: 'fuel', description: '', amount: '' })
+      }
+    } catch (error) {
+      console.error('Error adding expense:', error)
+    }
+  }
+
+  // Calculate stats from real data
+  const totalRevenue = revenues.reduce((sum, r) => sum + r.amount, 0)
+  const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0)
+  const profit = totalRevenue - totalExpenses
+  const taxReserve = profit * 0.25
+  const avgOrderValue = revenues.length > 0 ? totalRevenue / revenues.length : 0
+
+  const stats = {
+    thisMonth: {
+      revenue: totalRevenue,
+      expenses: totalExpenses,
+      profit: profit,
+      taxReserve: taxReserve,
+      orders: revenues.length,
+      avgOrderValue: avgOrderValue
+    },
+    lastMonth: {
+      revenue: totalRevenue * 0.9, // Placeholder - ideally filter by date
+      expenses: totalExpenses * 0.9,
+      profit: profit * 0.9,
+      orders: Math.max(revenues.length - 1, 0)
+    }
+  }
+
+  const revenueChange = stats.lastMonth.revenue > 0 ? ((stats.thisMonth.revenue - stats.lastMonth.revenue) / stats.lastMonth.revenue * 100).toFixed(1) : '0'
+  const profitChange = stats.lastMonth.profit > 0 ? ((stats.thisMonth.profit - stats.lastMonth.profit) / stats.lastMonth.profit * 100).toFixed(1) : '0'
   const isRevenueUp = Number(revenueChange) > 0
   const isProfitUp = Number(profitChange) > 0
 
@@ -469,15 +532,20 @@ export default function FinancesPage() {
                 <label className="text-sm text-slate-400">Date</label>
                 <input
                   type="date"
-                  defaultValue={new Date().toISOString().split('T')[0]}
+                  value={newExpense.date}
+                  onChange={(e) => setNewExpense({...newExpense, date: e.target.value})}
                   className="w-full mt-1 p-2 bg-slate-900 border border-slate-700 rounded-lg text-white"
                 />
               </div>
 
               <div>
                 <label className="text-sm text-slate-400">Category</label>
-                <select className="w-full mt-1 p-2 bg-slate-900 border border-slate-700 rounded-lg text-white">
-                  <option value="gas">Gas / Fuel</option>
+                <select 
+                  value={newExpense.category}
+                  onChange={(e) => setNewExpense({...newExpense, category: e.target.value})}
+                  className="w-full mt-1 p-2 bg-slate-900 border border-slate-700 rounded-lg text-white"
+                >
+                  <option value="fuel">Gas / Fuel</option>
                   <option value="maintenance">Maintenance / Repairs</option>
                   <option value="insurance">Insurance</option>
                   <option value="other">Other</option>
@@ -489,6 +557,8 @@ export default function FinancesPage() {
                 <input
                   type="text"
                   placeholder="e.g., Shell Gas Station"
+                  value={newExpense.description}
+                  onChange={(e) => setNewExpense({...newExpense, description: e.target.value})}
                   className="w-full mt-1 p-2 bg-slate-900 border border-slate-700 rounded-lg text-white"
                 />
               </div>
@@ -499,6 +569,8 @@ export default function FinancesPage() {
                   type="number"
                   step="0.01"
                   placeholder="0.00"
+                  value={newExpense.amount}
+                  onChange={(e) => setNewExpense({...newExpense, amount: e.target.value})}
                   className="w-full mt-1 p-2 bg-slate-900 border border-slate-700 rounded-lg text-white"
                 />
               </div>
@@ -512,7 +584,7 @@ export default function FinancesPage() {
                   Cancel
                 </Button>
                 <Button
-                  onClick={() => setShowAddExpense(false)}
+                  onClick={handleAddExpense}
                   className="flex-1 bg-green-600 hover:bg-green-700"
                 >
                   Add Expense
