@@ -62,6 +62,7 @@ export default function NotificationsPage() {
   const [sending, setSending] = useState(false)
   const [twilioConfigured, setTwilioConfigured] = useState(true)
   const [messages, setMessages] = useState<SMSMessage[]>([])
+  const [toast, setToast] = useState<{type: 'success' | 'error' | 'warning'; message: string} | null>(null)
 
   useEffect(() => {
     async function fetchMessages() {
@@ -119,9 +120,9 @@ export default function NotificationsPage() {
       
       if (data.configured === false) {
         setTwilioConfigured(false)
-        alert('Twilio not configured. Add TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER to .env')
+        setToast({type: 'warning', message: 'Twilio not configured. Add TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER to .env'})
       } else if (data.success) {
-        alert(`SMS sent successfully to ${newMessage.phone}!`)
+        setToast({type: 'success', message: `SMS sent successfully to ${newMessage.phone}!`})
         // Add to messages list
         setMessages(prev => [{
           id: data.messageId || `msg_${Date.now()}`,
@@ -134,11 +135,13 @@ export default function NotificationsPage() {
         }, ...prev])
         setNewMessage({ phone: '', message: '' })
       } else {
-        alert(`Failed to send SMS: ${data.message || 'Unknown error'}`)
+        setToast({type: 'error', message: `Failed to send SMS: ${data.message || 'Unknown error'}`})
       }
+      setTimeout(() => setToast(null), 5000)
     } catch (error) {
       console.error('Error sending SMS:', error)
-      alert('Error sending SMS. Check console for details.')
+      setToast({type: 'error', message: 'Error sending SMS. Check console for details.'})
+      setTimeout(() => setToast(null), 5000)
     } finally {
       setSending(false)
     }
@@ -169,6 +172,20 @@ export default function NotificationsPage() {
 
   return (
     <div className="p-6 space-y-6">
+      {/* Toast */}
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 ${
+          toast.type === 'success' ? 'bg-green-600 text-white' :
+          toast.type === 'error' ? 'bg-red-600 text-white' :
+          'bg-yellow-600 text-white'
+        }`}>
+          {toast.type === 'success' ? <CheckCircle className="h-5 w-5" /> :
+           toast.type === 'error' ? <XCircle className="h-5 w-5" /> :
+           <AlertCircle className="h-5 w-5" />}
+          {toast.message}
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white">SMS Notifications</h1>

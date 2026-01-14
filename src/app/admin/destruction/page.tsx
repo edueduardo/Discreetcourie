@@ -60,37 +60,52 @@ export default function DestructionPage() {
     setIsDestroyDialogOpen(true)
   }
 
-  const handleConfirmDestroy = () => {
+  const [destroying, setDestroying] = useState(false)
+
+  const handleConfirmDestroy = async () => {
     if (confirmationText !== `DESTROY ${selectedClient?.code_name}`) {
-      alert('Confirmation text does not match')
       return
     }
 
-    // Execute destruction (API call would go here)
-    console.log('Destroying all data for:', selectedClient?.code_name)
+    setDestroying(true)
+    try {
+      // Call the destruction API
+      const res = await fetch('/api/destruction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_id: selectedClient?.id,
+          customer_code: selectedClient?.code_name || '',
+          requested_by: 'admin',
+          reason: 'Manual destruction via admin panel',
+          items_destroyed: {
+            orders: 0,
+            tasks: 0,
+            messages: 0,
+            vault_items: 0,
+            proofs: 0,
+          },
+        })
+      })
 
-    // Add to logs
-    const newLog: DestructionLog = {
-      id: Date.now().toString(),
-      customer_code: selectedClient?.code_name || '',
-      items_destroyed: {
-        orders: 12,
-        tasks: 5,
-        messages: 34,
-        vault_items: 2,
-        proofs: 8,
-      },
-      requested_by: 'admin',
-      reason: 'Manual destruction via admin panel',
-      video_sent: false,
-      executed_at: new Date().toISOString(),
+      if (res.ok) {
+        // Also call the customer destroy endpoint
+        if (selectedClient?.id) {
+          await fetch(`/api/customers/${selectedClient.id}/destroy`, {
+            method: 'POST'
+          })
+        }
+        fetchData()
+      }
+    } catch (error) {
+      console.error('Error destroying data:', error)
+    } finally {
+      setDestroying(false)
+      setIsConfirmDialogOpen(false)
+      setIsDestroyDialogOpen(false)
+      setConfirmationText('')
+      setSelectedClient(null)
     }
-
-    setLogs([newLog, ...logs])
-    setIsConfirmDialogOpen(false)
-    setIsDestroyDialogOpen(false)
-    setConfirmationText('')
-    setSelectedClient(null)
   }
 
   return (

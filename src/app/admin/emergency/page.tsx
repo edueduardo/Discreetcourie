@@ -60,25 +60,61 @@ export default function EmergencyProtocolsPage() {
     clients_protected: new Set(protocols.map(p => p.client_code)).size
   }
 
-  const handleTrigger = (id: string) => {
+  const [triggering, setTriggering] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+
+  const handleTrigger = async (id: string) => {
     if (triggerConfirm === id) {
-      // Execute trigger
-      setProtocols(prev => prev.map(p => 
-        p.id === id 
-          ? { ...p, last_triggered_at: new Date().toISOString() }
-          : p
-      ))
-      setTriggerConfirm(null)
-      alert('🚨 EMERGENCY PROTOCOL TRIGGERED! Actions executed.')
+      setTriggering(id)
+      try {
+        const res = await fetch('/api/emergency', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id,
+            last_triggered_at: new Date().toISOString()
+          })
+        })
+        
+        if (res.ok) {
+          setProtocols(prev => prev.map(p => 
+            p.id === id 
+              ? { ...p, last_triggered_at: new Date().toISOString() }
+              : p
+          ))
+          setSuccessMessage('🚨 EMERGENCY PROTOCOL TRIGGERED! Actions executed.')
+          setTimeout(() => setSuccessMessage(null), 5000)
+        }
+      } catch (error) {
+        console.error('Error triggering protocol:', error)
+      } finally {
+        setTriggering(null)
+        setTriggerConfirm(null)
+      }
     } else {
       setTriggerConfirm(id)
     }
   }
 
-  const toggleActive = (id: string) => {
-    setProtocols(prev => prev.map(p =>
-      p.id === id ? { ...p, is_active: !p.is_active } : p
-    ))
+  const toggleActive = async (id: string) => {
+    const protocol = protocols.find(p => p.id === id)
+    if (!protocol) return
+    
+    try {
+      await fetch('/api/emergency', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id,
+          is_active: !protocol.is_active
+        })
+      })
+      setProtocols(prev => prev.map(p =>
+        p.id === id ? { ...p, is_active: !p.is_active } : p
+      ))
+    } catch (error) {
+      console.error('Error toggling protocol:', error)
+    }
   }
 
   return (
@@ -100,6 +136,14 @@ export default function EmergencyProtocolsPage() {
           New Protocol
         </Button>
       </div>
+
+      {/* Success Message */}
+      {successMessage && (
+        <div className="fixed top-4 right-4 z-50 bg-red-600 text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 animate-pulse">
+          <AlertTriangle className="h-5 w-5" />
+          {successMessage}
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -279,72 +323,142 @@ export default function EmergencyProtocolsPage() {
 
       {/* New Protocol Form Modal */}
       {showNewForm && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <Card className="bg-slate-800 border-slate-700 w-full max-w-lg">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-red-500" />
-                New Emergency Protocol
-              </CardTitle>
-              <CardDescription>
-                Create a new emergency protocol for a client
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="text-sm text-slate-400">Client</label>
-                <select className="w-full mt-1 p-2 bg-slate-900 border border-slate-700 rounded-lg text-white">
-                  <option>Select client...</option>
-                  <option>SHADOW-4521 - VIP Client Alpha</option>
-                  <option>GHOST-7892 - Corporate Executive</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="text-sm text-slate-400">Protocol Name</label>
-                <input 
-                  type="text"
-                  placeholder="e.g., Silent Alarm, Extraction Protocol"
-                  className="w-full mt-1 p-2 bg-slate-900 border border-slate-700 rounded-lg text-white"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm text-slate-400">Trigger Condition</label>
-                <input 
-                  type="text"
-                  placeholder="e.g., Code word: 'umbrella'"
-                  className="w-full mt-1 p-2 bg-slate-900 border border-slate-700 rounded-lg text-white"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm text-slate-400">Actions (comma separated)</label>
-                <textarea 
-                  placeholder="Call 911, Notify emergency contact, Delete records"
-                  className="w-full mt-1 p-2 bg-slate-900 border border-slate-700 rounded-lg text-white h-20"
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowNewForm(false)}
-                  className="flex-1 border-slate-600"
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  onClick={() => setShowNewForm(false)}
-                  className="flex-1 bg-red-600 hover:bg-red-700"
-                >
-                  Create Protocol
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <NewProtocolForm 
+          onClose={() => setShowNewForm(false)} 
+          onSuccess={() => { fetchProtocols(); setShowNewForm(false); }}
+        />
       )}
+    </div>
+  )
+}
+
+function NewProtocolForm({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
+  const [clients, setClients] = useState<{id: string; name: string; code_name?: string}[]>([])
+  const [form, setForm] = useState({
+    client_id: '',
+    protocol_name: '',
+    trigger_condition: '',
+    actions: ''
+  })
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/customers')
+      .then(res => res.json())
+      .then(data => {
+        if (data.customers) setClients(data.customers.filter((c: any) => c.is_vip))
+      })
+  }, [])
+
+  async function handleSubmit() {
+    if (!form.client_id || !form.protocol_name || !form.trigger_condition) return
+    
+    const client = clients.find(c => c.id === form.client_id)
+    
+    setSaving(true)
+    try {
+      const res = await fetch('/api/emergency', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_id: form.client_id,
+          client_code: client?.code_name || client?.name || 'VIP',
+          client_name: client?.name,
+          protocol_name: form.protocol_name,
+          trigger_condition: form.trigger_condition,
+          actions: form.actions.split(',').map(a => a.trim()).filter(Boolean),
+          emergency_contacts: [],
+          is_active: true
+        })
+      })
+      
+      if (res.ok) {
+        onSuccess()
+      }
+    } catch (error) {
+      console.error('Error creating protocol:', error)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+      <Card className="bg-slate-800 border-slate-700 w-full max-w-lg">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5 text-red-500" />
+            New Emergency Protocol
+          </CardTitle>
+          <CardDescription>
+            Create a new emergency protocol for a client
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <label className="text-sm text-slate-400">Client</label>
+            <select 
+              value={form.client_id}
+              onChange={(e) => setForm({...form, client_id: e.target.value})}
+              className="w-full mt-1 p-2 bg-slate-900 border border-slate-700 rounded-lg text-white"
+            >
+              <option value="">Select client...</option>
+              {clients.map(c => (
+                <option key={c.id} value={c.id}>{c.code_name || c.name}</option>
+              ))}
+            </select>
+          </div>
+          
+          <div>
+            <label className="text-sm text-slate-400">Protocol Name</label>
+            <input 
+              type="text"
+              value={form.protocol_name}
+              onChange={(e) => setForm({...form, protocol_name: e.target.value})}
+              placeholder="e.g., Silent Alarm, Extraction Protocol"
+              className="w-full mt-1 p-2 bg-slate-900 border border-slate-700 rounded-lg text-white"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm text-slate-400">Trigger Condition</label>
+            <input 
+              type="text"
+              value={form.trigger_condition}
+              onChange={(e) => setForm({...form, trigger_condition: e.target.value})}
+              placeholder="e.g., Code word: 'umbrella'"
+              className="w-full mt-1 p-2 bg-slate-900 border border-slate-700 rounded-lg text-white"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm text-slate-400">Actions (comma separated)</label>
+            <textarea 
+              value={form.actions}
+              onChange={(e) => setForm({...form, actions: e.target.value})}
+              placeholder="Call 911, Notify emergency contact, Delete records"
+              className="w-full mt-1 p-2 bg-slate-900 border border-slate-700 rounded-lg text-white h-20"
+            />
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <Button 
+              variant="outline" 
+              onClick={onClose}
+              className="flex-1 border-slate-600"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSubmit}
+              disabled={saving || !form.client_id || !form.protocol_name}
+              className="flex-1 bg-red-600 hover:bg-red-700"
+            >
+              {saving ? 'Creating...' : 'Create Protocol'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

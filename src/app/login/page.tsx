@@ -17,6 +17,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -75,7 +76,8 @@ export default function LoginPage() {
       
       if (data.user) {
         setError(null)
-        alert('Check your email for the confirmation link!')
+        setSuccessMessage('Check your email for the confirmation link!')
+        setTimeout(() => setSuccessMessage(null), 5000)
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.')
@@ -139,6 +141,13 @@ export default function LoginPage() {
               <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg flex items-center gap-2 text-red-400">
                 <AlertCircle className="h-4 w-4 flex-shrink-0" />
                 <span className="text-sm">{error}</span>
+              </div>
+            )}
+
+            {successMessage && (
+              <div className="mb-4 p-3 bg-green-500/20 border border-green-500/50 rounded-lg flex items-center gap-2 text-green-400">
+                <Package className="h-4 w-4 flex-shrink-0" />
+                <span className="text-sm">{successMessage}</span>
               </div>
             )}
 

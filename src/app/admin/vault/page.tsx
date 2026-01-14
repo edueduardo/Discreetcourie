@@ -115,7 +115,7 @@ export default function VaultPage() {
                 Store a new item in the vault for a VIP client
               </DialogDescription>
             </DialogHeader>
-            <AddItemForm onClose={() => setIsAddDialogOpen(false)} />
+            <AddItemForm onClose={() => setIsAddDialogOpen(false)} clients={clients} onSuccess={fetchData} />
           </DialogContent>
         </Dialog>
       </div>
@@ -242,25 +242,63 @@ export default function VaultPage() {
   )
 }
 
-function AddItemForm({ onClose }: { onClose: () => void }) {
+function AddItemForm({ onClose, clients, onSuccess }: { onClose: () => void; clients: Client[]; onSuccess: () => void }) {
+  const [form, setForm] = useState({
+    client_id: '',
+    item_type: 'storage',
+    description: '',
+    storage_location: '',
+  })
+  const [saving, setSaving] = useState(false)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!form.client_id || !form.description) return
+    
+    setSaving(true)
+    try {
+      const res = await fetch('/api/vault', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_id: form.client_id,
+          item_type: form.item_type,
+          description: form.description,
+          storage_location: form.storage_location,
+          item_code: `VLT-${Date.now().toString(36).toUpperCase()}`,
+        })
+      })
+      
+      if (res.ok) {
+        onSuccess()
+        onClose()
+      }
+    } catch (error) {
+      console.error('Error adding vault item:', error)
+    } finally {
+      setSaving(false)
+    }
+  }
+
   return (
-    <form className="space-y-4">
+    <form className="space-y-4" onSubmit={handleSubmit}>
       <div>
         <Label htmlFor="client">VIP Client</Label>
-        <Select>
+        <Select value={form.client_id} onValueChange={(v) => setForm({...form, client_id: v})}>
           <SelectTrigger>
             <SelectValue placeholder="Select client" />
           </SelectTrigger>
           <SelectContent>
-            {/* Clients are loaded dynamically from API */}
-            <SelectItem value="new">Add new client</SelectItem>
+            {clients.map((c) => (
+              <SelectItem key={c.id} value={c.id}>{c.code_name || c.name}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
 
       <div>
         <Label htmlFor="type">Item Type</Label>
-        <Select>
+        <Select value={form.item_type} onValueChange={(v) => setForm({...form, item_type: v})}>
           <SelectTrigger>
             <SelectValue placeholder="Select type" />
           </SelectTrigger>
@@ -274,24 +312,31 @@ function AddItemForm({ onClose }: { onClose: () => void }) {
 
       <div>
         <Label htmlFor="description">Description</Label>
-        <Input id="description" placeholder="Envelope lacrado" />
+        <Input 
+          id="description" 
+          placeholder="Envelope lacrado" 
+          value={form.description}
+          onChange={(e) => setForm({...form, description: e.target.value})}
+        />
       </div>
 
       <div>
         <Label htmlFor="location">Storage Location</Label>
-        <Input id="location" placeholder="Safe A - Shelf 1" />
-      </div>
-
-      <div>
-        <Label htmlFor="notes">Notes (Internal Only)</Label>
-        <Textarea id="notes" placeholder="Additional notes..." />
+        <Input 
+          id="location" 
+          placeholder="Safe A - Shelf 1" 
+          value={form.storage_location}
+          onChange={(e) => setForm({...form, storage_location: e.target.value})}
+        />
       </div>
 
       <div className="flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={onClose}>
           Cancel
         </Button>
-        <Button type="submit">Add to Vault</Button>
+        <Button type="submit" disabled={saving || !form.client_id || !form.description}>
+          {saving ? 'Saving...' : 'Add to Vault'}
+        </Button>
       </div>
     </form>
   )

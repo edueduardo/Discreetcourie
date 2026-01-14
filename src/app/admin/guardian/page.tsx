@@ -114,7 +114,7 @@ export default function GuardianPage() {
                 Enable 24/7 priority access for a VIP client
               </DialogDescription>
             </DialogHeader>
-            <ActivateForm onClose={() => setIsAddDialogOpen(false)} />
+            <ActivateForm onClose={() => setIsAddDialogOpen(false)} onSuccess={fetchData} />
           </DialogContent>
         </Dialog>
       </div>
@@ -252,24 +252,84 @@ export default function GuardianPage() {
   )
 }
 
-function ActivateForm({ onClose }: { onClose: () => void }) {
+interface VIPClient {
+  id: string
+  name: string
+  code_name?: string
+}
+
+function ActivateForm({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
+  const [clients, setClients] = useState<VIPClient[]>([])
+  const [form, setForm] = useState({
+    client_id: '',
+    duration: '12',
+    monthly_rate: '500',
+    priority_level: '1'
+  })
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/customers')
+      .then(res => res.json())
+      .then(data => {
+        if (data.customers) setClients(data.customers.filter((c: any) => c.is_vip))
+      })
+  }, [])
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!form.client_id) return
+    
+    const client = clients.find(c => c.id === form.client_id)
+    const expiresAt = new Date()
+    expiresAt.setMonth(expiresAt.getMonth() + parseInt(form.duration))
+    
+    setSaving(true)
+    try {
+      const res = await fetch('/api/guardian', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_id: form.client_id,
+          client_code: client?.code_name || client?.name || 'VIP',
+          client_name: client?.name,
+          monthly_rate: parseFloat(form.monthly_rate),
+          priority_level: parseInt(form.priority_level),
+          expires_at: expiresAt.toISOString(),
+          direct_line: `+1614555${Math.floor(1000 + Math.random() * 9000)}`,
+        })
+      })
+      
+      if (res.ok) {
+        onSuccess()
+        onClose()
+      }
+    } catch (error) {
+      console.error('Error activating guardian:', error)
+    } finally {
+      setSaving(false)
+    }
+  }
+
   return (
-    <form className="space-y-4">
+    <form className="space-y-4" onSubmit={handleSubmit}>
       <div>
         <Label>Select VIP Client</Label>
-        <Select>
+        <Select value={form.client_id} onValueChange={(v) => setForm({...form, client_id: v})}>
           <SelectTrigger>
             <SelectValue placeholder="Choose client" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="new">Add new VIP client</SelectItem>
+            {clients.map((c) => (
+              <SelectItem key={c.id} value={c.id}>{c.code_name || c.name}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
 
       <div>
         <Label>Duration (months)</Label>
-        <Select defaultValue="12">
+        <Select value={form.duration} onValueChange={(v) => setForm({...form, duration: v})}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
@@ -284,12 +344,16 @@ function ActivateForm({ onClose }: { onClose: () => void }) {
 
       <div>
         <Label>Monthly Rate ($)</Label>
-        <Input type="number" defaultValue="500" />
+        <Input 
+          type="number" 
+          value={form.monthly_rate}
+          onChange={(e) => setForm({...form, monthly_rate: e.target.value})}
+        />
       </div>
 
       <div>
         <Label>Priority Level</Label>
-        <Select defaultValue="1">
+        <Select value={form.priority_level} onValueChange={(v) => setForm({...form, priority_level: v})}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
@@ -305,9 +369,9 @@ function ActivateForm({ onClose }: { onClose: () => void }) {
         <Button type="button" variant="outline" onClick={onClose}>
           Cancel
         </Button>
-        <Button type="submit">
+        <Button type="submit" disabled={saving || !form.client_id}>
           <Shield className="mr-2 h-4 w-4" />
-          Activate Guardian Mode
+          {saving ? 'Activating...' : 'Activate Guardian Mode'}
         </Button>
       </div>
     </form>

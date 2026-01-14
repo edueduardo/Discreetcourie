@@ -262,14 +262,74 @@ export default function VettingPage() {
               Evaluate this VIP candidate for entry into the Santuário
             </DialogDescription>
           </DialogHeader>
-          {selectedRecord && <ReviewForm record={selectedRecord} onClose={() => setIsReviewDialogOpen(false)} />}
+          {selectedRecord && <ReviewForm record={selectedRecord} onClose={() => setIsReviewDialogOpen(false)} onSuccess={fetchRecords} />}
         </DialogContent>
       </Dialog>
     </div>
   )
 }
 
-function ReviewForm({ record, onClose }: { record: any; onClose: () => void }) {
+function ReviewForm({ record, onClose, onSuccess }: { record: VettingRecord; onClose: () => void; onSuccess: () => void }) {
+  const [form, setForm] = useState({
+    risk_assessment: record.risk_assessment || 'unknown',
+    interview_notes: record.interview_notes || '',
+    red_flags: record.red_flags?.join('\n') || '',
+    decision_notes: ''
+  })
+  const [saving, setSaving] = useState(false)
+
+  async function handleDecision(status: 'approved' | 'rejected') {
+    setSaving(true)
+    try {
+      const res = await fetch('/api/vetting', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: record.id,
+          status,
+          risk_assessment: form.risk_assessment,
+          interview_notes: form.interview_notes,
+          red_flags: form.red_flags.split('\n').filter(f => f.trim()),
+          decision_notes: form.decision_notes,
+          reviewed_by: 'Admin',
+          reviewed_at: new Date().toISOString()
+        })
+      })
+      
+      if (res.ok) {
+        onSuccess()
+        onClose()
+      }
+    } catch (error) {
+      console.error('Error updating vetting:', error)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function handleSave() {
+    setSaving(true)
+    try {
+      await fetch('/api/vetting', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: record.id,
+          status: 'in_review',
+          risk_assessment: form.risk_assessment,
+          interview_notes: form.interview_notes,
+          red_flags: form.red_flags.split('\n').filter(f => f.trim()),
+        })
+      })
+      onSuccess()
+      onClose()
+    } catch (error) {
+      console.error('Error saving vetting:', error)
+    } finally {
+      setSaving(false)
+    }
+  }
+
   return (
     <form className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
@@ -285,7 +345,7 @@ function ReviewForm({ record, onClose }: { record: any; onClose: () => void }) {
 
       <div>
         <Label>Risk Assessment</Label>
-        <Select defaultValue={record.risk_assessment}>
+        <Select value={form.risk_assessment} onValueChange={(v) => setForm({...form, risk_assessment: v})}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
@@ -300,7 +360,8 @@ function ReviewForm({ record, onClose }: { record: any; onClose: () => void }) {
       <div>
         <Label>Interview Notes</Label>
         <Textarea
-          defaultValue={record.interview_notes}
+          value={form.interview_notes}
+          onChange={(e) => setForm({...form, interview_notes: e.target.value})}
           placeholder="Document your conversation and observations..."
           rows={4}
         />
@@ -309,7 +370,8 @@ function ReviewForm({ record, onClose }: { record: any; onClose: () => void }) {
       <div>
         <Label>Red Flags (one per line)</Label>
         <Textarea
-          defaultValue={record.red_flags?.join('\n')}
+          value={form.red_flags}
+          onChange={(e) => setForm({...form, red_flags: e.target.value})}
           placeholder="List any concerns..."
           rows={3}
         />
@@ -318,21 +380,23 @@ function ReviewForm({ record, onClose }: { record: any; onClose: () => void }) {
       <div>
         <Label>Decision Notes</Label>
         <Textarea
+          value={form.decision_notes}
+          onChange={(e) => setForm({...form, decision_notes: e.target.value})}
           placeholder="Explain your decision..."
           rows={3}
         />
       </div>
 
       <div className="flex justify-between pt-4">
-        <Button type="button" variant="outline" onClick={onClose}>
-          Save & Continue Later
+        <Button type="button" variant="outline" onClick={handleSave} disabled={saving}>
+          {saving ? 'Saving...' : 'Save & Continue Later'}
         </Button>
         <div className="flex gap-2">
-          <Button type="button" variant="destructive">
+          <Button type="button" variant="destructive" onClick={() => handleDecision('rejected')} disabled={saving}>
             <XCircle className="mr-2 h-4 w-4" />
             Reject
           </Button>
-          <Button type="button" className="bg-green-600 hover:bg-green-700">
+          <Button type="button" className="bg-green-600 hover:bg-green-700" onClick={() => handleDecision('approved')} disabled={saving}>
             <CheckCircle className="mr-2 h-4 w-4" />
             Approve
           </Button>
