@@ -21,13 +21,18 @@ import {
   Flame,
   Shield,
   Eye,
-  AlertTriangle
+  AlertTriangle,
+  Route,
+  CreditCard,
+  MessageSquare,
+  Receipt
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/admin/deliveries', icon: Truck, label: 'Deliveries' },
+  { href: '/admin/routes/optimize', icon: Route, label: 'Route Optimizer' },
   { href: '/admin/leads', icon: Users, label: 'Leads' },
   { href: '/admin/clients', icon: Users, label: 'Clients' },
   { href: '/admin/concierge', icon: UserCheck, label: 'Concierge Tasks' },
@@ -37,6 +42,9 @@ const navItems = [
   { href: '/admin/emergency', icon: AlertTriangle, label: 'Emergency Protocols' },
   { href: '/admin/calls', icon: Phone, label: 'Bland.ai Calls' },
   { href: '/admin/finances', icon: DollarSign, label: 'Finances' },
+  { href: '/admin/payments', icon: CreditCard, label: 'Payments' },
+  { href: '/admin/expenses', icon: Receipt, label: 'Expenses' },
+  { href: '/admin/notifications', icon: MessageSquare, label: 'SMS Notifications' },
   { href: '/admin/destruction', icon: Flame, label: 'Destruction' },
   { href: '/admin/settings', icon: Settings, label: 'Settings' },
 ]
