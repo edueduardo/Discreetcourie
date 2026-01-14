@@ -2,5 +2,19 @@
   "framework": "nextjs",
   "buildCommand": "npm run build",
   "installCommand": "npm install",
-  "devCommand": "npm run dev"
+  "devCommand": "npm run dev",
+  "crons": [
+    {
+      "path": "/api/cron/last-will",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/time-capsule",
+      "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/cron/auto-delete",
+      "schedule": "0 */6 * * *"
+    }
+  ]
 }
