@@ -16,8 +16,9 @@ import {
 } from '@/components/ui/dialog'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { DestructionLog, Client } from '@/types'
-import { Flame, AlertTriangle, Video, Clock, CheckCircle } from 'lucide-react'
-
+import { Flame, AlertTriangle, Video, Clock, CheckCircle, FileText, Send } from 'lucide-react'
+import { Textarea } from '@/components/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 export default function DestructionPage() {
   const [logs, setLogs] = useState<DestructionLog[]>([])
@@ -61,6 +62,61 @@ export default function DestructionPage() {
   }
 
   const [destroying, setDestroying] = useState(false)
+  const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({ show: false, message: '', type: 'success' })
+
+  function showToast(message: string, type: 'success' | 'error') {
+    setToast({ show: true, message, type })
+    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000)
+  }
+
+  async function generateCertificate(log: DestructionLog) {
+    try {
+      const res = await fetch('/api/destruction/video', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          destruction_log_id: log.id,
+          client_id: null,
+          video_type: 'generated',
+          items_destroyed: log.items_destroyed,
+          destruction_method: 'digital_wipe',
+          send_to_client: false
+        })
+      })
+      
+      if (res.ok) {
+        const data = await res.json()
+        showToast(`Certificate generated: ${data.certificate.certificate_code}`, 'success')
+        fetchData()
+      } else {
+        showToast('Failed to generate certificate', 'error')
+      }
+    } catch (error) {
+      showToast('Error generating certificate', 'error')
+    }
+  }
+
+  async function sendCertificateToClient(log: DestructionLog) {
+    try {
+      const res = await fetch('/api/destruction/video', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          destruction_log_id: log.id,
+          video_type: 'generated',
+          items_destroyed: log.items_destroyed,
+          send_to_client: true
+        })
+      })
+      
+      if (res.ok) {
+        showToast('Certificate sent to client!', 'success')
+        fetchData()
+      }
+    } catch (error) {
+      showToast('Failed to send certificate', 'error')
+    }
+  }
 
   const handleConfirmDestroy = async () => {
     if (confirmationText !== `DESTROY ${selectedClient?.code_name}`) {
@@ -110,6 +166,13 @@ export default function DestructionPage() {
 
   return (
     <div className="space-y-6">
+      {/* Toast */}
+      {toast.show && (
+        <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'} text-white`}>
+          {toast.message}
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -274,8 +337,29 @@ export default function DestructionPage() {
                   </div>
                 </div>
 
-                <div className="text-sm text-muted-foreground text-right">
-                  {new Date(log.executed_at).toLocaleString()}
+                <div className="flex flex-col items-end gap-2">
+                  <div className="text-sm text-muted-foreground">
+                    {new Date(log.executed_at).toLocaleString()}
+                  </div>
+                  <div className="flex gap-2">
+                    {!log.certificate_code ? (
+                      <Button size="sm" variant="outline" onClick={() => generateCertificate(log)}>
+                        <FileText className="h-3 w-3 mr-1" />
+                        Generate Certificate
+                      </Button>
+                    ) : (
+                      <Badge variant="outline" className="text-green-600">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        {log.certificate_code}
+                      </Badge>
+                    )}
+                    {!log.video_sent && (
+                      <Button size="sm" variant="secondary" onClick={() => sendCertificateToClient(log)}>
+                        <Send className="h-3 w-3 mr-1" />
+                        Send to Client
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             </Card>

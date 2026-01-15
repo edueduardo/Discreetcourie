@@ -470,8 +470,11 @@ export interface DestructionLog {
 
   // Proof
   video_sent: boolean
+  video_url?: string
+  certificate_code?: string
 
   executed_at: string
+  updated_at?: string
 }
 
 export interface Setting {
