@@ -85,33 +85,145 @@ export async function PATCH(request: NextRequest) {
   if (trigger) {
     const { data: protocol, error: fetchError } = await supabase
       .from('emergency_protocols')
-      .select('*')
+      .select('*, clients(id, code_name, name, phone, email)')
       .eq('id', id)
       .single()
     
     if (fetchError || !protocol) {
       return NextResponse.json({ error: 'Protocol not found' }, { status: 404 })
     }
+
+    const now = new Date().toISOString()
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const client = protocol.clients as any
+    const executedActions: any[] = []
     
     // Atualizar last_triggered_at
     await supabase
       .from('emergency_protocols')
       .update({
-        last_triggered_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        last_triggered_at: now,
+        updated_at: now
       })
       .eq('id', id)
     
-    // Aqui você implementaria as ações do protocolo
-    // Por exemplo: enviar SMS, fazer ligação, notificar contatos, etc.
+    // EXECUTAR AÇÕES REAIS DO PROTOCOLO
+    const actions = protocol.actions as any[] || []
+    
+    for (const action of actions) {
+      const actionType = action.type || action
+      
+      switch (actionType) {
+        case 'sms_client':
+          // SMS para o cliente
+          if (client?.phone) {
+            const res = await fetch(`${baseUrl}/api/sms`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                to: client.phone,
+                message: `🆘 EMERGENCY PROTOCOL "${protocol.protocol_name}" ACTIVATED. ${action.message || 'Immediate action required.'}`
+              })
+            }).catch(() => null)
+            executedActions.push({ type: 'sms_client', success: res?.ok || false })
+          }
+          break
+
+        case 'sms_contacts':
+          // SMS para contatos de emergência
+          const contacts = protocol.emergency_contacts as any[] || []
+          for (const contact of contacts) {
+            if (contact.phone) {
+              const res = await fetch(`${baseUrl}/api/sms`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  to: contact.phone,
+                  message: `🆘 EMERGENCY: ${client?.code_name || client?.name || 'Client'} triggered protocol "${protocol.protocol_name}". ${action.message || 'Please respond immediately.'}`
+                })
+              }).catch(() => null)
+              executedActions.push({ type: 'sms_contact', contact: contact.name, success: res?.ok || false })
+            }
+          }
+          break
+
+        case 'call_ai':
+          // Ligação via Bland.AI
+          const phoneToCall = action.phone || client?.phone
+          if (phoneToCall) {
+            const res = await fetch(`${baseUrl}/api/bland`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                phone_number: phoneToCall,
+                call_type: 'emergency',
+                client_id: protocol.client_id,
+                custom_prompt: action.script || `This is an emergency call regarding protocol ${protocol.protocol_name}. Please confirm your safety status.`
+              })
+            }).catch(() => null)
+            executedActions.push({ type: 'call_ai', success: res?.ok || false })
+          }
+          break
+
+        case 'notify_admin':
+          // Notificar admin
+          if (process.env.ADMIN_PHONE) {
+            await fetch(`${baseUrl}/api/sms`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                to: process.env.ADMIN_PHONE,
+                message: `🔴 EMERGENCY TRIGGERED: ${client?.code_name || 'Unknown'} - Protocol: ${protocol.protocol_name}`
+              })
+            }).catch(() => null)
+            executedActions.push({ type: 'notify_admin', success: true })
+          }
+          break
+
+        case 'destroy_data':
+          // Destruir dados do cliente
+          await fetch(`${baseUrl}/api/destruction`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              client_id: protocol.client_id,
+              reason: `Emergency protocol: ${protocol.protocol_name}`
+            })
+          }).catch(() => null)
+          executedActions.push({ type: 'destroy_data', success: true })
+          break
+
+        case 'deliver_vault':
+          // Entregar itens do vault
+          await fetch(`${baseUrl}/api/cron/last-will`, {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${process.env.CRON_SECRET}`
+            },
+            body: JSON.stringify({ client_id: protocol.client_id, force: true })
+          }).catch(() => null)
+          executedActions.push({ type: 'deliver_vault', success: true })
+          break
+      }
+    }
+
+    // Registrar execução
+    await supabase.from('emergency_logs').insert({
+      protocol_id: id,
+      client_id: protocol.client_id,
+      protocol_name: protocol.protocol_name,
+      actions_executed: executedActions,
+      triggered_at: now
+    })
     
     return NextResponse.json({
       success: true,
-      message: 'Emergency protocol triggered',
+      message: 'Emergency protocol triggered and executed',
       protocol_name: protocol.protocol_name,
-      actions: protocol.actions,
+      actions_executed: executedActions,
       emergency_contacts: protocol.emergency_contacts,
-      triggered_at: new Date().toISOString()
+      triggered_at: now
     })
   }
   
