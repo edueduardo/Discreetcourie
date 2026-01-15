@@ -1,0 +1,131 @@
+name: Discreet Courier CRON Jobs
+
+on:
+  schedule:
+    # Guardian Mode - Verificação de segurança (8h e 20h UTC = 5h e 17h BRT)
+    - cron: '0 8 * * *'
+    - cron: '0 20 * * *'
+    
+    # Last Will - Check-in verification (9h UTC = 6h BRT)
+    - cron: '0 9 * * *'
+    
+    # Time Capsule - Delivery check (10h UTC = 7h BRT)
+    - cron: '0 10 * * *'
+    
+    # Auto-delete - Clean expired messages (Every 6 hours)
+    - cron: '0 */6 * * *'
+  
+  workflow_dispatch:
+    inputs:
+      job_type:
+        description: 'Which CRON job to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - guardian
+          - last-will
+          - time-capsule
+          - auto-delete
+
+env:
+  APP_URL: ${{ secrets.APP_URL }}
+  CRON_SECRET: ${{ secrets.CRON_SECRET }}
+
+jobs:
+  guardian-mode:
+    name: Guardian Mode Check
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 8 * * *' || github.event.schedule == '0 20 * * *' || github.event.inputs.job_type == 'all' || github.event.inputs.job_type == 'guardian'
+    steps:
+      - name: Call Guardian CRON API
+        run: |
+          response=$(curl -s -w "\n%{http_code}" -X GET \
+            "${{ env.APP_URL }}/api/cron/guardian" \
+            -H "Authorization: Bearer ${{ env.CRON_SECRET }}" \
+            -H "Content-Type: application/json")
+          
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+          
+          echo "Response: $body"
+          echo "HTTP Code: $http_code"
+          
+          if [ "$http_code" -ge 400 ]; then
+            echo "❌ Guardian Mode CRON failed"
+            exit 1
+          fi
+          echo "✅ Guardian Mode CRON completed"
+
+  last-will:
+    name: Last Will Check
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 9 * * *' || github.event.inputs.job_type == 'all' || github.event.inputs.job_type == 'last-will'
+    steps:
+      - name: Call Last Will CRON API
+        run: |
+          response=$(curl -s -w "\n%{http_code}" -X GET \
+            "${{ env.APP_URL }}/api/cron/last-will" \
+            -H "Authorization: Bearer ${{ env.CRON_SECRET }}" \
+            -H "Content-Type: application/json")
+          
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+          
+          echo "Response: $body"
+          echo "HTTP Code: $http_code"
+          
+          if [ "$http_code" -ge 400 ]; then
+            echo "❌ Last Will CRON failed"
+            exit 1
+          fi
+          echo "✅ Last Will CRON completed"
+
+  time-capsule:
+    name: Time Capsule Delivery
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 10 * * *' || github.event.inputs.job_type == 'all' || github.event.inputs.job_type == 'time-capsule'
+    steps:
+      - name: Call Time Capsule CRON API
+        run: |
+          response=$(curl -s -w "\n%{http_code}" -X GET \
+            "${{ env.APP_URL }}/api/cron/time-capsule" \
+            -H "Authorization: Bearer ${{ env.CRON_SECRET }}" \
+            -H "Content-Type: application/json")
+          
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+          
+          echo "Response: $body"
+          echo "HTTP Code: $http_code"
+          
+          if [ "$http_code" -ge 400 ]; then
+            echo "❌ Time Capsule CRON failed"
+            exit 1
+          fi
+          echo "✅ Time Capsule CRON completed"
+
+  auto-delete:
+    name: Auto Delete Expired Data
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 */6 * * *' || github.event.inputs.job_type == 'all' || github.event.inputs.job_type == 'auto-delete'
+    steps:
+      - name: Call Auto Delete CRON API
+        run: |
+          response=$(curl -s -w "\n%{http_code}" -X GET \
+            "${{ env.APP_URL }}/api/cron/auto-delete" \
+            -H "Authorization: Bearer ${{ env.CRON_SECRET }}" \
+            -H "Content-Type: application/json")
+          
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+          
+          echo "Response: $body"
+          echo "HTTP Code: $http_code"
+          
+          if [ "$http_code" -ge 400 ]; then
+            echo "❌ Auto Delete CRON failed"
+            exit 1
+          fi
+          echo "✅ Auto Delete CRON completed"
