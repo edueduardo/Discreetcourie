@@ -127,9 +127,19 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
   
-  // Se aprovado, atualizar status do cliente
+  // Processar decisão e enviar notificações
+  const vetting = data as any
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  
+  // Buscar dados do cliente
+  const { data: client } = await supabase
+    .from('clients')
+    .select('*')
+    .eq('id', vetting.client_id)
+    .single()
+
   if (status === 'approved') {
-    const vetting = data as any
+    // Atualizar status do cliente
     await supabase
       .from('clients')
       .update({ 
@@ -138,6 +148,124 @@ export async function PATCH(request: NextRequest) {
         updated_at: new Date().toISOString()
       })
       .eq('id', vetting.client_id)
+
+    // Enviar SMS de aprovação
+    if (client?.phone) {
+      await fetch(`${baseUrl}/api/sms/events`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_type: 'vetting_approved',
+          phone: client.phone,
+          client_id: client.id
+        })
+      }).catch(() => {})
+    }
+
+    // Registrar log
+    await supabase.from('vetting_logs').insert({
+      vetting_id: id,
+      client_id: vetting.client_id,
+      action: 'approved',
+      performed_by: reviewed_by,
+      notes: decision_notes,
+      created_at: new Date().toISOString()
+    })
+  } else if (status === 'rejected') {
+    // Atualizar status do cliente
+    await supabase
+      .from('clients')
+      .update({ 
+        vetting_status: 'rejected',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', vetting.client_id)
+
+    // Enviar SMS de rejeição
+    if (client?.phone) {
+      await fetch(`${baseUrl}/api/sms/events`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_type: 'vetting_rejected',
+          phone: client.phone,
+          client_id: client.id
+        })
+      }).catch(() => {})
+    }
+
+    // Registrar log
+    await supabase.from('vetting_logs').insert({
+      vetting_id: id,
+      client_id: vetting.client_id,
+      action: 'rejected',
+      performed_by: reviewed_by,
+      notes: decision_notes,
+      created_at: new Date().toISOString()
+    })
+  } else if (status === 'probation') {
+    // Período probatório
+    await supabase
+      .from('clients')
+      .update({ 
+        vetting_status: 'probation',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', vetting.client_id)
+
+    // Notificar sobre probation
+    if (client?.phone) {
+      await fetch(`${baseUrl}/api/sms`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: client.phone,
+          message: `[Discreet Courier] Your application has been approved with a probationary period. ${probation_conditions || 'Standard conditions apply.'}`
+        })
+      }).catch(() => {})
+    }
+
+    await supabase.from('vetting_logs').insert({
+      vetting_id: id,
+      client_id: vetting.client_id,
+      action: 'probation',
+      performed_by: reviewed_by,
+      notes: `Probation until: ${probation_until}. ${decision_notes || ''}`,
+      created_at: new Date().toISOString()
+    })
+  } else if (status === 'interview_scheduled') {
+    // Agendar entrevista
+    if (client?.phone) {
+      await fetch(`${baseUrl}/api/sms`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: client.phone,
+          message: `[Discreet Courier] Your vetting interview has been scheduled. We will contact you shortly with details.`
+        })
+      }).catch(() => {})
+    }
+
+    await supabase.from('vetting_logs').insert({
+      vetting_id: id,
+      client_id: vetting.client_id,
+      action: 'interview_scheduled',
+      performed_by: reviewed_by,
+      notes: decision_notes,
+      created_at: new Date().toISOString()
+    })
+  }
+
+  // Notificar admin sobre nova decisão
+  if (process.env.ADMIN_PHONE && (status === 'approved' || status === 'rejected')) {
+    await fetch(`${baseUrl}/api/sms`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to: process.env.ADMIN_PHONE,
+        message: `📋 Vetting ${status.toUpperCase()}: ${client?.code_name || client?.name || 'Unknown'} by ${reviewed_by || 'Admin'}`
+      })
+    }).catch(() => {})
   }
   
   return NextResponse.json(data)
