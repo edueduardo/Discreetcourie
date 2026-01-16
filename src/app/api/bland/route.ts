@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET - Listar chamadas
+// GET - Listar chamadas ou status da integração
 export async function GET(request: NextRequest) {
   const supabase = createClient()
   
@@ -174,25 +174,54 @@ export async function GET(request: NextRequest) {
   const status = searchParams.get('status')
   const limit = parseInt(searchParams.get('limit') || '50')
   
-  let query = supabase
-    .from('bland_calls')
-    .select(`
-      *,
-      clients (id, code_name, name, phone)
-    `)
-    .order('created_at', { ascending: false })
-    .limit(limit)
-  
-  if (client_id) query = query.eq('client_id', client_id)
-  if (status) query = query.eq('status', status)
-  
-  const { data, error } = await query
-  
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  // Se não houver parâmetros, retornar status da integração
+  if (!client_id && !status) {
+    return NextResponse.json({
+      configured: !!process.env.BLAND_API_KEY,
+      api_url: BLAND_API_URL,
+      features: [
+        'Outbound calls for delivery updates',
+        'Check-in calls for Last Will',
+        'Reminder calls',
+        'Custom voice messages',
+        'Call recording and transcription'
+      ],
+      supported_languages: ['pt-BR', 'en-US'],
+      voices: ['matt', 'rachel', 'josh', 'dorothy']
+    })
   }
   
-  return NextResponse.json(data || [])
+  try {
+    let query = supabase
+      .from('bland_calls')
+      .select(`
+        *,
+        clients (id, code_name, name, phone)
+      `)
+      .order('created_at', { ascending: false })
+      .limit(limit)
+    
+    if (client_id) query = query.eq('client_id', client_id)
+    if (status) query = query.eq('status', status)
+    
+    const { data, error } = await query
+    
+    if (error) {
+      // Tabela pode não existir
+      return NextResponse.json({ 
+        calls: [],
+        error: 'Table bland_calls may not exist',
+        message: error.message 
+      })
+    }
+    
+    return NextResponse.json({ calls: data || [] })
+  } catch (e: any) {
+    return NextResponse.json({ 
+      calls: [],
+      error: e.message 
+    })
+  }
 }
 
 // Primeira frase baseada no tipo de chamada

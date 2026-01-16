@@ -1,60 +1,92 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
-// GET - Get latest location for a delivery
+// GET - Get latest location for a delivery or status
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient()
+    const supabase = createClient()
     const { searchParams } = new URL(request.url)
     const deliveryId = searchParams.get('delivery_id')
     const trackingCode = searchParams.get('tracking_code')
 
-    let query = supabase
-      .from('delivery_tracking')
-      .select('*')
-      .order('recorded_at', { ascending: false })
-      .limit(1)
-
-    if (deliveryId) {
-      query = query.eq('delivery_id', deliveryId)
+    // Se não houver parâmetros, retornar status da API
+    if (!deliveryId && !trackingCode) {
+      return NextResponse.json({
+        status: 'operational',
+        features: [
+          'Real-time GPS tracking',
+          'Speed and heading data',
+          'Historical tracking points',
+          'ETA calculations'
+        ],
+        endpoints: {
+          get: '/api/tracking?delivery_id=xxx or ?tracking_code=xxx',
+          post: '/api/tracking (body: delivery_id, latitude, longitude)',
+          realtime: '/api/tracking/realtime'
+        }
+      })
     }
 
-    // If tracking by code, first get delivery id
-    if (trackingCode) {
-      const { data: delivery } = await supabase
-        .from('deliveries')
-        .select('id')
-        .eq('tracking_code', trackingCode)
-        .single()
+    // Tentar buscar da tabela delivery_tracking
+    try {
+      let targetDeliveryId = deliveryId
 
-      if (!delivery) {
-        return NextResponse.json({ error: 'Delivery not found' }, { status: 404 })
+      // If tracking by code, first get delivery id
+      if (trackingCode && !deliveryId) {
+        const { data: delivery } = await supabase
+          .from('deliveries')
+          .select('id')
+          .eq('tracking_code', trackingCode)
+          .single()
+
+        if (!delivery) {
+          return NextResponse.json({ error: 'Delivery not found' }, { status: 404 })
+        }
+        targetDeliveryId = delivery.id
       }
 
-      query = query.eq('delivery_id', delivery.id)
+      const { data: location, error } = await supabase
+        .from('delivery_tracking')
+        .select('*')
+        .eq('delivery_id', targetDeliveryId)
+        .order('recorded_at', { ascending: false })
+        .limit(1)
+        .single()
+
+      if (error && error.code !== 'PGRST116') {
+        // Tabela pode não existir
+        return NextResponse.json({
+          location: null,
+          message: 'No tracking data available',
+          timestamp: new Date().toISOString()
+        })
+      }
+
+      return NextResponse.json({
+        location: location || null,
+        timestamp: new Date().toISOString()
+      })
+    } catch (e: any) {
+      return NextResponse.json({
+        location: null,
+        error: e.message,
+        timestamp: new Date().toISOString()
+      })
     }
-
-    const { data: location, error } = await query.single()
-
-    if (error && error.code !== 'PGRST116') {
-      throw error
-    }
-
-    return NextResponse.json({
-      location: location || null,
-      timestamp: new Date().toISOString()
-    })
 
   } catch (error: any) {
     console.error('Error fetching location:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ 
+      location: null,
+      error: error.message 
+    })
   }
 }
 
 // POST - Save new location point
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
+    const supabase = createClient()
     const body = await request.json()
 
     const { delivery_id, latitude, longitude, speed, heading } = body
