@@ -61,9 +61,31 @@ export async function updateSession(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Protected routes
-  if (request.nextUrl.pathname.startsWith('/admin') && !user) {
-    return NextResponse.redirect(new URL('/login', request.url))
+  // Protected routes - RBAC (Role-Based Access Control)
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    // Check if user is authenticated
+    if (!user) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+
+    // Check if user has admin role
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    // If no profile or not admin, redirect to portal
+    if (!profile || profile.role !== 'admin') {
+      return NextResponse.redirect(new URL('/portal', request.url))
+    }
+  }
+
+  // Portal routes - require authentication but any role
+  if (request.nextUrl.pathname.startsWith('/portal')) {
+    if (!user) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
   }
 
   return response

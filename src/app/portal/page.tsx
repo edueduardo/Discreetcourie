@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -11,26 +12,20 @@ import {
   CheckCircle2,
   MapPin,
   ArrowRight,
-  FileText
+  FileText,
+  Loader2,
+  AlertCircle
 } from 'lucide-react'
 
-// Demo data for client
-const clientDeliveries = [
-  {
-    id: '1',
-    tracking_code: 'DC-ABC12345',
-    status: 'in_transit',
-    delivery_address: '456 Oak Ave, Westerville',
-    estimated_time: '2:00 PM Today',
-  },
-  {
-    id: '2',
-    tracking_code: 'DC-DEF67890',
-    status: 'delivered',
-    delivery_address: '789 Pine St, Columbus',
-    delivered_at: 'Jan 9, 2024 at 3:45 PM',
-  },
-]
+interface Delivery {
+  id: string
+  tracking_code: string
+  status: string
+  delivery_address: string | null
+  estimated_time: string | null
+  delivered_at: string | null
+  created_at: string
+}
 
 const statusColors = {
   pending: 'warning',
@@ -45,6 +40,65 @@ const statusLabels = {
 }
 
 export default function ClientPortal() {
+  const [deliveries, setDeliveries] = useState<Delivery[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function fetchDeliveries() {
+      try {
+        setLoading(true)
+        setError(null)
+
+        const res = await fetch('/api/orders')
+        const data = await res.json()
+
+        if (data.error) {
+          setError(data.error)
+        } else if (data.orders) {
+          setDeliveries(data.orders)
+        }
+      } catch (err) {
+        console.error('Error fetching deliveries:', err)
+        setError('Failed to load deliveries')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDeliveries()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-blue-500 mx-auto mb-4" />
+          <p className="text-gray-600">Loading your deliveries...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="max-w-md">
+          <CardContent className="p-6">
+            <div className="text-center">
+              <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+              <h2 className="text-xl font-bold mb-2">Error Loading Deliveries</h2>
+              <p className="text-gray-600 mb-4">{error}</p>
+              <Button onClick={() => window.location.reload()}>
+                Retry
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -63,7 +117,9 @@ export default function ClientPortal() {
               </div>
               <div>
                 <p className="text-slate-400 text-sm">Active Deliveries</p>
-                <p className="text-2xl font-bold text-white">1</p>
+                <p className="text-2xl font-bold text-white">
+                  {deliveries.filter(d => ['pending', 'confirmed', 'picked_up', 'in_transit'].includes(d.status)).length}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -77,7 +133,9 @@ export default function ClientPortal() {
               </div>
               <div>
                 <p className="text-slate-400 text-sm">Completed</p>
-                <p className="text-2xl font-bold text-white">12</p>
+                <p className="text-2xl font-bold text-white">
+                  {deliveries.filter(d => d.status === 'delivered').length}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -87,11 +145,11 @@ export default function ClientPortal() {
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-full bg-slate-700 flex items-center justify-center">
-                <FileText className="h-6 w-6 text-slate-400" />
+                <Package className="h-6 w-6 text-slate-400" />
               </div>
               <div>
-                <p className="text-slate-400 text-sm">Pending Invoices</p>
-                <p className="text-2xl font-bold text-white">$450</p>
+                <p className="text-slate-400 text-sm">Total Orders</p>
+                <p className="text-2xl font-bold text-white">{deliveries.length}</p>
               </div>
             </div>
           </CardContent>
@@ -99,7 +157,7 @@ export default function ClientPortal() {
       </div>
 
       {/* Active Delivery */}
-      {clientDeliveries.filter(d => d.status === 'in_transit').length > 0 && (
+      {deliveries.filter(d => d.status === 'in_transit').length > 0 && (
         <Card className="bg-gradient-to-r from-blue-600/20 to-blue-700/20 border-blue-600/50">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
@@ -108,7 +166,7 @@ export default function ClientPortal() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {clientDeliveries
+            {deliveries
               .filter(d => d.status === 'in_transit')
               .map(delivery => (
                 <div key={delivery.id} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -153,7 +211,7 @@ export default function ClientPortal() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {clientDeliveries.map((delivery) => (
+            {deliveries.map((delivery) => (
               <Link 
                 key={delivery.id}
                 href={`/portal/deliveries/${delivery.id}`}

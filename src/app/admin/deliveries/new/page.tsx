@@ -15,22 +15,93 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { ArrowLeft, Package, MapPin, User, DollarSign } from 'lucide-react'
+import { ArrowLeft, Package, MapPin, User, DollarSign, Loader2, AlertCircle, CheckCircle } from 'lucide-react'
 import PricingCalculator from '@/components/PricingCalculator'
 
 export default function NewDeliveryPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
   const [calculatedPrice, setCalculatedPrice] = useState(0)
+
+  // Form state
+  const [formData, setFormData] = useState({
+    clientName: '',
+    contactPhone: '',
+    description: '',
+    size: 'medium',
+    priority: 'standard',
+    isFragile: false,
+    isConfidential: false,
+    pickupAddress: '',
+    pickupContact: '',
+    pickupPhone: '',
+    pickupNotes: '',
+    deliveryAddress: '',
+    deliveryContact: '',
+    deliveryPhone: '',
+    deliveryNotes: '',
+    price: 0
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    
-    // Demo - replace with actual API call
-    setTimeout(() => {
-      router.push('/admin/deliveries')
-    }, 1000)
+    setError(null)
+
+    try {
+      // Validation
+      if (!formData.clientName || !formData.deliveryAddress) {
+        setError('Client name and delivery address are required')
+        setIsLoading(false)
+        return
+      }
+
+      // POST to API
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          client_name: formData.clientName,
+          contact_phone: formData.contactPhone,
+          package_description: formData.description,
+          package_size: formData.size,
+          priority: formData.priority,
+          is_fragile: formData.isFragile,
+          is_confidential: formData.isConfidential,
+          pickup_address: formData.pickupAddress,
+          pickup_contact: formData.pickupContact,
+          pickup_phone: formData.pickupPhone,
+          pickup_notes: formData.pickupNotes,
+          delivery_address: formData.deliveryAddress,
+          delivery_contact: formData.deliveryContact,
+          delivery_phone: formData.deliveryPhone,
+          delivery_notes: formData.deliveryNotes,
+          price: calculatedPrice || formData.price
+        })
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to create delivery')
+      }
+
+      // Success!
+      setSuccess(true)
+      setTimeout(() => {
+        router.push('/admin/deliveries')
+      }, 1500)
+
+    } catch (err: any) {
+      console.error('Error creating delivery:', err)
+      setError(err.message || 'Failed to create delivery. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -48,6 +119,22 @@ export default function NewDeliveryPage() {
         </div>
       </div>
 
+      {/* Error Alert */}
+      {error && (
+        <div className="bg-red-900/20 border border-red-600 rounded-lg p-4 flex items-center gap-3">
+          <AlertCircle className="h-5 w-5 text-red-500" />
+          <p className="text-red-400">{error}</p>
+        </div>
+      )}
+
+      {/* Success Alert */}
+      {success && (
+        <div className="bg-green-900/20 border border-green-600 rounded-lg p-4 flex items-center gap-3">
+          <CheckCircle className="h-5 w-5 text-green-500" />
+          <p className="text-green-400">Delivery created successfully! Redirecting...</p>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="grid lg:grid-cols-2 gap-6">
         {/* Client Info */}
         <Card className="bg-slate-800 border-slate-700">
@@ -57,28 +144,17 @@ export default function NewDeliveryPage() {
               Client Information
             </CardTitle>
             <CardDescription className="text-slate-400">
-              Select or enter client details
+              Enter client details
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-slate-300">Client</Label>
-              <Select>
-                <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
-                  <SelectValue placeholder="Select existing client or create new" />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  <SelectItem value="new" className="text-white">+ New Client</SelectItem>
-                  <SelectItem value="1" className="text-white">Medical Office</SelectItem>
-                  <SelectItem value="2" className="text-white">Law Firm LLC</SelectItem>
-                  <SelectItem value="3" className="text-white">Pharmacy Plus</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-slate-300">Contact Name</Label>
+              <Label className="text-slate-300">Client Name *</Label>
               <Input
+                required
                 placeholder="John Doe"
+                value={formData.clientName}
+                onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
                 className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
               />
             </div>
@@ -86,6 +162,8 @@ export default function NewDeliveryPage() {
               <Label className="text-slate-300">Phone</Label>
               <Input
                 placeholder="(614) 555-0123"
+                value={formData.contactPhone}
+                onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
                 className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
               />
             </div>
@@ -108,13 +186,15 @@ export default function NewDeliveryPage() {
               <Label className="text-slate-300">Description</Label>
               <Textarea
                 placeholder="Documents, medical supplies, etc."
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-slate-300">Size</Label>
-                <Select>
+                <Select value={formData.size} onValueChange={(value) => setFormData({ ...formData, size: value })}>
                   <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
                     <SelectValue placeholder="Select size" />
                   </SelectTrigger>
@@ -127,7 +207,7 @@ export default function NewDeliveryPage() {
               </div>
               <div className="space-y-2">
                 <Label className="text-slate-300">Priority</Label>
-                <Select>
+                <Select value={formData.priority} onValueChange={(value) => setFormData({ ...formData, priority: value })}>
                   <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
                     <SelectValue placeholder="Select priority" />
                   </SelectTrigger>
@@ -141,11 +221,21 @@ export default function NewDeliveryPage() {
             </div>
             <div className="flex gap-4">
               <label className="flex items-center gap-2 text-slate-300">
-                <input type="checkbox" className="rounded bg-slate-900 border-slate-700" />
+                <input
+                  type="checkbox"
+                  checked={formData.isFragile}
+                  onChange={(e) => setFormData({ ...formData, isFragile: e.target.checked })}
+                  className="rounded bg-slate-900 border-slate-700"
+                />
                 Fragile
               </label>
               <label className="flex items-center gap-2 text-slate-300">
-                <input type="checkbox" className="rounded bg-slate-900 border-slate-700" />
+                <input
+                  type="checkbox"
+                  checked={formData.isConfidential}
+                  onChange={(e) => setFormData({ ...formData, isConfidential: e.target.checked })}
+                  className="rounded bg-slate-900 border-slate-700"
+                />
                 Confidential
               </label>
             </div>
@@ -168,6 +258,8 @@ export default function NewDeliveryPage() {
               <Label className="text-slate-300">Address</Label>
               <Input
                 placeholder="123 Main St, Columbus, OH"
+                value={formData.pickupAddress}
+                onChange={(e) => setFormData({ ...formData, pickupAddress: e.target.value })}
                 className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
               />
             </div>
@@ -176,6 +268,8 @@ export default function NewDeliveryPage() {
                 <Label className="text-slate-300">Contact</Label>
                 <Input
                   placeholder="Contact name"
+                  value={formData.pickupContact}
+                  onChange={(e) => setFormData({ ...formData, pickupContact: e.target.value })}
                   className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
                 />
               </div>
@@ -183,6 +277,8 @@ export default function NewDeliveryPage() {
                 <Label className="text-slate-300">Phone</Label>
                 <Input
                   placeholder="(614) 555-0123"
+                  value={formData.pickupPhone}
+                  onChange={(e) => setFormData({ ...formData, pickupPhone: e.target.value })}
                   className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
                 />
               </div>
@@ -191,6 +287,8 @@ export default function NewDeliveryPage() {
               <Label className="text-slate-300">Pickup Notes</Label>
               <Input
                 placeholder="Suite 200, ask for front desk"
+                value={formData.pickupNotes}
+                onChange={(e) => setFormData({ ...formData, pickupNotes: e.target.value })}
                 className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
               />
             </div>
@@ -210,9 +308,12 @@ export default function NewDeliveryPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-slate-300">Address</Label>
+              <Label className="text-slate-300">Address *</Label>
               <Input
-                placeholder="456 Oak Ave, Westerville, OH"
+                required
+                placeholder="456 Oak Ave, Columbus, OH"
+                value={formData.deliveryAddress}
+                onChange={(e) => setFormData({ ...formData, deliveryAddress: e.target.value })}
                 className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
               />
             </div>
@@ -220,14 +321,18 @@ export default function NewDeliveryPage() {
               <div className="space-y-2">
                 <Label className="text-slate-300">Contact</Label>
                 <Input
-                  placeholder="Recipient name"
+                  placeholder="Contact name"
+                  value={formData.deliveryContact}
+                  onChange={(e) => setFormData({ ...formData, deliveryContact: e.target.value })}
                   className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
                 />
               </div>
               <div className="space-y-2">
                 <Label className="text-slate-300">Phone</Label>
                 <Input
-                  placeholder="(614) 555-0456"
+                  placeholder="(614) 555-0123"
+                  value={formData.deliveryPhone}
+                  onChange={(e) => setFormData({ ...formData, deliveryPhone: e.target.value })}
                   className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
                 />
               </div>
@@ -235,75 +340,61 @@ export default function NewDeliveryPage() {
             <div className="space-y-2">
               <Label className="text-slate-300">Delivery Notes</Label>
               <Input
-                placeholder="Leave at front door, ring bell"
+                placeholder="Leave at front door if no answer"
+                value={formData.deliveryNotes}
+                onChange={(e) => setFormData({ ...formData, deliveryNotes: e.target.value })}
                 className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
               />
             </div>
           </CardContent>
         </Card>
 
-        {/* Pricing Calculator */}
-        <div className="lg:col-span-2">
-          <PricingCalculator
-            onPriceCalculated={(price, breakdown) => setCalculatedPrice(price)}
-          />
-        </div>
-
         {/* Pricing */}
-        <Card className="bg-slate-800 border-slate-700 lg:col-span-2">
+        <Card className="lg:col-span-2 bg-slate-800 border-slate-700">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
-              <DollarSign className="h-5 w-5 text-emerald-500" />
+              <DollarSign className="h-5 w-5 text-green-500" />
               Pricing
             </CardTitle>
+            <CardDescription className="text-slate-400">
+              Dynamic pricing based on package details
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap items-end gap-6">
-              <div className="space-y-2">
-                <Label className="text-slate-300">Price ($)</Label>
-                <Input
-                  type="number"
-                  placeholder="45.00"
-                  value={calculatedPrice > 0 ? calculatedPrice.toFixed(2) : ''}
-                  onChange={(e) => setCalculatedPrice(parseFloat(e.target.value) || 0)}
-                  className="w-32 bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
-                />
-                {calculatedPrice > 0 && (
-                  <p className="text-xs text-green-500">Auto-calculated from pricing rules</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label className="text-slate-300">Payment Method</Label>
-                <Select>
-                  <SelectTrigger className="w-48 bg-slate-900 border-slate-700 text-white">
-                    <SelectValue placeholder="Select method" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-700">
-                    <SelectItem value="invoice" className="text-white">Invoice (Net 30)</SelectItem>
-                    <SelectItem value="cash" className="text-white">Cash</SelectItem>
-                    <SelectItem value="card" className="text-white">Card</SelectItem>
-                    <SelectItem value="venmo" className="text-white">Venmo</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex-1" />
-              <div className="flex gap-4">
-                <Link href="/admin/deliveries">
-                  <Button variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-700">
-                    Cancel
-                  </Button>
-                </Link>
-                <Button
-                  type="submit"
-                  className="bg-blue-600 hover:bg-blue-700"
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Creating...' : 'Create Delivery'}
-                </Button>
-              </div>
-            </div>
+            <PricingCalculator
+              onPriceCalculated={setCalculatedPrice}
+              {...formData}
+            />
           </CardContent>
         </Card>
+
+        {/* Submit */}
+        <div className="lg:col-span-2 flex justify-end gap-4">
+          <Link href="/admin/deliveries">
+            <Button type="button" variant="outline" className="border-slate-600 text-slate-300">
+              Cancel
+            </Button>
+          </Link>
+          <Button
+            type="submit"
+            disabled={isLoading || success}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Creating...
+              </>
+            ) : success ? (
+              <>
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Created!
+              </>
+            ) : (
+              'Create Delivery'
+            )}
+          </Button>
+        </div>
       </form>
     </div>
   )
