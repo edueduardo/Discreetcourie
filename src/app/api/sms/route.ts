@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { withRateLimit, addHeaders, withSecurityHeaders } from '@/lib/api-middleware'
 import { RateLimits } from '@/lib/rate-limit'
+import { sendSMSSchema, safeValidateData, formatValidationErrors } from '@/lib/validation'
 
 // Twilio client (conditional)
 const accountSid = process.env.TWILIO_ACCOUNT_SID
@@ -56,14 +57,18 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { to, message, deliveryId, clientId } = body
 
-    if (!to || !message) {
-      return NextResponse.json({ error: 'Missing phone number or message' }, { status: 400 })
+    // Validate and sanitize input
+    const validationResult = safeValidateData(sendSMSSchema, body)
+
+    if (!validationResult.success) {
+      return NextResponse.json(formatValidationErrors(validationResult.error), { status: 400 })
     }
 
+    const { to, message, deliveryId, clientId } = validationResult.data
+
     // Format phone number (ensure +1 for US)
-    const formattedPhone = to.startsWith('+') ? to : `+1${to.replace(/\D/g, '')}`
+    const formattedPhone = to.startsWith('+') ? to : `+1${to}`
 
     // Send SMS via Twilio REST API
     const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`
@@ -90,7 +95,7 @@ export async function POST(request: NextRequest) {
       }, { status: 500 })
     }
 
-    // Log to Supabase
+    // Log to Supabase (sanitized message already)
     const supabase = createClient()
     await supabase.from('secure_messages').insert({
       sender_type: 'admin',
