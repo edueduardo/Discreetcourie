@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
+import { sendEmail } from '@/lib/email'
 
 const stripe = process.env.STRIPE_SECRET_KEY 
   ? new Stripe(process.env.STRIPE_SECRET_KEY)
@@ -67,6 +68,18 @@ export async function POST(request: NextRequest) {
           created_at: now
         })
 
+        // Send email notification
+        if (paymentIntent.receipt_email) {
+          await sendEmail({
+            to: paymentIntent.receipt_email,
+            template: 'payment_received',
+            variables: {
+              amount: paymentIntent.amount / 100,
+              recipientName: paymentIntent.metadata?.customer_name
+            }
+          })
+        }
+
         // Send SMS notification if phone available
         if (paymentIntent.metadata?.customer_phone) {
           try {
@@ -102,6 +115,18 @@ export async function POST(request: NextRequest) {
           error_message: paymentIntent.last_payment_error?.message,
           created_at: now
         })
+
+        // Send email notification for failed payment
+        if (paymentIntent.receipt_email) {
+          await sendEmail({
+            to: paymentIntent.receipt_email,
+            template: 'payment_failed',
+            variables: {
+              amount: paymentIntent.amount / 100,
+              actionUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/portal`
+            }
+          })
+        }
 
         console.log(`❌ Payment failed: ${paymentIntent.id}`)
         break
