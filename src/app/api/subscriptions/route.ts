@@ -1,49 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
+import { SUBSCRIPTION_PLANS } from '@/lib/subscription-plans'
 
 const stripe = process.env.STRIPE_SECRET_KEY 
   ? new Stripe(process.env.STRIPE_SECRET_KEY)
   : null
-
-// Planos de assinatura do Discreet Courier
-export const SUBSCRIPTION_PLANS = {
-  guardian_basic: {
-    name: 'Guardian Mode Basic',
-    description: 'Monitoramento 24/7 básico',
-    price: 99,
-    interval: 'month' as const,
-    features: ['Check-in diário', 'Alertas SMS', 'Suporte por email']
-  },
-  guardian_premium: {
-    name: 'Guardian Mode Premium', 
-    description: 'Proteção completa 24/7',
-    price: 299,
-    interval: 'month' as const,
-    features: ['Check-in em tempo real', 'Alertas SMS + Chamada', 'Suporte prioritário', 'Protocolo de emergência']
-  },
-  vault_storage: {
-    name: 'Cofre Humano',
-    description: 'Armazenamento seguro de documentos',
-    price: 49,
-    interval: 'month' as const,
-    features: ['Até 10 itens', 'Criptografia AES-256', 'Last Will básico']
-  },
-  vault_premium: {
-    name: 'Cofre Humano Premium',
-    description: 'Cofre ilimitado com recursos avançados',
-    price: 149,
-    interval: 'month' as const,
-    features: ['Itens ilimitados', 'Last Will avançado', 'Time Capsule', 'Vídeo de destruição']
-  },
-  concierge_retainer: {
-    name: 'Concierge Retainer',
-    description: 'Acesso prioritário ao serviço de concierge',
-    price: 499,
-    interval: 'month' as const,
-    features: ['10 horas inclusas', 'Prioridade máxima', 'Linha direta', 'Sem taxas de urgência']
-  }
-}
 
 // GET - Listar assinaturas do cliente ou todas (admin)
 export async function GET(request: NextRequest) {
@@ -87,25 +49,28 @@ export async function GET(request: NextRequest) {
 
     const subscriptions = await stripe.subscriptions.list(params)
 
-    const formattedSubs = subscriptions.data.map(sub => ({
-      id: sub.id,
-      status: sub.status,
-      currentPeriodStart: new Date(sub.current_period_start * 1000).toISOString(),
-      currentPeriodEnd: new Date(sub.current_period_end * 1000).toISOString(),
-      cancelAtPeriodEnd: sub.cancel_at_period_end,
-      canceledAt: sub.canceled_at ? new Date(sub.canceled_at * 1000).toISOString() : null,
-      created: new Date(sub.created * 1000).toISOString(),
-      customer: sub.customer,
-      items: sub.items.data.map(item => ({
-        id: item.id,
-        priceId: item.price.id,
-        productId: typeof item.price.product === 'string' ? item.price.product : item.price.product?.id,
-        productName: typeof item.price.product === 'object' ? (item.price.product as Stripe.Product)?.name : null,
-        amount: (item.price.unit_amount || 0) / 100,
-        interval: item.price.recurring?.interval
-      })),
-      metadata: sub.metadata
-    }))
+    const formattedSubs = subscriptions.data.map(sub => {
+      const subAny = sub as any
+      return {
+        id: sub.id,
+        status: sub.status,
+        currentPeriodStart: new Date((subAny.current_period_start || 0) * 1000).toISOString(),
+        currentPeriodEnd: new Date((subAny.current_period_end || 0) * 1000).toISOString(),
+        cancelAtPeriodEnd: sub.cancel_at_period_end,
+        canceledAt: sub.canceled_at ? new Date(sub.canceled_at * 1000).toISOString() : null,
+        created: new Date(sub.created * 1000).toISOString(),
+        customer: sub.customer,
+        items: sub.items.data.map(item => ({
+          id: item.id,
+          priceId: item.price.id,
+          productId: typeof item.price.product === 'string' ? item.price.product : (item.price.product as any)?.id,
+          productName: typeof item.price.product === 'object' ? (item.price.product as Stripe.Product)?.name : null,
+          amount: (item.price.unit_amount || 0) / 100,
+          interval: item.price.recurring?.interval
+        })),
+        metadata: sub.metadata
+      }
+    })
 
     return NextResponse.json({ subscriptions: formattedSubs })
 
@@ -256,16 +221,17 @@ export async function POST(request: NextRequest) {
 
     // Salvar no Supabase
     const supabase = createClient()
+    const subData = subscription as any
     await supabase.from('subscriptions').insert({
       stripe_subscription_id: subscription.id,
       stripe_customer_id: customer.id,
       client_id: clientId,
       plan_key: planKey,
       status: subscription.status,
-      current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-      current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+      current_period_start: new Date((subData.current_period_start || 0) * 1000).toISOString(),
+      current_period_end: new Date((subData.current_period_end || 0) * 1000).toISOString(),
       amount: plan.price
-    }).catch(() => {}) // Ignorar se tabela não existe
+    })
 
     // Atualizar cliente com guardian_mode se aplicável
     if (planKey.startsWith('guardian') && clientId) {
@@ -275,11 +241,10 @@ export async function POST(request: NextRequest) {
           guardian_subscription_id: subscription.id
         })
         .eq('id', clientId)
-        .catch(() => {})
     }
 
-    const latestInvoice = subscription.latest_invoice as Stripe.Invoice
-    const paymentIntent = latestInvoice?.payment_intent as Stripe.PaymentIntent
+    const latestInvoice = subscription.latest_invoice as any
+    const paymentIntent = latestInvoice?.payment_intent as any
 
     return NextResponse.json({
       type: 'subscription',
@@ -287,7 +252,7 @@ export async function POST(request: NextRequest) {
       status: subscription.status,
       customerId: customer.id,
       clientSecret: paymentIntent?.client_secret,
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString()
+      currentPeriodEnd: new Date((subData.current_period_end || 0) * 1000).toISOString()
     })
 
   } catch (error: any) {
@@ -398,13 +363,13 @@ export async function PATCH(request: NextRequest) {
           : null
       })
       .eq('stripe_subscription_id', subscriptionId)
-      .catch(() => {})
 
+    const subResult = subscription as any
     return NextResponse.json({
       subscriptionId: subscription.id,
       status: subscription.status,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString()
+      currentPeriodEnd: new Date((subResult.current_period_end || 0) * 1000).toISOString()
     })
 
   } catch (error: any) {
