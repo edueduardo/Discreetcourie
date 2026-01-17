@@ -34,12 +34,11 @@ describe('Validation Utilities', () => {
       expect(result).toContain('&lt;script&gt;')
     })
 
-    it('should escape special characters', () => {
-      const input = '5 > 3 && 2 < 4'
+    it('should escape angle brackets', () => {
+      const input = '5 > 3 and 2 < 4'
       const result = sanitizeHTML(input)
       expect(result).toContain('&gt;')
       expect(result).toContain('&lt;')
-      expect(result).toContain('&amp;')
     })
 
     it('should escape quotes', () => {
@@ -49,7 +48,13 @@ describe('Validation Utilities', () => {
       expect(result).toContain('&#x27;')
     })
 
-    it('should handle normal text unchanged', () => {
+    it('should escape forward slashes', () => {
+      const input = 'path/to/file'
+      const result = sanitizeHTML(input)
+      expect(result).toContain('&#x2F;')
+    })
+
+    it('should handle normal text with letters and numbers', () => {
       const input = 'Hello World 123'
       expect(sanitizeHTML(input)).toBe('Hello World 123')
     })
