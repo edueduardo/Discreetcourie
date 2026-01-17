@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { sendEmail } from '@/lib/email'
 
 // Vercel Cron Job - Executa diariamente para verificar Last Wills
 // Configure em vercel.json: { "crons": [{ "path": "/api/cron/last-will", "schedule": "0 9 * * *" }] }
@@ -186,8 +187,33 @@ async function triggerLastWillDelivery(supabase: any, item: any) {
   
   // 4. Enviar email para destinatário (se configurado)
   if (item.last_will_recipient_email) {
-    // TODO: Integrar com serviço de email (Resend, SendGrid, etc)
-    console.log(`Would send email to: ${item.last_will_recipient_email}`)
+    try {
+      await sendEmail({
+        to: item.last_will_recipient_email,
+        template: 'lastWillDelivery',
+        data: {
+          recipient_name: item.last_will_recipient_name || 'Recipient',
+          sender_name: item.clients?.code_name || 'Someone special',
+          item_code: item.item_code,
+          message: item.last_will_message || 'You have received a private message.',
+          pickup_instructions: 'Please contact Discreet Courier to arrange secure delivery of your package.',
+        }
+      })
+      
+      // Log email enviado
+      try {
+        await supabase.from('email_logs').insert({
+          to_email: item.last_will_recipient_email,
+          template: 'lastWillDelivery',
+          status: 'sent',
+          sent_at: new Date().toISOString()
+        })
+      } catch (e) {
+        // Ignore if table doesn't exist
+      }
+    } catch (emailError) {
+      console.error('Email send failed:', emailError)
+    }
   }
   
   return { success: true, item_code: item.item_code }
@@ -212,6 +238,24 @@ async function sendCheckinReminder(supabase: any, item: any, daysRemaining: numb
       })
     } catch (smsError) {
       console.error('Reminder SMS failed:', smsError)
+    }
+  }
+  
+  // Enviar email de lembrete ao cliente
+  if (clientEmail) {
+    try {
+      await sendEmail({
+        to: clientEmail,
+        template: 'checkinReminder',
+        data: {
+          client_name: item.clients?.code_name || item.clients?.name || 'Valued Client',
+          item_code: item.item_code,
+          days_remaining: daysRemaining,
+          checkin_url: `${process.env.NEXT_PUBLIC_APP_URL || ''}/portal/vault/checkin?code=${item.item_code}`,
+        }
+      })
+    } catch (emailError) {
+      console.error('Reminder email failed:', emailError)
     }
   }
   
