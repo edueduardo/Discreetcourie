@@ -1,5 +1,7 @@
 'use client'
 
+import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -14,25 +16,27 @@ import {
   Truck,
   PackageCheck,
   Camera,
-  FileSignature
+  FileSignature,
+  Loader2,
+  AlertCircle
 } from 'lucide-react'
 
-// Demo delivery data
-const delivery = {
-  id: '1',
-  tracking_code: 'DC-ABC12345',
-  status: 'delivered',
-  pickup_address: 'Downtown Columbus, OH',
-  delivery_address: '456 Oak Ave, Westerville, OH 43081',
-  delivered_at: 'January 10, 2024 at 2:15 PM',
-  proof_photo_url: '/proof-demo.jpg',
-  has_signature: true,
-  events: [
-    { status: 'confirmed', time: 'Jan 10, 10:00 AM', note: 'Order confirmed' },
-    { status: 'picked_up', time: 'Jan 10, 10:45 AM', note: 'Package picked up from sender' },
-    { status: 'in_transit', time: 'Jan 10, 11:15 AM', note: 'On the way to destination' },
-    { status: 'delivered', time: 'Jan 10, 2:15 PM', note: 'Delivered successfully' },
-  ]
+interface DeliveryEvent {
+  status: string
+  time: string
+  note: string
+}
+
+interface DeliveryData {
+  id: string
+  tracking_code: string
+  status: string
+  pickup_address: string
+  delivery_address: string
+  delivered_at?: string
+  proof_photo_url?: string
+  has_signature?: boolean
+  events: DeliveryEvent[]
 }
 
 const statusSteps = [
@@ -42,16 +46,104 @@ const statusSteps = [
   { status: 'delivered', label: 'Delivered', icon: PackageCheck },
 ]
 
+const statusLabels: Record<string, string> = {
+  pending: 'Pending',
+  confirmed: 'Confirmed',
+  picked_up: 'Picked Up',
+  in_transit: 'In Transit',
+  delivered: 'Delivered',
+  failed: 'Failed',
+  cancelled: 'Cancelled',
+}
+
+const statusVariants: Record<string, 'default' | 'secondary' | 'destructive' | 'warning' | 'success'> = {
+  pending: 'warning',
+  confirmed: 'secondary',
+  picked_up: 'default',
+  in_transit: 'default',
+  delivered: 'success',
+  failed: 'destructive',
+  cancelled: 'destructive',
+}
+
 export default function DeliveryDetailPage() {
+  const params = useParams()
+  const deliveryId = params.id as string
+  
+  const [delivery, setDelivery] = useState<DeliveryData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    const fetchDelivery = async () => {
+      try {
+        const res = await fetch(`/api/orders/${deliveryId}`)
+        if (!res.ok) throw new Error('Delivery not found')
+        const data = await res.json()
+        
+        const formattedDelivery: DeliveryData = {
+          id: data.id,
+          tracking_code: data.tracking_code,
+          status: data.status,
+          pickup_address: data.pickup_address || 'N/A',
+          delivery_address: data.delivery_address || 'N/A',
+          delivered_at: data.delivered_at ? new Date(data.delivered_at).toLocaleString() : undefined,
+          proof_photo_url: data.proof_photo_url,
+          has_signature: data.has_signature,
+          events: data.events || []
+        }
+        setDelivery(formattedDelivery)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load delivery')
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    if (deliveryId) fetchDelivery()
+  }, [deliveryId])
+
   const getCurrentStep = () => {
+    if (!delivery) return -1
     return statusSteps.findIndex(s => s.status === delivery.status)
+  }
+
+  if (loading) {
+    return (
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 text-blue-500 mx-auto mb-4 animate-spin" />
+          <p className="text-slate-400">Loading delivery details...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !delivery) {
+    return (
+      <div className="p-6">
+        <Card className="bg-red-900/20 border-red-700">
+          <CardContent className="p-6 text-center">
+            <AlertCircle className="h-8 w-8 text-red-500 mx-auto mb-4" />
+            <h2 className="text-white font-semibold mb-2">Delivery Not Found</h2>
+            <p className="text-red-400 mb-4">{error || 'Could not load delivery details'}</p>
+            <Link href="/portal">
+              <Button variant="outline" className="border-slate-600">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Portal
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Link href="/portal/deliveries">
+        <Link href="/portal">
           <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white">
             <ArrowLeft className="h-5 w-5" />
           </Button>
@@ -59,9 +151,13 @@ export default function DeliveryDetailPage() {
         <div className="flex-1">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-white">{delivery.tracking_code}</h1>
-            <Badge variant="success">Delivered</Badge>
+            <Badge variant={statusVariants[delivery.status] || 'default'}>
+              {statusLabels[delivery.status] || delivery.status}
+            </Badge>
           </div>
-          <p className="text-slate-400">Delivered on {delivery.delivered_at}</p>
+          {delivery.delivered_at && (
+            <p className="text-slate-400">Delivered on {delivery.delivered_at}</p>
+          )}
         </div>
       </div>
 
