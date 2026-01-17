@@ -1,67 +1,37 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ConciergeTask } from '@/types'
-import { UserCheck, Package, ShoppingBag, AlertCircle, CheckCircle, Clock } from 'lucide-react'
-
-// Demo data - replace with real Supabase queries
-const demoTasks: ConciergeTask[] = [
-  {
-    id: '1',
-    client_id: '1',
-    service_tier: 'concierge',
-    category: 'purchase',
-    title: 'Discreet pharmacy purchase',
-    description: 'Purchase [sensitive item] from CVS',
-    status: 'requested',
-    quoted_price: 125,
-    paid: false,
-    no_trace_mode: true,
-    auto_delete_at: '2026-01-18T00:00:00Z',
-    nda_signed: true,
-    created_at: '2026-01-11T10:00:00Z',
-    updated_at: '2026-01-11T10:00:00Z',
-  },
-  {
-    id: '2',
-    client_id: '2',
-    service_tier: 'concierge',
-    category: 'representation',
-    title: 'Return item to ex',
-    description: 'Return package to [person] at [address]',
-    status: 'in_progress',
-    quoted_price: 150,
-    final_price: 150,
-    paid: true,
-    no_trace_mode: false,
-    nda_signed: false,
-    created_at: '2026-01-10T14:00:00Z',
-    updated_at: '2026-01-11T09:00:00Z',
-  },
-  {
-    id: '3',
-    client_id: '1',
-    service_tier: 'fixer',
-    category: 'special',
-    title: 'Operação Fênix - Phase 2',
-    description: 'Help client transition to new situation',
-    status: 'in_progress',
-    quoted_price: 500,
-    paid: true,
-    no_trace_mode: true,
-    nda_signed: true,
-    created_at: '2026-01-08T00:00:00Z',
-    updated_at: '2026-01-11T08:00:00Z',
-  },
-]
+import { UserCheck, Package, ShoppingBag, AlertCircle, CheckCircle, Clock, Loader2, RefreshCw } from 'lucide-react'
 
 export default function ConciergePage() {
-  const [tasks, setTasks] = useState(demoTasks)
+  const [tasks, setTasks] = useState<ConciergeTask[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState('all')
+
+  const fetchTasks = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/concierge')
+      if (!res.ok) throw new Error('Failed to fetch concierge tasks')
+      const data = await res.json()
+      setTasks(data.tasks || [])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load tasks')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchTasks()
+  }, [])
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -123,12 +93,41 @@ export default function ConciergePage() {
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Concierge Tasks</h1>
-        <p className="text-muted-foreground">VIP premium service requests</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Concierge Tasks</h1>
+          <p className="text-muted-foreground">VIP premium service requests</p>
+        </div>
+        <Button variant="outline" onClick={fetchTasks} disabled={loading}>
+          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
       </div>
 
+      {/* Error State */}
+      {error && (
+        <Card className="p-4 bg-red-900/20 border-red-700">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 text-red-500" />
+            <p className="text-red-400">{error}</p>
+            <Button variant="outline" size="sm" onClick={fetchTasks} className="ml-auto">
+              Retry
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      {/* Loading State */}
+      {loading && (
+        <Card className="p-12 text-center">
+          <Loader2 className="h-8 w-8 mx-auto mb-4 animate-spin text-blue-500" />
+          <p className="text-muted-foreground">Loading concierge tasks...</p>
+        </Card>
+      )}
+
       {/* Stats */}
+      {!loading && (
+      <>
       <div className="grid gap-4 md:grid-cols-4">
         <Card className="p-6">
           <div className="flex items-center justify-between">
@@ -255,13 +254,15 @@ export default function ConciergePage() {
             </Card>
           ))}
 
-          {filteredTasks.length === 0 && (
+          {filteredTasks.length === 0 && !error && (
             <Card className="p-12 text-center">
               <p className="text-muted-foreground">No tasks in this category</p>
             </Card>
           )}
         </TabsContent>
       </Tabs>
+      </>
+      )}
     </div>
   )
 }
