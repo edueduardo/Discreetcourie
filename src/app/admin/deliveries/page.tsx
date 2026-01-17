@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -22,67 +22,23 @@ import {
   Edit,
   Camera,
   MapPin,
-  Clock
+  Clock,
+  Loader2,
+  RefreshCw,
+  AlertCircle
 } from 'lucide-react'
 
-// Demo data
-const deliveries = [
-  {
-    id: '1',
-    tracking_code: 'DC-ABC12345',
-    client: 'Medical Office',
-    pickup_address: '123 Main St, Columbus',
-    delivery_address: '456 Oak Ave, Westerville',
-    status: 'in_transit',
-    priority: 'express',
-    price: 45,
-    created_at: '2024-01-10T10:00:00Z',
-  },
-  {
-    id: '2',
-    tracking_code: 'DC-DEF67890',
-    client: 'Law Firm LLC',
-    pickup_address: '789 Legal Blvd, Columbus',
-    delivery_address: '321 Court St, Dublin',
-    status: 'delivered',
-    priority: 'standard',
-    price: 35,
-    created_at: '2024-01-10T09:00:00Z',
-  },
-  {
-    id: '3',
-    tracking_code: 'DC-GHI11223',
-    client: 'Private Client',
-    pickup_address: '555 Private Dr, Columbus',
-    delivery_address: '777 Secret Ln, Worthington',
-    status: 'pending',
-    priority: 'urgent',
-    price: 75,
-    created_at: '2024-01-10T08:30:00Z',
-  },
-  {
-    id: '4',
-    tracking_code: 'DC-JKL44556',
-    client: 'Pharmacy Plus',
-    pickup_address: '100 Health Way, Columbus',
-    delivery_address: '200 Care Blvd, Grove City',
-    status: 'delivered',
-    priority: 'express',
-    price: 50,
-    created_at: '2024-01-10T07:00:00Z',
-  },
-  {
-    id: '5',
-    tracking_code: 'DC-MNO77889',
-    client: 'Document Services',
-    pickup_address: '888 Paper St, Columbus',
-    delivery_address: '999 File Ave, Reynoldsburg',
-    status: 'picked_up',
-    priority: 'standard',
-    price: 30,
-    created_at: '2024-01-10T06:30:00Z',
-  },
-]
+interface Delivery {
+  id: string
+  tracking_code: string
+  client_name: string
+  pickup_address: string
+  delivery_address: string
+  status: string
+  priority: string
+  price: number
+  created_at: string
+}
 
 const statusColors = {
   pending: 'warning',
@@ -111,13 +67,35 @@ const priorityColors = {
 } as const
 
 export default function DeliveriesPage() {
+  const [deliveries, setDeliveries] = useState<Delivery[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
 
+  const fetchDeliveries = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/orders')
+      if (!res.ok) throw new Error('Failed to fetch deliveries')
+      const data = await res.json()
+      setDeliveries(data.orders || [])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load deliveries')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchDeliveries()
+  }, [])
+
   const filteredDeliveries = deliveries.filter((delivery) => {
     const matchesSearch =
-      delivery.tracking_code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      delivery.client.toLowerCase().includes(searchQuery.toLowerCase())
+      delivery.tracking_code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      delivery.client_name?.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesStatus = statusFilter === 'all' || delivery.status === statusFilter
     return matchesSearch && matchesStatus
   })
@@ -130,13 +108,42 @@ export default function DeliveriesPage() {
           <h1 className="text-2xl font-bold text-white">Deliveries</h1>
           <p className="text-slate-400">Manage all your deliveries</p>
         </div>
-        <Link href="/admin/deliveries/new">
-          <Button className="bg-blue-600 hover:bg-blue-700">
-            <Plus className="h-4 w-4 mr-2" />
-            New Delivery
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={fetchDeliveries} disabled={loading} className="border-slate-700 text-slate-300">
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
           </Button>
-        </Link>
+          <Link href="/admin/deliveries/new">
+            <Button className="bg-blue-600 hover:bg-blue-700">
+              <Plus className="h-4 w-4 mr-2" />
+              New Delivery
+            </Button>
+          </Link>
+        </div>
       </div>
+
+      {/* Error State */}
+      {error && (
+        <Card className="bg-red-900/20 border-red-700">
+          <CardContent className="p-4 flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 text-red-500" />
+            <p className="text-red-400">{error}</p>
+            <Button variant="outline" size="sm" onClick={fetchDeliveries} className="ml-auto border-red-700 text-red-400">
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Loading State */}
+      {loading && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardContent className="p-12 text-center">
+            <Loader2 className="h-8 w-8 text-blue-500 mx-auto mb-4 animate-spin" />
+            <p className="text-slate-400">Loading deliveries...</p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Filters */}
       <Card className="bg-slate-800 border-slate-700">
@@ -168,6 +175,7 @@ export default function DeliveriesPage() {
       </Card>
 
       {/* Deliveries List */}
+      {!loading && (
       <div className="space-y-4">
         {filteredDeliveries.map((delivery) => (
           <Card key={delivery.id} className="bg-slate-800 border-slate-700">
@@ -185,10 +193,10 @@ export default function DeliveriesPage() {
                         {statusLabels[delivery.status as keyof typeof statusLabels]}
                       </Badge>
                       <Badge variant={priorityColors[delivery.priority as keyof typeof priorityColors]}>
-                        {delivery.priority.charAt(0).toUpperCase() + delivery.priority.slice(1)}
+                        {delivery.priority?.charAt(0).toUpperCase() + delivery.priority?.slice(1)}
                       </Badge>
                     </div>
-                    <p className="text-slate-400">{delivery.client}</p>
+                    <p className="text-slate-400">{delivery.client_name}</p>
                     <div className="flex flex-col md:flex-row md:items-center gap-2 text-sm text-slate-500">
                       <span className="flex items-center gap-1">
                         <MapPin className="h-3 w-3" />
@@ -237,7 +245,7 @@ export default function DeliveriesPage() {
           </Card>
         ))}
 
-        {filteredDeliveries.length === 0 && (
+        {filteredDeliveries.length === 0 && !error && (
           <Card className="bg-slate-800 border-slate-700">
             <CardContent className="p-12 text-center">
               <Package className="h-12 w-12 text-slate-600 mx-auto mb-4" />
@@ -253,6 +261,7 @@ export default function DeliveriesPage() {
           </Card>
         )}
       </div>
+      )}
     </div>
   )
 }
