@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Package, ArrowLeft, MapPin, Clock, CheckCircle2, Truck, PackageCheck } from 'lucide-react'
+import { Package, ArrowLeft, MapPin, Clock, CheckCircle2, Truck, PackageCheck, Loader2 } from 'lucide-react'
 
 const statusSteps = [
   { status: 'confirmed', label: 'Order Confirmed', icon: CheckCircle2 },
@@ -15,42 +15,54 @@ const statusSteps = [
   { status: 'delivered', label: 'Delivered', icon: PackageCheck },
 ]
 
-// Demo delivery data
-const demoDelivery = {
-  tracking_code: 'DC-ABC12345',
-  status: 'in_transit',
-  pickup_address: 'Downtown Columbus',
-  delivery_address: 'Westerville, OH',
-  created_at: '2024-01-10T10:00:00Z',
-  estimated_delivery: '2024-01-10T14:00:00Z',
-  events: [
-    { status: 'confirmed', time: '10:00 AM', note: 'Order confirmed' },
-    { status: 'picked_up', time: '10:45 AM', note: 'Package picked up from sender' },
-    { status: 'in_transit', time: '11:15 AM', note: 'On the way to destination' },
-  ]
+interface TrackingEvent {
+  status: string
+  time: string
+  note: string
+}
+
+interface DeliveryData {
+  tracking_code: string
+  status: string
+  pickup_address: string
+  delivery_address: string
+  created_at: string
+  estimated_delivery?: string
+  events: TrackingEvent[]
 }
 
 export default function TrackPage() {
   const [trackingCode, setTrackingCode] = useState('')
-  const [delivery, setDelivery] = useState<typeof demoDelivery | null>(null)
+  const [delivery, setDelivery] = useState<DeliveryData | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
   const handleTrack = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!trackingCode.trim()) {
+      setError('Please enter a tracking code')
+      return
+    }
+    
     setIsLoading(true)
     setError('')
     
-    // Demo tracking - replace with actual API call
-    setTimeout(() => {
-      if (trackingCode.toUpperCase().startsWith('DC-')) {
-        setDelivery(demoDelivery)
-      } else {
-        setError('Delivery not found. Please check your tracking code.')
+    try {
+      const res = await fetch(`/api/tracking?code=${encodeURIComponent(trackingCode.trim())}`)
+      const data = await res.json()
+      
+      if (!res.ok || !data.delivery) {
+        setError(data.error || 'Delivery not found. Please check your tracking code.')
         setDelivery(null)
+      } else {
+        setDelivery(data.delivery)
       }
+    } catch (err) {
+      setError('Failed to track delivery. Please try again.')
+      setDelivery(null)
+    } finally {
       setIsLoading(false)
-    }, 1000)
+    }
   }
 
   const getCurrentStep = () => {
@@ -99,7 +111,12 @@ export default function TrackPage() {
                 className="bg-blue-600 hover:bg-blue-700 px-8"
                 disabled={isLoading}
               >
-                {isLoading ? 'Tracking...' : 'Track'}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Tracking...
+                  </>
+                ) : 'Track'}
               </Button>
             </form>
             {error && (
