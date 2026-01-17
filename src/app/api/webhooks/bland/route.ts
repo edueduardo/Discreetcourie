@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { sendEmail } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
   try {
@@ -150,8 +151,43 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // TODO: Send notification to Eduardo (SMS/Push)
-    // This could integrate with Twilio or other notification service
+    // Send notification to admin about new call/request
+    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL
+    if (adminEmail) {
+      try {
+        await sendEmail({
+          to: adminEmail,
+          template: 'newDeliveryRequest',
+          data: {
+            tracking_code: `CALL-${call_id}`,
+            pickup_address: extractedData.pickup_address || 'Via phone call',
+            delivery_address: extractedData.delivery_address || 'To be confirmed',
+            service_type: serviceType,
+            caller_phone: from,
+            summary: summary || 'New phone request received',
+          }
+        })
+      } catch (emailError) {
+        console.error('Failed to send admin notification:', emailError)
+      }
+    }
+
+    // Also try push notification if configured
+    if (process.env.VAPID_PRIVATE_KEY) {
+      try {
+        await fetch(`${process.env.NEXT_PUBLIC_APP_URL || ''}/api/push`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: `New ${serviceType} Request`,
+            body: `From: ${from} - ${extractedData.task_description || 'Phone call received'}`,
+            url: '/admin/deliveries'
+          })
+        })
+      } catch (pushError) {
+        console.error('Failed to send push notification:', pushError)
+      }
+    }
 
     return NextResponse.json({ 
       success: true,
