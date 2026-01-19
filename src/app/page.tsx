@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Head from 'next/head'
-import { Phone, Shield, Package, ChevronRight, Check, Clock, MapPin, Camera, FileText, Star, Building2, Truck } from 'lucide-react'
+import { Phone, Shield, Package, ChevronRight, Check, Clock, MapPin, Camera, FileText, Building2, Truck } from 'lucide-react'
 
 export default function LandingPage() {
   const [hoveredTier, setHoveredTier] = useState<number | null>(null)
@@ -208,21 +208,19 @@ export default function LandingPage() {
               </p>
             </div>
             
-            {/* Stats - Social Proof */}
+            {/* Stats - Honest Launch Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
               <div className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-[#e94560] mb-2">500+</div>
-                <div className="text-gray-400">Deliveries Completed</div>
+                <div className="text-4xl md:text-5xl font-bold text-[#e94560] mb-2">1</div>
+                <div className="text-gray-400">Driver, Direct Service</div>
               </div>
               <div className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-[#e94560] mb-2">100%</div>
-                <div className="text-gray-400">On-Time Rate</div>
+                <div className="text-4xl md:text-5xl font-bold text-[#e94560] mb-2">2hr</div>
+                <div className="text-gray-400">Min Booking Notice</div>
               </div>
               <div className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-[#e94560] mb-2">4.9</div>
-                <div className="text-gray-400 flex items-center justify-center gap-1">
-                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" /> Rating
-                </div>
+                <div className="text-4xl md:text-5xl font-bold text-[#e94560] mb-2">6</div>
+                <div className="text-gray-400">Deliveries/Day Max</div>
               </div>
               <div className="text-center">
                 <div className="text-4xl md:text-5xl font-bold text-[#e94560] mb-2">25mi</div>
