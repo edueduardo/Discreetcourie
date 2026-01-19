@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
-import { encryptString, decryptString, isEncryptionConfigured } from '@/lib/encryption'
+import { encryptForStorage, decryptFromStorage, isEncryptionConfigured } from '@/lib/encryption'
 
 // POST - Enviar mensagem
 export async function POST(request: NextRequest) {
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
   
   if (isEncryptionConfigured()) {
     try {
-      encryptedContent = encryptString(content)
+      encryptedContent = encryptForStorage(content)
       isEncrypted = true
     } catch (err) {
       console.error('Encryption failed, storing plaintext:', err)
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
       try {
         return {
           ...msg,
-          content: decryptString(msg.content_encrypted),
+          content: decryptFromStorage(msg.content_encrypted),
           content_encrypted: '[ENCRYPTED]'
         }
       } catch (err) {

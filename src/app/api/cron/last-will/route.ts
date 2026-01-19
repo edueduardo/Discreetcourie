@@ -190,8 +190,8 @@ async function triggerLastWillDelivery(supabase: any, item: any) {
     try {
       await sendEmail({
         to: item.last_will_recipient_email,
-        template: 'lastWillDelivery',
-        data: {
+        template: 'last_will_triggered',
+        variables: {
           recipient_name: item.last_will_recipient_name || 'Recipient',
           sender_name: item.clients?.code_name || 'Someone special',
           item_code: item.item_code,
@@ -204,7 +204,7 @@ async function triggerLastWillDelivery(supabase: any, item: any) {
       try {
         await supabase.from('email_logs').insert({
           to_email: item.last_will_recipient_email,
-          template: 'lastWillDelivery',
+          template: 'last_will_triggered',
           status: 'sent',
           sent_at: new Date().toISOString()
         })
@@ -246,12 +246,11 @@ async function sendCheckinReminder(supabase: any, item: any, daysRemaining: numb
     try {
       await sendEmail({
         to: clientEmail,
-        template: 'checkinReminder',
-        data: {
-          client_name: item.clients?.code_name || item.clients?.name || 'Valued Client',
-          item_code: item.item_code,
-          days_remaining: daysRemaining,
-          checkin_url: `${process.env.NEXT_PUBLIC_APP_URL || ''}/portal/vault/checkin?code=${item.item_code}`,
+        template: 'last_will_reminder',
+        variables: {
+          recipientName: item.clients?.code_name || item.clients?.name || 'Valued Client',
+          daysRemaining: daysRemaining,
+          actionUrl: `${process.env.NEXT_PUBLIC_APP_URL || ''}/portal/vault/checkin?code=${item.item_code}`,
         }
       })
     } catch (emailError) {

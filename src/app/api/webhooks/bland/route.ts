@@ -157,14 +157,11 @@ export async function POST(request: NextRequest) {
       try {
         await sendEmail({
           to: adminEmail,
-          template: 'newDeliveryRequest',
-          data: {
-            tracking_code: `CALL-${call_id}`,
-            pickup_address: extractedData.pickup_address || 'Via phone call',
-            delivery_address: extractedData.delivery_address || 'To be confirmed',
-            service_type: serviceType,
-            caller_phone: from,
-            summary: summary || 'New phone request received',
+          template: 'delivery_created',
+          variables: {
+            trackingCode: `CALL-${call_id}`,
+            message: `New ${serviceType} request via phone from ${from}. ${summary || 'Phone call received'}`,
+            actionUrl: `${process.env.NEXT_PUBLIC_APP_URL || ''}/admin/deliveries`,
           }
         })
       } catch (emailError) {
