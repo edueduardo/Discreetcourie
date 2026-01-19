@@ -217,7 +217,7 @@ export const SERVICE_TIERS: ServiceTierInfo[] = [
     tagline: 'We Handle Everything',
     description: 'We buy, fetch, and handle tasks you cannot or prefer not to do',
     priceRange: '$75-150/hr',
-    features: ['Purchase service', 'Errand running', 'Representation', 'Encrypted chat', '24/7 availability', 'Zero judgment'],
+    features: ['Purchase service', 'Errand running', 'Representation', 'Direct SMS chat', 'Extended hours 8AM-8PM', 'Zero judgment'],
     icon: 'UserCheck'
   },
   {
@@ -226,7 +226,7 @@ export const SERVICE_TIERS: ServiceTierInfo[] = [
     tagline: 'Problems Solved',
     description: 'Complex situations handled with absolute confidence and discretion',
     priceRange: '$200-500/task',
-    features: ['VIP priority', 'Direct line access', 'No time limits', 'Complete confidentiality', 'NDA protected', 'Retainer available'],
+    features: ['VIP priority', 'Direct line access', 'Up to 4 hours per task', 'Complete confidentiality', 'NDA protected', 'Monthly retainer (48h notice)'],
     icon: 'Shield'
   }
 ]
@@ -329,7 +329,7 @@ export const TASK_PRICE_GUIDE = {
 
   // Premium
   'complex_situation': { min: 300, max: 500, description: 'The Fixer tasks' },
-  'monthly_retainer': { min: 500, max: 1000, description: '24/7 availability' },
+  'monthly_retainer': { min: 500, max: 1000, description: 'Priority access retainer' },
 }
 
 // ============================================
@@ -524,10 +524,10 @@ export const PREMIUM_SERVICES: PremiumService[] = [
   },
   {
     id: 'guardian_mode',
-    name: 'Guardian Mode 24/7',
-    tagline: 'Você nunca está sozinho',
-    description: 'Disponibilidade total, qualquer hora, qualquer situação',
-    how_it_works: 'Cliente paga retainer mensal, tem linha direta 24h',
+    name: 'Guardian Mode VIP',
+    tagline: 'Priority access when you need it',
+    description: 'Extended hours availability with priority scheduling',
+    how_it_works: 'Client pays monthly retainer, gets direct line 8AM-8PM + emergency on-call',
     price: '$500/mês',
     why_powerful: 'Atende medo de abandono + desejo de proteção',
     tier: 'fixer'

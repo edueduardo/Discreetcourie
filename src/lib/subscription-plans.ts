@@ -2,14 +2,14 @@
 export const SUBSCRIPTION_PLANS = {
   guardian_basic: {
     name: 'Guardian Mode Basic',
-    description: 'Monitoramento 24/7 básico',
+    description: 'Priority access during extended hours',
     price: 99,
     interval: 'month' as const,
     features: ['Check-in diário', 'Alertas SMS', 'Suporte por email']
   },
   guardian_premium: {
     name: 'Guardian Mode Premium', 
-    description: 'Proteção completa 24/7',
+    description: 'Full priority access + emergency on-call',
     price: 299,
     interval: 'month' as const,
     features: ['Check-in em tempo real', 'Alertas SMS + Chamada', 'Suporte prioritário', 'Protocolo de emergência']

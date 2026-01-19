@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               to: client.phone,
-              message: `[Discreet Courier] Your Guardian Mode subscription expires in ${daysUntilExpiry} days. Renew to maintain 24/7 protection.`
+              message: `[Discreet Courier] Your Guardian Mode subscription expires in ${daysUntilExpiry} days. Renew to maintain VIP priority access.`
             })
           }).catch(() => {})
         }

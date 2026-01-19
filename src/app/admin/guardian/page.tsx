@@ -94,10 +94,10 @@ export default function GuardianPage() {
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
             <Shield className="h-8 w-8 text-blue-500" />
-            Guardian Mode 24/7
+            Guardian Mode VIP
           </h1>
           <p className="text-muted-foreground">
-            VIP clients with 24/7 priority access
+            VIP clients with priority access (8AM-8PM + on-call)
           </p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
@@ -111,7 +111,7 @@ export default function GuardianPage() {
             <DialogHeader>
               <DialogTitle>Activate Guardian Mode</DialogTitle>
               <DialogDescription>
-                Enable 24/7 priority access for a VIP client
+                Enable priority access for a VIP client
               </DialogDescription>
             </DialogHeader>
             <ActivateForm onClose={() => setIsAddDialogOpen(false)} onSuccess={fetchData} />

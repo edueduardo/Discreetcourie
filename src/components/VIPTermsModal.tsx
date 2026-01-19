@@ -65,7 +65,7 @@ Both parties enter this pact understanding that trust is the foundation of our r
 Welcome to VIP status at Discreet Courier Columbus.
 
 1. VIP BENEFITS
-• 24/7 Guardian Mode availability
+• Extended Hours Guardian Mode (8AM-8PM + Emergency on-call)
 • Direct phone line to your dedicated driver
 • Priority handling for all requests
 • No Trace Mode on all services
