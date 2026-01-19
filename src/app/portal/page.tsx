@@ -253,7 +253,7 @@ export default function ClientPortal() {
                 <p className="text-slate-400 text-sm">Call us to schedule a pickup</p>
               </div>
               <Button variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-700">
-                (614) 555-0123
+                (614) 500-3080
               </Button>
             </div>
           </CardContent>

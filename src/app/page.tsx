@@ -2,437 +2,539 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Phone, Shield, Lock, Clock, Trash2, Package, ChevronRight, Check } from 'lucide-react'
+import Head from 'next/head'
+import { Phone, Shield, Package, ChevronRight, Check, Clock, MapPin, Camera, FileText, Star, Building2, Truck } from 'lucide-react'
 
 export default function LandingPage() {
   const [hoveredTier, setHoveredTier] = useState<number | null>(null)
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
-      
-      {/* ══════════════════════════════════════════════════════════════════
-          SECTION 1: ATTENTION - Hero
-          Objetivo: Capturar em 5 segundos
-      ══════════════════════════════════════════════════════════════════ */}
-      <section className="relative min-h-screen flex items-center justify-center px-6">
-        {/* Background gradient sutil */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a2e] to-[#0a0a0f]" />
-        
-        {/* Efeito de "névoa" no topo */}
-        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#0f3460]/20 to-transparent" />
-        
-        <div className="relative z-10 text-center max-w-4xl mx-auto">
-          {/* Badge de confiança */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1a1a2e] border border-[#2d3748] mb-8">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-            <span className="text-sm text-gray-400">Servindo Columbus com discrição desde 2024</span>
-          </div>
-          
-          {/* Headline Principal */}
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
-            <span className="block">O Que Você Precisa Fazer,</span>
-            <span className="block text-[#e94560]">Nós Fazemos.</span>
-          </h1>
-          
-          {/* Subheadline */}
-          <p className="text-xl md:text-2xl text-gray-400 mb-8 max-w-2xl mx-auto">
-            O que você precisa esquecer, já esquecemos.
-          </p>
-          
-          <p className="text-lg text-gray-500 mb-12">
-            Entrega confidencial e concierge pessoal em Columbus, OH.
-            <br />
-            <span className="text-white font-medium">Um motorista. Zero rastros. Confiança absoluta.</span>
-          </p>
-          
-          {/* CTAs */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a 
-              href="tel:+16145003080" 
-              className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#e94560] hover:bg-[#d63d56] rounded-lg text-lg font-semibold transition-all transform hover:scale-105"
-            >
-              <Phone className="w-5 h-5" />
-              Ligar: (614) 500-3080
-            </a>
-            <Link 
-              href="/concierge/request"
-              className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#1a1a2e] hover:bg-[#2d3748] border border-[#2d3748] rounded-lg text-lg font-semibold transition-all"
-            >
-              Solicitar Discretamente
-              <ChevronRight className="w-5 h-5" />
-            </Link>
-          </div>
-          
-          {/* Trust indicators */}
-          <div className="mt-16 flex flex-wrap justify-center gap-8 text-sm text-gray-500">
-            <div className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-green-500" />
-              <span>100% Confidencial</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-green-500" />
-              <span>Um Único Motorista</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-green-500" />
-              <span>Disponível 24/7</span>
-            </div>
-          </div>
-        </div>
-        
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-gray-600 rounded-full flex justify-center pt-2">
-            <div className="w-1 h-2 bg-gray-600 rounded-full" />
-          </div>
-        </div>
-      </section>
+    <>
+      {/* SEO Meta Tags */}
+      <Head>
+        <title>Discreet Courier Columbus | Same-Day Confidential Delivery</title>
+        <meta name="description" content="Private, confidential delivery service in Columbus, Ohio. Same-day delivery, no questions asked. One driver, complete discretion. Book online 24/7." />
+        <meta name="keywords" content="confidential delivery columbus, same day courier ohio, discreet delivery service, private courier columbus, document delivery columbus, personal courier service" />
+        <meta property="og:title" content="Discreet Courier Columbus | Same-Day Confidential Delivery" />
+        <meta property="og:description" content="Private, confidential delivery service in Columbus, Ohio. Same-day delivery, no questions asked." />
+        <meta property="og:type" content="website" />
+        <meta name="robots" content="index, follow" />
+      </Head>
 
-      {/* ══════════════════════════════════════════════════════════════════
-          SECTION 2: INTEREST - Benefícios
-          Objetivo: Mostrar relevância
-      ══════════════════════════════════════════════════════════════════ */}
-      <section className="py-24 px-6 bg-[#0f0f17]">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Por Que Pessoas Inteligentes Nos Escolhem
-            </h2>
-            <p className="text-gray-400 text-lg">
-              Não somos uma empresa de entregas. Somos seu aliado silencioso.
+      <div className="min-h-screen bg-[#0a0a0f] text-white">
+        
+        {/* ══════════════════════════════════════════════════════════════════
+            SECTION 1: ATTENTION - Hero (AIDA Step 1)
+            Psychology: Pattern interrupt, curiosity gap, immediate value proposition
+        ══════════════════════════════════════════════════════════════════ */}
+        <section className="relative min-h-screen flex items-center justify-center px-6">
+          {/* Background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a2e] to-[#0a0a0f]" />
+          
+          {/* Subtle top glow effect */}
+          <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#0f3460]/20 to-transparent" />
+          
+          <div className="relative z-10 text-center max-w-4xl mx-auto">
+            {/* Trust Badge - Social Proof */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1a1a2e] border border-[#2d3748] mb-8">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <span className="text-sm text-gray-400">Serving Columbus with discretion since 2024</span>
+            </div>
+            
+            {/* Main Headline - Benefit-focused, curiosity-inducing */}
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
+              <span className="block">Your Package Delivered.</span>
+              <span className="block text-[#e94560]">No Questions Asked.</span>
+            </h1>
+            
+            {/* Subheadline - Clarifies the service */}
+            <p className="text-xl md:text-2xl text-gray-400 mb-8 max-w-2xl mx-auto">
+              Same-day confidential courier service in Columbus, Ohio.
+            </p>
+            
+            <p className="text-lg text-gray-500 mb-12">
+              One driver. Complete discretion. Photo proof of every delivery.
+              <br />
+              <span className="text-white font-medium">Professional. Private. Punctual.</span>
+            </p>
+            
+            {/* CTAs - Primary action prominent */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a 
+                href="tel:+16145003080" 
+                className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#e94560] hover:bg-[#d63d56] rounded-lg text-lg font-semibold transition-all transform hover:scale-105"
+              >
+                <Phone className="w-5 h-5" />
+                Call Now: (614) 500-3080
+              </a>
+              <Link 
+                href="/concierge/request"
+                className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#1a1a2e] hover:bg-[#2d3748] border border-[#2d3748] rounded-lg text-lg font-semibold transition-all"
+              >
+                Book Online
+                <ChevronRight className="w-5 h-5" />
+              </Link>
+            </div>
+            
+            {/* Trust indicators - Reduce anxiety */}
+            <div className="mt-16 flex flex-wrap justify-center gap-8 text-sm text-gray-500">
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-green-500" />
+                <span>100% Confidential</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-green-500" />
+                <span>Same-Day Available</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-green-500" />
+                <span>Photo Proof Included</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Scroll indicator */}
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <div className="w-6 h-10 border-2 border-gray-600 rounded-full flex justify-center pt-2">
+              <div className="w-1 h-2 bg-gray-600 rounded-full" />
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            SECTION 2: INTEREST - Services (AIDA Step 2)
+            Psychology: Specific benefits, loss aversion, exclusivity
+        ══════════════════════════════════════════════════════════════════ */}
+        <section className="py-24 px-6 bg-[#0f0f17]">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                What I Deliver For You
+              </h2>
+              <p className="text-gray-400 text-lg">
+                Professional courier services for people who value privacy.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {/* Service 1: Basic Courier */}
+              <div className="p-8 rounded-2xl bg-[#1a1a2e] border border-[#2d3748] hover:border-[#e94560]/50 transition-all group">
+                <div className="w-14 h-14 rounded-xl bg-[#0f3460] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <Truck className="w-7 h-7 text-[#e94560]" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3">Same-Day Delivery</h3>
+                <p className="text-gray-400 mb-4">
+                  Documents, packages, personal items. Picked up and delivered the same day within Columbus metro area.
+                </p>
+                <p className="text-[#e94560] font-semibold">From $35</p>
+              </div>
+              
+              {/* Service 2: Confidential Delivery */}
+              <div className="p-8 rounded-2xl bg-[#1a1a2e] border border-[#2d3748] hover:border-[#e94560]/50 transition-all group">
+                <div className="w-14 h-14 rounded-xl bg-[#0f3460] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <Shield className="w-7 h-7 text-[#e94560]" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3">Confidential Delivery</h3>
+                <p className="text-gray-400 mb-4">
+                  When discretion matters. Optional NDA, no public tracking, direct communication only. Your business stays private.
+                </p>
+                <p className="text-[#e94560] font-semibold">From $55</p>
+              </div>
+              
+              {/* Service 3: Discreet Shopping */}
+              <div className="p-8 rounded-2xl bg-[#1a1a2e] border border-[#2d3748] hover:border-[#e94560]/50 transition-all group">
+                <div className="w-14 h-14 rounded-xl bg-[#0f3460] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <Package className="w-7 h-7 text-[#e94560]" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3">Discreet Shopping</h3>
+                <p className="text-gray-400 mb-4">
+                  I buy, I deliver. Pharmacy pickups, personal purchases, surprise gifts. No questions, no judgment.
+                </p>
+                <p className="text-[#e94560] font-semibold">$75/hour</p>
+              </div>
+              
+              {/* Service 4: B2B Documents */}
+              <div className="p-8 rounded-2xl bg-[#1a1a2e] border border-[#2d3748] hover:border-[#e94560]/50 transition-all group">
+                <div className="w-14 h-14 rounded-xl bg-[#0f3460] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <Building2 className="w-7 h-7 text-[#e94560]" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3">Business Documents</h3>
+                <p className="text-gray-400 mb-4">
+                  Office-to-office delivery for law firms, medical offices, and businesses. Recurring schedules available.
+                </p>
+                <p className="text-[#e94560] font-semibold">From $40</p>
+              </div>
+              
+              {/* Service 5: Photo Proof */}
+              <div className="p-8 rounded-2xl bg-[#1a1a2e] border border-[#2d3748] hover:border-[#e94560]/50 transition-all group">
+                <div className="w-14 h-14 rounded-xl bg-[#0f3460] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <Camera className="w-7 h-7 text-[#e94560]" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3">Photo Proof of Delivery</h3>
+                <p className="text-gray-400 mb-4">
+                  Every delivery documented with timestamped photos. GPS-verified location. Digital proof you can trust.
+                </p>
+                <p className="text-[#e94560] font-semibold">Included</p>
+              </div>
+              
+              {/* Service 6: Real-Time Tracking */}
+              <div className="p-8 rounded-2xl bg-[#1a1a2e] border border-[#2d3748] hover:border-[#e94560]/50 transition-all group">
+                <div className="w-14 h-14 rounded-xl bg-[#0f3460] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <MapPin className="w-7 h-7 text-[#e94560]" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3">Real-Time Updates</h3>
+                <p className="text-gray-400 mb-4">
+                  SMS updates at every step. Know exactly when your package is picked up, in transit, and delivered.
+                </p>
+                <p className="text-[#e94560] font-semibold">Included</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            SECTION 3: DESIRE - Social Proof & Trust (AIDA Step 3)
+            Psychology: Authority, social proof, scarcity, risk reversal
+        ══════════════════════════════════════════════════════════════════ */}
+        <section className="py-24 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Why Columbus Trusts Me
+              </h2>
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+                Attorneys, executives, medical professionals, and people who understand 
+                that some things require a personal touch.
+              </p>
+            </div>
+            
+            {/* Stats - Social Proof */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
+              <div className="text-center">
+                <div className="text-4xl md:text-5xl font-bold text-[#e94560] mb-2">500+</div>
+                <div className="text-gray-400">Deliveries Completed</div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl md:text-5xl font-bold text-[#e94560] mb-2">100%</div>
+                <div className="text-gray-400">On-Time Rate</div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl md:text-5xl font-bold text-[#e94560] mb-2">4.9</div>
+                <div className="text-gray-400 flex items-center justify-center gap-1">
+                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" /> Rating
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl md:text-5xl font-bold text-[#e94560] mb-2">25mi</div>
+                <div className="text-gray-400">Service Radius</div>
+              </div>
+            </div>
+            
+            {/* Differentiators */}
+            <div className="grid md:grid-cols-3 gap-8 mb-16">
+              <div className="text-center p-6">
+                <div className="text-4xl mb-4">🚗</div>
+                <h3 className="text-xl font-semibold mb-2">One Driver Only</h3>
+                <p className="text-gray-400">Your package never changes hands. I pick it up, I deliver it. That's it.</p>
+              </div>
+              <div className="text-center p-6">
+                <div className="text-4xl mb-4">📱</div>
+                <h3 className="text-xl font-semibold mb-2">Direct Communication</h3>
+                <p className="text-gray-400">Text me directly. No call centers, no bots, no runaround.</p>
+              </div>
+              <div className="text-center p-6">
+                <div className="text-4xl mb-4">🔒</div>
+                <h3 className="text-xl font-semibold mb-2">Your Privacy First</h3>
+                <p className="text-gray-400">What you send is your business. I don't ask, I don't tell.</p>
+              </div>
+            </div>
+            
+            {/* Quote */}
+            <div className="max-w-3xl mx-auto text-center">
+              <blockquote className="text-2xl md:text-3xl font-light italic text-gray-300 mb-6">
+                "When it absolutely has to get there today, and no one else needs to know."
+              </blockquote>
+              <div className="w-16 h-1 bg-[#e94560] mx-auto" />
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            SECTION 4: ACTION - Pricing & CTAs (AIDA Step 4)
+            Psychology: Price anchoring, clear value, urgency, easy action
+        ══════════════════════════════════════════════════════════════════ */}
+        <section className="py-24 px-6 bg-[#0f0f17]">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Simple, Transparent Pricing
+              </h2>
+              <p className="text-gray-400 text-lg">
+                No hidden fees. No surprises. Price quoted before you book.
+              </p>
+            </div>
+            
+            {/* Pricing Cards - Anchoring: highest first */}
+            <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+              
+              {/* Tier 3: Concierge - Most Popular */}
+              <div 
+                className="relative p-8 rounded-2xl bg-gradient-to-b from-[#e94560]/20 to-[#1a1a2e] border-2 border-[#e94560] hover:transform hover:scale-105 transition-all"
+                onMouseEnter={() => setHoveredTier(3)}
+                onMouseLeave={() => setHoveredTier(null)}
+              >
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-4 py-1 bg-[#e94560] rounded-full text-sm font-semibold">
+                  MOST POPULAR
+                </div>
+                <h3 className="text-xl font-bold mb-2 mt-4">Discreet Shopping</h3>
+                <div className="text-3xl font-bold mb-1">$75</div>
+                <div className="text-gray-400 text-sm mb-6">per hour</div>
+                <ul className="space-y-3 mb-8 text-sm">
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-[#e94560]" />
+                    I buy, you receive
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-[#e94560]" />
+                    No questions asked
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-[#e94560]" />
+                    Receipt provided
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-[#e94560]" />
+                    Delivery included
+                  </li>
+                </ul>
+                <Link 
+                  href="/concierge/request?service=shopping"
+                  className="block w-full py-3 text-center rounded-lg bg-[#e94560] hover:bg-[#d63d56] font-semibold transition-colors"
+                >
+                  Book Now
+                </Link>
+              </div>
+              
+              {/* Tier 2: Confidential */}
+              <div 
+                className="p-8 rounded-2xl bg-[#1a1a2e] border border-[#2d3748] hover:border-[#e94560]/50 hover:transform hover:scale-105 transition-all"
+                onMouseEnter={() => setHoveredTier(2)}
+                onMouseLeave={() => setHoveredTier(null)}
+              >
+                <h3 className="text-xl font-bold mb-2">Confidential</h3>
+                <div className="text-3xl font-bold mb-1">$55</div>
+                <div className="text-gray-400 text-sm mb-6">per delivery</div>
+                <ul className="space-y-3 mb-8 text-sm">
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    NDA available
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    No public tracking
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Direct SMS only
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Photo proof private
+                  </li>
+                </ul>
+                <Link 
+                  href="/concierge/request?service=confidential"
+                  className="block w-full py-3 text-center rounded-lg bg-[#2d3748] hover:bg-[#3d4758] font-semibold transition-colors"
+                >
+                  Book Now
+                </Link>
+              </div>
+              
+              {/* Tier 1: Standard Courier */}
+              <div 
+                className="p-8 rounded-2xl bg-[#1a1a2e] border border-[#2d3748] hover:border-[#e94560]/50 hover:transform hover:scale-105 transition-all"
+                onMouseEnter={() => setHoveredTier(1)}
+                onMouseLeave={() => setHoveredTier(null)}
+              >
+                <h3 className="text-xl font-bold mb-2">Standard</h3>
+                <div className="text-3xl font-bold mb-1">$35</div>
+                <div className="text-gray-400 text-sm mb-6">per delivery</div>
+                <ul className="space-y-3 mb-8 text-sm">
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Same-day delivery
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    SMS updates
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Photo proof
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Online tracking
+                  </li>
+                </ul>
+                <Link 
+                  href="/concierge/request?service=standard"
+                  className="block w-full py-3 text-center rounded-lg bg-[#2d3748] hover:bg-[#3d4758] font-semibold transition-colors"
+                >
+                  Book Now
+                </Link>
+              </div>
+            </div>
+            
+            {/* Additional pricing info */}
+            <div className="mt-12 text-center text-gray-400 text-sm">
+              <p className="mb-2">* Distance surcharge: +$2/mile beyond 10 miles</p>
+              <p className="mb-2">* After-hours (6pm-9am): +30%</p>
+              <p>* Weekend deliveries: +50%</p>
+            </div>
+            
+            {/* CTA Final */}
+            <div className="mt-16 text-center">
+              <p className="text-gray-400 mb-6">Questions? Call me directly. I answer.</p>
+              <a 
+                href="tel:+16145003080" 
+                className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#1a1a2e] hover:bg-[#2d3748] border border-[#2d3748] rounded-lg text-lg font-semibold transition-all"
+              >
+                <Phone className="w-5 h-5" />
+                (614) 500-3080
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            SECTION 5: HOW IT WORKS - Reduce Friction
+            Psychology: Simplicity, clear process, reduce anxiety
+        ══════════════════════════════════════════════════════════════════ */}
+        <section className="py-24 px-6">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                How It Works
+              </h2>
+              <p className="text-gray-400 text-lg">
+                Three simple steps. That's it.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full bg-[#e94560] flex items-center justify-center mx-auto mb-6 text-2xl font-bold">1</div>
+                <h3 className="text-xl font-semibold mb-2">Book Online or Call</h3>
+                <p className="text-gray-400">Tell me the pickup address, delivery address, and when you need it.</p>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full bg-[#e94560] flex items-center justify-center mx-auto mb-6 text-2xl font-bold">2</div>
+                <h3 className="text-xl font-semibold mb-2">I Pick It Up</h3>
+                <p className="text-gray-400">You'll get a text when I'm on my way and when I have your package.</p>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full bg-[#e94560] flex items-center justify-center mx-auto mb-6 text-2xl font-bold">3</div>
+                <h3 className="text-xl font-semibold mb-2">Delivered with Proof</h3>
+                <p className="text-gray-400">Photo proof sent to your phone. Done.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            SECTION 6: SERVICE AREA
+        ══════════════════════════════════════════════════════════════════ */}
+        <section className="py-16 px-6 bg-[#0f0f17]">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-2xl font-bold mb-4">Service Area</h2>
+            <p className="text-gray-400 mb-6">
+              Columbus metropolitan area within 25 miles of downtown.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-500">
+              <span className="px-3 py-1 bg-[#1a1a2e] rounded-full">Downtown Columbus</span>
+              <span className="px-3 py-1 bg-[#1a1a2e] rounded-full">Upper Arlington</span>
+              <span className="px-3 py-1 bg-[#1a1a2e] rounded-full">Worthington</span>
+              <span className="px-3 py-1 bg-[#1a1a2e] rounded-full">Dublin</span>
+              <span className="px-3 py-1 bg-[#1a1a2e] rounded-full">Westerville</span>
+              <span className="px-3 py-1 bg-[#1a1a2e] rounded-full">Gahanna</span>
+              <span className="px-3 py-1 bg-[#1a1a2e] rounded-full">Reynoldsburg</span>
+              <span className="px-3 py-1 bg-[#1a1a2e] rounded-full">Grove City</span>
+              <span className="px-3 py-1 bg-[#1a1a2e] rounded-full">Hilliard</span>
+            </div>
+            <p className="text-gray-500 text-sm mt-4">
+              Outside 25 miles? <a href="tel:+16145003080" className="text-[#e94560] hover:underline">Call for a quote</a>.
             </p>
           </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Benefício 1 */}
-            <div className="p-8 rounded-2xl bg-[#1a1a2e] border border-[#2d3748] hover:border-[#e94560]/50 transition-all group">
-              <div className="w-14 h-14 rounded-xl bg-[#0f3460] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Package className="w-7 h-7 text-[#e94560]" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Entrego o que você não pode buscar</h3>
-              <p className="text-gray-400">
-                Compras discretas, documentos sensíveis, presentes secretos. 
-                Sem perguntas, sem julgamentos.
-              </p>
-            </div>
-            
-            {/* Benefício 2 */}
-            <div className="p-8 rounded-2xl bg-[#1a1a2e] border border-[#2d3748] hover:border-[#e94560]/50 transition-all group">
-              <div className="w-14 h-14 rounded-xl bg-[#0f3460] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Lock className="w-7 h-7 text-[#e94560]" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Guardo o que você não pode ter em casa</h3>
-              <p className="text-gray-400">
-                Cofre Humano - documentos, itens, segredos. 
-                Em local seguro, longe de olhos curiosos.
-              </p>
-            </div>
-            
-            {/* Benefício 3 */}
-            <div className="p-8 rounded-2xl bg-[#1a1a2e] border border-[#2d3748] hover:border-[#e94560]/50 transition-all group">
-              <div className="w-14 h-14 rounded-xl bg-[#0f3460] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Trash2 className="w-7 h-7 text-[#e94560]" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Esqueço o que você precisa que eu esqueça</h3>
-              <p className="text-gray-400">
-                Destruição de dados com prova em vídeo. 
-                Quando acabar, nunca existiu.
-              </p>
-            </div>
-            
-            {/* Benefício 4 */}
-            <div className="p-8 rounded-2xl bg-[#1a1a2e] border border-[#2d3748] hover:border-[#e94560]/50 transition-all group">
-              <div className="w-14 h-14 rounded-xl bg-[#0f3460] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Clock className="w-7 h-7 text-[#e94560]" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Estou aqui quando todos dormem</h3>
-              <p className="text-gray-400">
-                Guardian Mode 24/7 - emergências reais, qualquer hora. 
-                Você nunca está sozinho.
-              </p>
-            </div>
-            
-            {/* Benefício 5 */}
-            <div className="p-8 rounded-2xl bg-[#1a1a2e] border border-[#2d3748] hover:border-[#e94560]/50 transition-all group">
-              <div className="w-14 h-14 rounded-xl bg-[#0f3460] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Shield className="w-7 h-7 text-[#e94560]" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Represento você quando você não pode ir</h3>
-              <p className="text-gray-400">
-                Procurador de Sombras - eu vou, falo, resolvo no seu lugar. 
-                Você fica em paz.
-              </p>
-            </div>
-            
-            {/* Benefício 6 */}
-            <div className="p-8 rounded-2xl bg-[#1a1a2e] border border-[#2d3748] hover:border-[#e94560]/50 transition-all group">
-              <div className="w-14 h-14 rounded-xl bg-[#0f3460] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <svg className="w-7 h-7 text-[#e94560]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Entrego suas últimas palavras</h3>
-              <p className="text-gray-400">
-                Última Vontade - mensagem ou item entregue após você partir. 
-                Seu legado, garantido.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ══════════════════════════════════════════════════════════════════
-          SECTION 3: DESIRE - Prova Social
-          Objetivo: Criar confiança e desejo
-      ══════════════════════════════════════════════════════════════════ */}
-      <section className="py-24 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Para Quem Valoriza o Silêncio
-            </h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-              Advogados, médicos, executivos e pessoas que entendem 
-              que algumas coisas não podem ser confiadas a qualquer um.
-            </p>
-          </div>
-          
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
-            <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-[#e94560] mb-2">347+</div>
-              <div className="text-gray-400">Entregas Confidenciais</div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-[#e94560] mb-2">100%</div>
-              <div className="text-gray-400">Sigilo Mantido</div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-[#e94560] mb-2">0</div>
-              <div className="text-gray-400">Vazamentos</div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-[#e94560] mb-2">24/7</div>
-              <div className="text-gray-400">Disponibilidade VIP</div>
-            </div>
-          </div>
-          
-          {/* Quote */}
-          <div className="max-w-3xl mx-auto text-center">
-            <blockquote className="text-2xl md:text-3xl font-light italic text-gray-300 mb-6">
-              "Algumas coisas só podem ser confiadas a quem sabe esquecer."
-            </blockquote>
-            <div className="w-16 h-1 bg-[#e94560] mx-auto" />
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════════════════
-          SECTION 4: ACTION - Preços e CTAs
-          Objetivo: Converter
-      ══════════════════════════════════════════════════════════════════ */}
-      <section className="py-24 px-6 bg-[#0f0f17]">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Pronto Para Ter Alguém de Confiança?
-            </h2>
-            <p className="text-gray-400 text-lg">
-              Escolha o nível de serviço que você precisa
-            </p>
-          </div>
-          
-          {/* Pricing Cards - Ordem reversa para ancoragem */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            
-            {/* Tier 4: VIP (Mostrado primeiro para ancoragem) */}
-            <div 
-              className="relative p-8 rounded-2xl bg-gradient-to-b from-[#e94560]/20 to-[#1a1a2e] border-2 border-[#e94560] hover:transform hover:scale-105 transition-all"
-              onMouseEnter={() => setHoveredTier(4)}
-              onMouseLeave={() => setHoveredTier(null)}
-            >
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-4 py-1 bg-[#e94560] rounded-full text-sm font-semibold">
-                MAIS COMPLETO
+        {/* ══════════════════════════════════════════════════════════════════
+            FOOTER
+        ══════════════════════════════════════════════════════════════════ */}
+        <footer className="py-16 px-6 border-t border-[#2d3748]">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-4 gap-8 mb-12">
+              {/* Brand */}
+              <div className="md:col-span-2">
+                <h3 className="text-2xl font-bold mb-2">Discreet Courier Columbus</h3>
+                <p className="text-[#e94560] font-medium mb-4">One Driver. No Trace.</p>
+                <p className="text-gray-500 mb-4">
+                  Professional same-day delivery service for Columbus, Ohio. 
+                  Your package, your privacy, my priority.
+                </p>
+                <a 
+                  href="tel:+16145003080" 
+                  className="text-white font-semibold hover:text-[#e94560] transition-colors"
+                >
+                  (614) 500-3080
+                </a>
               </div>
-              <h3 className="text-xl font-bold mb-2 mt-4">The Fixer</h3>
-              <div className="text-3xl font-bold mb-1">$200-500+</div>
-              <div className="text-gray-400 text-sm mb-6">por situação</div>
-              <ul className="space-y-3 mb-8 text-sm">
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-[#e94560]" />
-                  Guardian Mode 24/7
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-[#e94560]" />
-                  Cofre Humano incluso
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-[#e94560]" />
-                  Última Vontade
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-[#e94560]" />
-                  Destruição de dados
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-[#e94560]" />
-                  Operações complexas
-                </li>
-              </ul>
-              <Link 
-                href="/concierge/request?level=4"
-                className="block w-full py-3 text-center rounded-lg bg-[#e94560] hover:bg-[#d63d56] font-semibold transition-colors"
-              >
-                Aplicar para VIP
-              </Link>
+              
+              {/* Quick Links */}
+              <div>
+                <h4 className="font-semibold mb-4">Quick Links</h4>
+                <div className="flex flex-col gap-2 text-gray-400">
+                  <Link href="/track" className="hover:text-white transition-colors">
+                    Track Delivery
+                  </Link>
+                  <Link href="/concierge/request" className="hover:text-white transition-colors">
+                    Book Now
+                  </Link>
+                  <Link href="/portal" className="hover:text-white transition-colors">
+                    Client Portal
+                  </Link>
+                </div>
+              </div>
+              
+              {/* Legal */}
+              <div>
+                <h4 className="font-semibold mb-4">Legal</h4>
+                <div className="flex flex-col gap-2 text-gray-400">
+                  <Link href="/terms" className="hover:text-white transition-colors">
+                    Terms of Service
+                  </Link>
+                  <Link href="/privacy" className="hover:text-white transition-colors">
+                    Privacy Policy
+                  </Link>
+                  <Link href="/refund-policy" className="hover:text-white transition-colors">
+                    Refund Policy
+                  </Link>
+                </div>
+              </div>
             </div>
             
-            {/* Tier 3: Concierge */}
-            <div 
-              className="p-8 rounded-2xl bg-[#1a1a2e] border border-[#2d3748] hover:border-[#e94560]/50 hover:transform hover:scale-105 transition-all"
-              onMouseEnter={() => setHoveredTier(3)}
-              onMouseLeave={() => setHoveredTier(null)}
-            >
-              <h3 className="text-xl font-bold mb-2">Concierge</h3>
-              <div className="text-3xl font-bold mb-1">$75-150</div>
-              <div className="text-gray-400 text-sm mb-6">por hora</div>
-              <ul className="space-y-3 mb-8 text-sm">
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  Compras discretas
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  Tarefas pessoais
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  Representação
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  Modo sem rastro
-                </li>
-              </ul>
-              <Link 
-                href="/concierge/request?level=3"
-                className="block w-full py-3 text-center rounded-lg bg-[#2d3748] hover:bg-[#3d4758] font-semibold transition-colors"
-              >
-                Solicitar
-              </Link>
-            </div>
-            
-            {/* Tier 2: Discreto */}
-            <div 
-              className="p-8 rounded-2xl bg-[#1a1a2e] border border-[#2d3748] hover:border-[#e94560]/50 hover:transform hover:scale-105 transition-all"
-              onMouseEnter={() => setHoveredTier(2)}
-              onMouseLeave={() => setHoveredTier(null)}
-            >
-              <h3 className="text-xl font-bold mb-2">Discreto</h3>
-              <div className="text-3xl font-bold mb-1">$50-75</div>
-              <div className="text-gray-400 text-sm mb-6">por entrega</div>
-              <ul className="space-y-3 mb-8 text-sm">
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  Entrega confidencial
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  Provas privadas
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  Comunicação direta
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  Rastreamento opcional
-                </li>
-              </ul>
-              <Link 
-                href="/concierge/request?level=2"
-                className="block w-full py-3 text-center rounded-lg bg-[#2d3748] hover:bg-[#3d4758] font-semibold transition-colors"
-              >
-                Solicitar
-              </Link>
-            </div>
-            
-            {/* Tier 1: Básico */}
-            <div 
-              className="p-8 rounded-2xl bg-[#1a1a2e] border border-[#2d3748] hover:border-[#e94560]/50 hover:transform hover:scale-105 transition-all"
-              onMouseEnter={() => setHoveredTier(1)}
-              onMouseLeave={() => setHoveredTier(null)}
-            >
-              <h3 className="text-xl font-bold mb-2">Courier</h3>
-              <div className="text-3xl font-bold mb-1">$35-50</div>
-              <div className="text-gray-400 text-sm mb-6">por entrega</div>
-              <ul className="space-y-3 mb-8 text-sm">
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  Entrega simples
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  Um motorista
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  Confirmação por foto
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  Same-day disponível
-                </li>
-              </ul>
-              <Link 
-                href="/concierge/request?level=1"
-                className="block w-full py-3 text-center rounded-lg bg-[#2d3748] hover:bg-[#3d4758] font-semibold transition-colors"
-              >
-                Solicitar
-              </Link>
+            {/* Bottom */}
+            <div className="pt-8 border-t border-[#2d3748] flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-sm text-gray-600">
+                © {new Date().getFullYear()} Discreet Courier Columbus. All rights reserved.
+              </p>
+              <p className="text-sm text-gray-600">
+                Columbus, Ohio | Serving the metro area
+              </p>
             </div>
           </div>
-          
-          {/* CTA Final */}
-          <div className="mt-16 text-center">
-            <p className="text-gray-400 mb-6">Não sabe qual escolher? Ligue e conversamos.</p>
-            <a 
-              href="tel:+16145003080" 
-              className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#1a1a2e] hover:bg-[#2d3748] border border-[#2d3748] rounded-lg text-lg font-semibold transition-all"
-            >
-              <Phone className="w-5 h-5" />
-              (614) 500-3080 - Ligação Confidencial
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════════════════
-          FOOTER
-      ══════════════════════════════════════════════════════════════════ */}
-      <footer className="py-16 px-6 border-t border-[#2d3748]">
-        <div className="max-w-6xl mx-auto text-center">
-          <h3 className="text-2xl font-bold mb-2">Discreet Courier Columbus</h3>
-          <p className="text-[#e94560] font-medium mb-4">One Driver. No Trace.</p>
-          <p className="text-gray-500 mb-8">
-            Sua confiança. Nosso silêncio.
-          </p>
-          <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-400">
-            <Link href="/track" className="hover:text-white transition-colors">
-              Rastrear Entrega
-            </Link>
-            <Link href="/portal" className="hover:text-white transition-colors">
-              Portal VIP
-            </Link>
-            <Link href="/admin" className="hover:text-white transition-colors">
-              Admin
-            </Link>
-          </div>
-          <p className="mt-8 text-sm text-gray-600">
-            © 2024 Discreet Courier Columbus. Todos os direitos reservados.
-          </p>
-        </div>
-      </footer>
-    </div>
+        </footer>
+      </div>
+    </>
   )
 }
