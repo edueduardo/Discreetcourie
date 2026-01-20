@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Package, ArrowLeft, MapPin, Clock, CheckCircle2, Truck, PackageCheck, Loader2 } from 'lucide-react'
+import { Package, ArrowLeft, MapPin, Clock, CheckCircle2, Truck, PackageCheck, Loader2, Shield } from 'lucide-react'
+import LiveTrackingMap from '@/components/LiveTrackingMap'
 
 const statusSteps = [
   { status: 'confirmed', label: 'Order Confirmed', icon: CheckCircle2 },
@@ -186,6 +187,15 @@ export default function TrackPage() {
               </CardContent>
             </Card>
 
+            {/* Live GPS Tracking Map */}
+            {delivery.status === 'in_transit' && (
+              <LiveTrackingMap
+                trackingCode={delivery.tracking_code}
+                pickupAddress={delivery.pickup_address}
+                deliveryAddress={delivery.delivery_address}
+              />
+            )}
+
             {/* Delivery Details */}
             <Card className="bg-slate-800 border-slate-700">
               <CardHeader>
@@ -200,6 +210,15 @@ export default function TrackPage() {
                   <div>
                     <p className="text-slate-500 text-sm">To</p>
                     <p className="text-white">{delivery.delivery_address}</p>
+                  </div>
+                </div>
+                
+                {/* Privacy Notice */}
+                <div className="flex items-start gap-2 p-3 bg-slate-700/50 rounded-lg mt-4">
+                  <Shield className="text-blue-400 mt-0.5" size={16} />
+                  <div className="text-xs text-slate-400">
+                    <p className="font-medium text-slate-300">Private Tracking</p>
+                    <p>Your tracking data is encrypted and only visible to you. Location history is deleted after delivery.</p>
                   </div>
                 </div>
               </CardContent>
