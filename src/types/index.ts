@@ -519,7 +519,7 @@ export const PREMIUM_SERVICES: PremiumService[] = [
     how_it_works: 'Photo taken at delivery with GPS coordinates and timestamp',
     price: 'Included',
     why_powerful: 'Proof without paper trail',
-    tier: 'standard'
+    tier: 'courier'
   },
   {
     id: 'personal_errand',
@@ -560,7 +560,7 @@ export const PREMIUM_SERVICES: PremiumService[] = [
     how_it_works: 'Weekly, bi-weekly, or monthly automated pickups',
     price: '10% discount on recurring',
     why_powerful: 'Convenience + savings',
-    tier: 'standard',
+    tier: 'courier',
     examples: ['Weekly document exchange', 'Monthly supply delivery', 'Regular prescription pickup']
   }
 ]
