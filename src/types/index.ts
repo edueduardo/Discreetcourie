@@ -499,110 +499,68 @@ export interface PremiumService {
   tier: ServiceTier
 }
 
+// Solo-viable premium services only
 export const PREMIUM_SERVICES: PremiumService[] = [
   {
-    id: 'last_will',
-    name: 'Última Vontade',
-    tagline: 'Suas palavras finais, entregues com honra',
-    description: 'Entrega de carta/item/mensagem quando cliente falecer',
-    how_it_works: 'Cliente deixa item selado + instruções + destinatário. Disparamos conforme gatilho configurado.',
-    price: '$300 setup + $50/ano',
-    why_powerful: 'Atende medo da morte + desejo de legado',
-    tier: 'fixer',
-    examples: ['Carta para filho quando completar 18', 'Despedida para esposa', 'Revelação póstuma']
+    id: 'nda_protection',
+    name: 'NDA Protection',
+    tagline: 'Your privacy, legally protected',
+    description: 'Mutual non-disclosure agreement for complete confidentiality',
+    how_it_works: 'Digital NDA signed before any service - legally binding protection',
+    price: 'Included',
+    why_powerful: 'Legal protection for sensitive deliveries',
+    tier: 'discreet'
   },
   {
-    id: 'vault',
-    name: 'Cofre Humano',
-    tagline: 'O que você não pode guardar, eu guardo',
-    description: 'Guarda objetos, documentos, segredos que cliente não pode ter em casa',
-    how_it_works: 'Cliente entrega, armazenamos em local seguro, devolvemos quando solicitado',
-    price: '$100/mês',
-    why_powerful: 'Atende medo de exposição + necessidade de controle',
-    tier: 'fixer',
-    examples: ['Documentos de divórcio escondidos', 'Presentes secretos', 'Evidências protegidas']
+    id: 'photo_proof',
+    name: 'Photo Proof of Delivery',
+    tagline: 'Visual confirmation, instant peace of mind',
+    description: 'Timestamped photo evidence of every delivery',
+    how_it_works: 'Photo taken at delivery with GPS coordinates and timestamp',
+    price: 'Included',
+    why_powerful: 'Proof without paper trail',
+    tier: 'standard'
   },
   {
-    id: 'guardian_mode',
-    name: 'Guardian Mode VIP',
-    tagline: 'Priority access when you need it',
-    description: 'Extended hours availability with priority scheduling',
-    how_it_works: 'Client pays monthly retainer, gets direct line 8AM-8PM + emergency on-call',
-    price: '$500/mês',
-    why_powerful: 'Atende medo de abandono + desejo de proteção',
-    tier: 'fixer'
-  },
-  {
-    id: 'ritual',
-    name: 'Ritual de Destruição',
-    tagline: 'Assista seu segredo desaparecer',
-    description: 'Vídeo mostrando deleção completa de todos os dados do cliente',
-    how_it_works: 'Gravamos tela deletando arquivos, enviamos prova',
-    price: '$50',
-    why_powerful: 'Prova visual de que segredo morreu',
-    tier: 'fixer'
-  },
-  {
-    id: 'phoenix',
-    name: 'Operação Fênix',
-    tagline: 'Ajudo você renascer',
-    description: 'Ajuda cliente sair de situação difícil (abuso, crise, etc)',
-    how_it_works: 'Planejamento + execução + discrição total',
-    price: '$500+',
-    why_powerful: 'Atende medo + desejo de liberdade',
-    tier: 'fixer',
-    examples: ['Sair de relacionamento abusivo', 'Começar vida nova', 'Desaparecer temporariamente']
-  },
-  {
-    id: 'ghost_chat',
-    name: 'Comunicação Fantasma',
-    tagline: 'Palavras que nunca existiram',
-    description: 'Mensagens que se autodestroem após leitura',
-    how_it_works: 'Chat criptografado, mensagens somem após tempo configurado',
-    price: 'Incluso Nível 4',
-    why_powerful: 'Zero rastro de comunicação',
-    tier: 'fixer'
-  },
-  {
-    id: 'sanctuary',
-    name: 'Santuário',
-    tagline: 'Nem todos entram aqui',
-    description: 'Serviço exclusivo - vetting antes de aceitar como VIP',
-    how_it_works: 'Conversa + verificação + período de teste',
-    price: 'Processo de entrada',
-    why_powerful: 'Cria exclusividade, cliente se sente especial',
-    tier: 'fixer'
-  },
-  {
-    id: 'pact',
-    name: 'Pacto de Lealdade',
-    tagline: 'Minha palavra é minha honra',
-    description: 'NDA mútuo - você não conta sobre ele, ele não conta sobre você',
-    how_it_works: 'Contrato digital assinado por ambas as partes',
-    price: '$200/ano',
-    why_powerful: 'Atende medo de traição',
-    tier: 'fixer'
-  },
-  {
-    id: 'shadow_proxy',
-    name: 'Procurador de Sombras',
-    tagline: 'Eu enfrento por você',
-    description: 'Agimos, falamos, representamos no lugar do cliente',
-    how_it_works: 'Cliente dá instruções, executamos a interação',
-    price: '$150-200/tarefa',
-    why_powerful: 'Atende medo de confronto',
+    id: 'personal_errand',
+    name: 'Personal Errand Service',
+    tagline: 'Your task, handled discreetly',
+    description: 'Purchase, pickup, or handle personal errands on your behalf',
+    how_it_works: 'You provide instructions, we execute with discretion',
+    price: 'From $75/hour',
+    why_powerful: 'Avoid being seen, save time',
     tier: 'concierge',
-    examples: ['Devolver presente do ex', 'Fazer reclamação', 'Buscar pertences']
+    examples: ['Purchase embarrassing items', 'Pick up from awkward locations', 'Return items to ex']
   },
   {
-    id: 'time_capsule',
-    name: 'Cápsula do Tempo',
-    tagline: 'Entregue quando o momento chegar',
-    description: 'Entrega agendada para futuro (meses ou anos)',
-    how_it_works: 'Cliente agenda data, guardamos e entregamos no dia',
-    price: '$150 + $25/ano',
-    why_powerful: 'Legado + controle sobre o futuro',
-    tier: 'fixer',
-    examples: ['Carta para filho aos 18', 'Presente de aniversário futuro', 'Revelação agendada']
+    id: 'soft_delete',
+    name: 'Data Deletion on Request',
+    tagline: 'No trace left behind',
+    description: 'Complete deletion of your data from our systems on request',
+    how_it_works: 'One request = all your data permanently deleted',
+    price: 'Free',
+    why_powerful: 'True privacy - we forget you existed',
+    tier: 'discreet'
+  },
+  {
+    id: 'priority_booking',
+    name: 'Priority Scheduling',
+    tagline: 'Your delivery comes first',
+    description: 'VIP clients get priority in scheduling queue',
+    how_it_works: 'Monthly retainer guarantees same-day availability',
+    price: '$99/month',
+    why_powerful: 'Never wait for availability',
+    tier: 'concierge'
+  },
+  {
+    id: 'recurring_delivery',
+    name: 'Recurring Delivery',
+    tagline: 'Set it and forget it',
+    description: 'Scheduled recurring deliveries with automatic booking',
+    how_it_works: 'Weekly, bi-weekly, or monthly automated pickups',
+    price: '10% discount on recurring',
+    why_powerful: 'Convenience + savings',
+    tier: 'standard',
+    examples: ['Weekly document exchange', 'Monthly supply delivery', 'Regular prescription pickup']
   }
 ]
