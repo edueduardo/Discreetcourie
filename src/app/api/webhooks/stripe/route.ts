@@ -27,7 +27,6 @@ export async function POST(request: NextRequest) {
       event = JSON.parse(body) as Stripe.Event
     }
   } catch (err: any) {
-    console.error('Webhook signature verification failed:', err.message)
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
@@ -92,11 +91,10 @@ export async function POST(request: NextRequest) {
               })
             })
           } catch (e) {
-            console.error('SMS notification failed:', e)
+            // SMS notification failed silently
           }
         }
 
-        console.log(`✅ Payment succeeded: ${paymentIntent.id}`)
         break
       }
 
@@ -128,7 +126,6 @@ export async function POST(request: NextRequest) {
           })
         }
 
-        console.log(`❌ Payment failed: ${paymentIntent.id}`)
         break
       }
 
@@ -142,7 +139,6 @@ export async function POST(request: NextRequest) {
           created_at: now
         })
 
-        console.log(`💰 Refund processed: ${charge.id}`)
         break
       }
 
@@ -150,21 +146,7 @@ export async function POST(request: NextRequest) {
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription & { current_period_end?: number }
         
-        // Update guardian mode subscription
-        if (subscription.metadata?.client_id) {
-          const isActive = subscription.status === 'active'
-          const periodEnd = subscription.current_period_end 
-            ? new Date(subscription.current_period_end * 1000).toISOString() 
-            : null
-          await supabase
-            .from('clients')
-            .update({
-              guardian_mode_active: isActive,
-              guardian_mode_until: isActive ? periodEnd : null
-            })
-            .eq('id', subscription.metadata.client_id)
-        }
-
+        // Log subscription event
         await supabase.from('payment_logs').insert({
           event_type: `subscription_${event.type.split('.')[2]}`,
           stripe_subscription_id: subscription.id,
@@ -172,35 +154,30 @@ export async function POST(request: NextRequest) {
           created_at: now
         })
 
-        console.log(`📅 Subscription ${event.type}: ${subscription.id}`)
         break
       }
 
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription
         
-        if (subscription.metadata?.client_id) {
-          await supabase
-            .from('clients')
-            .update({
-              guardian_mode_active: false,
-              guardian_mode_until: null
-            })
-            .eq('id', subscription.metadata.client_id)
-        }
+        // Log subscription deletion
+        await supabase.from('payment_logs').insert({
+          event_type: 'subscription_deleted',
+          stripe_subscription_id: subscription.id,
+          metadata: subscription.metadata,
+          created_at: now
+        })
 
-        console.log(`🚫 Subscription cancelled: ${subscription.id}`)
         break
       }
 
       default:
-        console.log(`Unhandled event type: ${event.type}`)
+        // Unhandled event type
     }
 
     return NextResponse.json({ received: true, type: event.type })
 
   } catch (error: any) {
-    console.error('Webhook processing error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
     return response
 
   } catch (error: any) {
-    console.error('SMS error:', error)
+
     return NextResponse.json({
       error: 'Failed to send SMS',
       message: error.message

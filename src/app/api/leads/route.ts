@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ leads: data || [] })
   } catch (error: any) {
-    console.error('Error fetching leads:', error)
+
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ lead: data })
   } catch (error: any) {
-    console.error('Error creating lead:', error)
+
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
@@ -92,7 +92,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ lead: data })
   } catch (error: any) {
-    console.error('Error updating lead:', error)
+
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
@@ -117,7 +117,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error: any) {
-    console.error('Error deleting lead:', error)
+
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

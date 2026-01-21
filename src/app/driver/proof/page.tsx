@@ -21,7 +21,7 @@ export default function DriverProof() {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        (err) => console.error('Location error:', err)
+        () => { /* Location unavailable */ }
       )
     }
   }, [])
@@ -67,7 +67,7 @@ export default function DriverProof() {
         }, 3000)
       }
     } catch (error) {
-      console.error('Upload failed:', error)
+
     } finally {
       setUploading(false)
     }

@@ -123,7 +123,7 @@ export async function sendEventSMS(
 
     return { success: true }
   } catch (error: any) {
-    console.error('SMS Event Error:', error)
+
     return { success: false, error: error.message }
   }
 }

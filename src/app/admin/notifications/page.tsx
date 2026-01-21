@@ -82,7 +82,7 @@ export default function NotificationsPage() {
           })))
         }
       } catch (error) {
-        console.error('Error fetching messages:', error)
+
       } finally {
         setLoading(false)
       }
@@ -139,7 +139,7 @@ export default function NotificationsPage() {
       }
       setTimeout(() => setToast(null), 5000)
     } catch (error) {
-      console.error('Error sending SMS:', error)
+
       setToast({type: 'error', message: 'Error sending SMS. Check console for details.'})
       setTimeout(() => setToast(null), 5000)
     } finally {

@@ -69,7 +69,7 @@ export default function LiveTrackingMap({
         onLocationUpdate?.(null)
       }
     } catch (err) {
-      console.error('Failed to fetch location:', err)
+
       setError('Failed to fetch location')
     }
   }, [trackingCode, deliveryId, onLocationUpdate])

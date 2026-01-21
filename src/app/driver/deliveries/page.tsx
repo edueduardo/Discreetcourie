@@ -32,7 +32,7 @@ export default function DriverDeliveries() {
         setDeliveries(data.deliveries || [])
       }
     } catch (error) {
-      console.error('Failed to fetch:', error)
+
     } finally {
       setLoading(false)
     }

@@ -49,7 +49,7 @@ export default function AdminSubscriptionsPage() {
       const data = await res.json()
       setSubscriptions(data.subscriptions || [])
     } catch (error) {
-      console.error('Failed to load subscriptions:', error)
+
     } finally {
       setLoading(false)
     }

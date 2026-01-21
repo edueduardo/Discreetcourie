@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ payments })
 
   } catch (error: any) {
-    console.error('Stripe error:', error)
+
     return NextResponse.json({ 
       error: 'Failed to fetch payments',
       message: error.message 
@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Stripe payment error:', error)
+
     return NextResponse.json({ 
       error: 'Failed to create payment',
       message: error.message 

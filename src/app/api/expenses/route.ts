@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ expenses: data || [] })
   } catch (error: any) {
-    console.error('Error fetching expenses:', error)
+
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ expense: data })
   } catch (error: any) {
-    console.error('Error creating expense:', error)
+
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
@@ -96,7 +96,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ expense: data })
   } catch (error: any) {
-    console.error('Error updating expense:', error)
+
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
@@ -121,7 +121,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error: any) {
-    console.error('Error deleting expense:', error)
+
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

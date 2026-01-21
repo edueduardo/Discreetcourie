@@ -133,7 +133,7 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Follow-up CRON error:', error)
+
     
     await supabase.from('cron_logs').insert({
       job_name: 'follow_up_leads',

@@ -278,7 +278,7 @@ function RequestForm() {
       
       setOrderCode(data.reference || 'DC-' + Date.now().toString(36).toUpperCase())
     } catch (error) {
-      console.error('Error:', error)
+
       setOrderCode('DC-' + Date.now().toString(36).toUpperCase())
     }
     

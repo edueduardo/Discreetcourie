@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Stripe portal error:', error)
+
     
     // Se o portal não está configurado, retornar erro amigável
     if (error.code === 'resource_missing') {

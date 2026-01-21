@@ -110,7 +110,7 @@ export default function ClientDashboard() {
 
       
     } catch (error) {
-      console.error('Failed to fetch data:', error)
+
     } finally {
       setLoading(false)
     }

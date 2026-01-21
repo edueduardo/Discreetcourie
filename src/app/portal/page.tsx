@@ -59,7 +59,7 @@ export default function ClientPortal() {
           setDeliveries(data.orders)
         }
       } catch (err) {
-        console.error('Error fetching deliveries:', err)
+
         setError('Failed to load deliveries')
       } finally {
         setLoading(false)

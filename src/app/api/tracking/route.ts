@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
     }
 
   } catch (error: any) {
-    console.error('Error fetching location:', error)
+
     return NextResponse.json({ 
       location: null,
       error: error.message 
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Error saving location:', error)
+
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

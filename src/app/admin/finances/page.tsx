@@ -94,7 +94,7 @@ export default function FinancesPage() {
         setRevenues(revenueList)
       }
     } catch (error) {
-      console.error('Error fetching finance data:', error)
+
     } finally {
       setLoading(false)
     }
@@ -121,7 +121,7 @@ export default function FinancesPage() {
         setNewExpense({ date: new Date().toISOString().split('T')[0], category: 'fuel', description: '', amount: '' })
       }
     } catch (error) {
-      console.error('Error adding expense:', error)
+
     }
   }
 

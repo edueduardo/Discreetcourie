@@ -92,7 +92,7 @@ export default function LeadsPage() {
         })))
       }
     } catch (error) {
-      console.error('Error fetching leads:', error)
+
     } finally {
       setLoading(false)
     }

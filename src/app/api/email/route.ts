@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Email API error:', error)
+
     return NextResponse.json({ 
       error: 'Failed to send email',
       message: error.message 

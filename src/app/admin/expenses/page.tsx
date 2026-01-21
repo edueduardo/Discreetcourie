@@ -86,7 +86,7 @@ export default function ExpensesPage() {
         })))
       }
     } catch (error) {
-      console.error('Error fetching expenses:', error)
+
     } finally {
       setLoading(false)
     }
@@ -147,7 +147,7 @@ export default function ExpensesPage() {
         }, ...expenses])
       }
     } catch (error) {
-      console.error('Error adding expense:', error)
+
     }
     
     setNewExpense({ description: '', amount: '', category: 'fuel', vendor: '', notes: '' })

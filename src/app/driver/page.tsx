@@ -51,7 +51,7 @@ export default function DriverDashboard() {
         setDeliveries(data.deliveries || [])
       }
     } catch (error) {
-      console.error('Failed to fetch deliveries:', error)
+
     } finally {
       setLoading(false)
     }
@@ -72,10 +72,10 @@ export default function DriverDashboard() {
               speed: position.coords.speed,
               heading: position.coords.heading
             })
-          }).catch(console.error)
+          }).catch(() => { /* GPS update failed */ })
         },
         (error) => {
-          console.error('GPS Error:', error)
+
           setGpsActive(false)
         },
         { enableHighAccuracy: true, maximumAge: 10000 }

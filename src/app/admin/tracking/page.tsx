@@ -58,7 +58,7 @@ export default function TrackingPage() {
       setDeliveries(deliveriesData.deliveries || [])
       setLastUpdate(new Date())
     } catch (error) {
-      console.error('Error:', error)
+
     } finally {
       setLoading(false)
     }
@@ -91,7 +91,7 @@ export default function TrackingPage() {
         setTrackedDelivery({ location: null, is_live: false })
       }
     } catch (error) {
-      console.error('Error tracking:', error)
+
     }
   }
 

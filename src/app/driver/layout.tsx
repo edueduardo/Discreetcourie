@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { 
   MapPin, 
   Package, 
@@ -10,7 +10,8 @@ import {
   Navigation,
   Menu,
   X,
-  Home
+  Home,
+  LogOut
 } from 'lucide-react'
 
 export default function DriverLayout({
@@ -19,14 +20,45 @@ export default function DriverLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
+
+  // Check authentication on mount
+  useEffect(() => {
+    // Skip auth check on login page
+    if (pathname === '/driver/login') {
+      setIsAuthenticated(true)
+      return
+    }
+
+    checkAuth()
+  }, [pathname])
+
+  async function checkAuth() {
+    try {
+      const res = await fetch('/api/driver/auth')
+      if (res.ok) {
+        setIsAuthenticated(true)
+      } else {
+        setIsAuthenticated(false)
+        router.push('/driver/login')
+      }
+    } catch {
+      setIsAuthenticated(false)
+      router.push('/driver/login')
+    }
+  }
+
+  async function handleLogout() {
+    await fetch('/api/driver/auth', { method: 'DELETE' })
+    router.push('/driver/login')
+  }
 
   // Register service worker for PWA
   useEffect(() => {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/driver-sw.js')
-        .then((reg) => console.log('Driver SW registered:', reg.scope))
-        .catch((err) => console.error('Driver SW failed:', err))
+      navigator.serviceWorker.register('/driver-sw.js').catch(() => { /* SW registration failed */ })
     }
   }, [])
 
@@ -37,6 +69,20 @@ export default function DriverLayout({
     { href: '/driver/proof', icon: Camera, label: 'Photo Proof' },
     { href: '/driver/navigate', icon: Navigation, label: 'Navigate' },
   ]
+
+  // Show loading while checking auth
+  if (isAuthenticated === null && pathname !== '/driver/login') {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    )
+  }
+
+  // Don't show layout on login page
+  if (pathname === '/driver/login') {
+    return <>{children}</>
+  }
 
   return (
     <div className="min-h-screen bg-slate-900 text-white">
@@ -72,6 +118,14 @@ export default function DriverLayout({
                 {item.label}
               </Link>
             ))}
+            <hr className="border-slate-700 my-4" />
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-3 p-3 rounded-lg w-full text-red-400 hover:bg-slate-700"
+            >
+              <LogOut size={20} />
+              Logout
+            </button>
           </nav>
         </div>
       )}

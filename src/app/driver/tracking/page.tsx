@@ -80,7 +80,7 @@ export default function DriverTracking() {
       })
       setLastSync(new Date())
     } catch (err) {
-      console.error('Sync failed:', err)
+
     }
   }
 

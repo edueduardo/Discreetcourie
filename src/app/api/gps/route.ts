@@ -14,88 +14,38 @@ export async function POST(request: NextRequest) {
     speed,
     heading,
     accuracy,
-    altitude,
-    battery_level,
-    is_moving
+    altitude
   } = body
   
   if (!latitude || !longitude) {
     return NextResponse.json({ error: 'latitude and longitude required' }, { status: 400 })
   }
   
-  const now = new Date().toISOString()
-  
-  // Salvar ponto de tracking
-  const { data: trackingPoint, error: trackingError } = await supabase
-    .from('gps_tracking')
+  // Salvar ponto de GPS na tabela gps_locations
+  const { data: gpsPoint, error: gpsError } = await supabase
+    .from('gps_locations')
     .insert({
-      driver_id,
-      delivery_id,
+      driver_id: driver_id || null,
+      delivery_id: delivery_id || null,
       latitude,
       longitude,
-      speed: speed || 0,
-      heading: heading || 0,
-      accuracy: accuracy || 0,
-      altitude: altitude || 0,
-      battery_level: battery_level || 100,
-      is_moving: is_moving ?? true,
-      recorded_at: now
+      speed: speed || null,
+      heading: heading || null,
+      accuracy: accuracy || null,
+      altitude: altitude || null,
+      is_active: true
     })
     .select()
     .single()
   
-  if (trackingError) {
-    console.error('GPS tracking error:', trackingError)
-  }
-  
-  // Atualizar posição atual do motorista
-  if (driver_id) {
-    await supabase
-      .from('driver_locations')
-      .upsert({
-        driver_id,
-        latitude,
-        longitude,
-        speed,
-        heading,
-        battery_level,
-        is_moving,
-        last_update: now
-      }, { onConflict: 'driver_id' })
-  }
-  
-  // Atualizar entrega se especificada
-  if (delivery_id) {
-    await supabase
-      .from('deliveries')
-      .update({
-        current_latitude: latitude,
-        current_longitude: longitude,
-        last_location_update: now
-      })
-      .eq('id', delivery_id)
-    
-    // Calcular ETA se tiver destino
-    const { data: delivery } = await supabase
-      .from('deliveries')
-      .select('delivery_address, status')
-      .eq('id', delivery_id)
-      .single()
-    
-    if (delivery && delivery.status === 'in_transit') {
-      // ETA simples baseado em distância (em produção, usar API de rotas)
-      // Por ora, apenas atualizar timestamp
-      await supabase
-        .from('deliveries')
-        .update({ eta_updated_at: now })
-        .eq('id', delivery_id)
-    }
+  if (gpsError) {
+    return NextResponse.json({ error: gpsError.message }, { status: 500 })
   }
   
   return NextResponse.json({
     success: true,
-    point: trackingPoint,
-    timestamp: now
+    point: gpsPoint,
+    timestamp: gpsPoint.created_at
   })
 }
 
@@ -138,10 +88,10 @@ export async function GET(request: NextRequest) {
   // Buscar histórico de pontos
   if (history && targetDeliveryId) {
     const { data: points, error } = await supabase
-      .from('gps_tracking')
+      .from('gps_locations')
       .select('*')
       .eq('delivery_id', targetDeliveryId)
-      .order('recorded_at', { ascending: true })
+      .order('created_at', { ascending: true })
       .limit(limit)
     
     if (error) {
@@ -158,9 +108,12 @@ export async function GET(request: NextRequest) {
   // Buscar localização atual do motorista
   if (driver_id) {
     const { data: location, error } = await supabase
-      .from('driver_locations')
+      .from('gps_locations')
       .select('*')
       .eq('driver_id', driver_id)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(1)
       .single()
     
     if (error && error.code !== 'PGRST116') {
@@ -170,17 +123,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       driver_id,
       location: location || null,
-      online: location ? isOnline(location.last_update) : false
+      online: location ? isOnline(location.created_at) : false
     })
   }
   
   // Buscar última localização da entrega
   if (targetDeliveryId) {
     const { data: point, error } = await supabase
-      .from('gps_tracking')
+      .from('gps_locations')
       .select('*')
       .eq('delivery_id', targetDeliveryId)
-      .order('recorded_at', { ascending: false })
+      .order('created_at', { ascending: false })
       .limit(1)
       .single()
     
@@ -191,23 +144,34 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       delivery_id: targetDeliveryId,
       location: point || null,
-      is_live: point ? isOnline(point.recorded_at) : false
+      is_live: point ? isOnline(point.created_at) : false
     })
   }
   
-  // Listar todos os motoristas online
-  const { data: drivers, error } = await supabase
-    .from('driver_locations')
-    .select('*')
-    .gte('last_update', new Date(Date.now() - 5 * 60 * 1000).toISOString()) // Últimos 5 min
+  // Buscar motoristas ativos (com GPS nos últimos 5 min)
+  const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString()
+  const { data: recentLocations, error } = await supabase
+    .from('gps_locations')
+    .select('driver_id, latitude, longitude, speed, created_at')
+    .not('driver_id', 'is', null)
+    .gte('created_at', fiveMinutesAgo)
+    .order('created_at', { ascending: false })
   
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
   
+  // Get unique drivers with their latest location
+  const driverMap = new Map()
+  for (const loc of recentLocations || []) {
+    if (!driverMap.has(loc.driver_id)) {
+      driverMap.set(loc.driver_id, loc)
+    }
+  }
+  
   return NextResponse.json({
-    online_drivers: drivers || [],
-    count: drivers?.length || 0
+    online_drivers: Array.from(driverMap.values()),
+    count: driverMap.size
   })
 }
 

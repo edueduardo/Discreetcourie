@@ -39,20 +39,10 @@ export interface Client {
   is_vip: boolean
   vip_tier?: ServiceTier
 
-  // Guardian Mode (24/7 availability)
-  guardian_mode_active: boolean
-  guardian_mode_until?: string
-
   // Pacto de Lealdade (Mutual NDA)
   pact_signed: boolean
   pact_signed_at?: string
   nda_signed: boolean
-
-  // Vetting
-  vetting_status: 'none' | 'pending' | 'approved' | 'rejected' | 'probation'
-  vetting_notes?: string
-  vetting_date?: string
-  red_flags?: string[]
 
   // Preferences
   preferred_payment: 'normal' | 'anonymous'
@@ -333,7 +323,7 @@ export const TASK_PRICE_GUIDE = {
 }
 
 // ============================================
-// VIP FEATURES - NEW TYPES
+// USER TYPES
 // ============================================
 
 export interface User {
@@ -341,51 +331,6 @@ export interface User {
   email: string
   role: 'admin' | 'driver'
   created_at: string
-}
-
-export type VaultItemType = 'storage' | 'last_will' | 'time_capsule'
-export type VaultItemStatus = 'active' | 'delivered' | 'expired' | 'destroyed'
-export type LastWillTrigger = 'manual' | 'no_checkin' | 'confirmed_death' | 'date'
-
-export interface VaultItem {
-  id: string
-  client_id: string
-  client?: Client
-
-  // Identification
-  item_code: string // V-001
-  description: string
-
-  // Type
-  item_type: VaultItemType
-
-  // Dates
-  stored_at: string
-  expires_at?: string
-  deliver_at?: string
-
-  // Last Will specific
-  is_last_will: boolean
-  last_will_recipient_name?: string
-  last_will_recipient_phone?: string
-  last_will_recipient_relation?: string
-  last_will_message?: string
-  last_will_trigger?: LastWillTrigger
-  last_will_checkin_days?: number
-  last_will_last_checkin?: string
-
-  // Status
-  status: VaultItemStatus
-  delivered_at?: string
-
-  // Location
-  storage_location?: string
-
-  // Notes
-  notes?: string
-
-  created_at: string
-  updated_at: string
 }
 
 export type AgreementType = 'nda' | 'pact' | 'terms'
@@ -448,33 +393,6 @@ export interface DeliveryProof {
   auto_delete_at?: string
 
   captured_at: string
-}
-
-export interface DestructionLog {
-  id: string
-  customer_id?: string // NULL after destruction
-  customer_code: string
-
-  // What was destroyed
-  items_destroyed: {
-    orders?: number
-    tasks?: number
-    messages?: number
-    vault_items?: number
-    proofs?: number
-  }
-
-  // Details
-  requested_by: 'customer' | 'system' | 'admin'
-  reason?: string
-
-  // Proof
-  video_sent: boolean
-  video_url?: string
-  certificate_code?: string
-
-  executed_at: string
-  updated_at?: string
 }
 
 export interface Setting {

@@ -50,7 +50,7 @@ export default function RequestsPage() {
         setRequests(data.tasks || [])
       }
     } catch (error) {
-      console.error('Failed to fetch requests:', error)
+
     } finally {
       setLoading(false)
     }
@@ -79,7 +79,7 @@ export default function RequestsPage() {
         fetchRequests()
       }
     } catch (error) {
-      console.error('Failed to submit request:', error)
+
     } finally {
       setSubmitting(false)
     }

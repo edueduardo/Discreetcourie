@@ -422,257 +422,135 @@ CREATE POLICY "Allow authenticated users" ON nda_documents
 -- END DISCREET CONCIERGE TABLES
 -- ============================================
 
--- ============================================
--- PREMIUM SERVICES TABLES (Features 10-15 + Top 10)
--- ============================================
-
--- Vault Items (Cofre Humano + Última Vontade + Cápsula do Tempo)
-CREATE TABLE vault_items (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
-  
-  -- Identification
-  item_code VARCHAR(20) UNIQUE NOT NULL,
-  description TEXT NOT NULL,
-  
-  -- Type
-  item_type VARCHAR(20) NOT NULL DEFAULT 'storage' CHECK (item_type IN ('storage', 'last_will', 'time_capsule')),
-  
-  -- Dates
-  stored_at TIMESTAMPTZ DEFAULT NOW(),
-  expires_at TIMESTAMPTZ,
-  deliver_at TIMESTAMPTZ,
-  
-  -- Last Will specific
-  is_last_will BOOLEAN DEFAULT FALSE,
-  last_will_recipient_name VARCHAR(255),
-  last_will_recipient_phone VARCHAR(50),
-  last_will_recipient_email VARCHAR(255),
-  last_will_recipient_relation VARCHAR(100),
-  last_will_message TEXT,
-  last_will_trigger VARCHAR(20) CHECK (last_will_trigger IN ('manual', 'no_checkin', 'confirmed_death', 'date')),
-  last_will_checkin_days INTEGER DEFAULT 30,
-  last_will_last_checkin TIMESTAMPTZ,
-  
-  -- Status
-  status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'delivered', 'expired', 'destroyed')),
-  delivered_at TIMESTAMPTZ,
-  
-  -- Storage
-  storage_location VARCHAR(255),
-  notes TEXT,
-  
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE INDEX idx_vault_client ON vault_items(client_id);
-CREATE INDEX idx_vault_status ON vault_items(status);
-CREATE INDEX idx_vault_type ON vault_items(item_type);
-CREATE INDEX idx_vault_checkin ON vault_items(last_will_last_checkin) WHERE is_last_will = TRUE;
-
--- Destruction Logs (Ritual de Destruição)
-CREATE TABLE destruction_logs (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  customer_id UUID REFERENCES clients(id) ON DELETE SET NULL,
-  customer_code VARCHAR(50) NOT NULL,
-  
-  -- What was destroyed
-  items_destroyed JSONB NOT NULL DEFAULT '{}',
-  
-  -- Details
-  requested_by VARCHAR(20) NOT NULL CHECK (requested_by IN ('customer', 'system', 'admin')),
-  reason TEXT,
-  
-  -- Proof
-  video_url TEXT,
-  video_sent BOOLEAN DEFAULT FALSE,
-  
-  executed_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE INDEX idx_destruction_customer ON destruction_logs(customer_code);
-
--- Client Codes (Código Anônimo - Feature 10)
-CREATE TABLE client_codes (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
-  code VARCHAR(50) UNIQUE NOT NULL,
-  code_type VARCHAR(20) DEFAULT 'primary' CHECK (code_type IN ('primary', 'temporary', 'burner')),
-  expires_at TIMESTAMPTZ,
-  is_active BOOLEAN DEFAULT TRUE,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE INDEX idx_codes_client ON client_codes(client_id);
-CREATE INDEX idx_codes_code ON client_codes(code);
-
--- Emergency Protocols (Feature 13)
-CREATE TABLE emergency_protocols (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
-  
-  -- Protocol details
-  protocol_name VARCHAR(255) NOT NULL,
-  trigger_condition TEXT NOT NULL,
-  actions JSONB NOT NULL,
-  
-  -- Contacts
-  emergency_contacts JSONB,
-  
-  -- Status
-  is_active BOOLEAN DEFAULT TRUE,
-  last_triggered_at TIMESTAMPTZ,
-  
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE INDEX idx_emergency_client ON emergency_protocols(client_id);
-
--- Vetting Records (Feature 14 - Santuário)
-CREATE TABLE vetting_records (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
-  
-  -- Vetting process
-  status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'in_review', 'approved', 'rejected', 'probation')),
-  
-  -- Evaluation
-  source VARCHAR(100),
-  referral_code VARCHAR(50),
-  interview_notes TEXT,
-  risk_assessment VARCHAR(20) CHECK (risk_assessment IN ('low', 'medium', 'high', 'unknown')),
-  red_flags JSONB,
-  
-  -- Decision
-  reviewed_by VARCHAR(255),
-  reviewed_at TIMESTAMPTZ,
-  decision_notes TEXT,
-  
-  -- Probation
-  probation_until TIMESTAMPTZ,
-  probation_conditions TEXT,
-  
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE INDEX idx_vetting_client ON vetting_records(client_id);
-CREATE INDEX idx_vetting_status ON vetting_records(status);
-
--- Service Agreements (Feature 15 - Termos VIP + Pacto de Lealdade)
+-- Service Agreements (NDA for premium clients)
 CREATE TABLE service_agreements (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
-  
-  -- Type
-  agreement_type VARCHAR(20) NOT NULL CHECK (agreement_type IN ('nda', 'pact', 'terms', 'vip_terms')),
+  agreement_type VARCHAR(20) NOT NULL CHECK (agreement_type IN ('nda', 'terms', 'vip_terms')),
   version VARCHAR(20) DEFAULT '1.0',
-  
-  -- Content
   content TEXT NOT NULL,
-  
-  -- Customer signature
   customer_signed BOOLEAN DEFAULT FALSE,
   customer_signed_at TIMESTAMPTZ,
   customer_ip VARCHAR(45),
-  customer_signature_data TEXT,
-  
-  -- Provider signature (for mutual NDAs)
-  provider_signed BOOLEAN DEFAULT FALSE,
-  provider_signed_at TIMESTAMPTZ,
-  
-  -- Validity
-  valid_from TIMESTAMPTZ DEFAULT NOW(),
-  valid_until TIMESTAMPTZ,
-  
-  -- Status
   status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'expired', 'terminated')),
-  
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE INDEX idx_agreements_client ON service_agreements(client_id);
-CREATE INDEX idx_agreements_type ON service_agreements(agreement_type);
 
--- Guardian Mode Subscriptions (Serviço Premium 3)
-CREATE TABLE guardian_subscriptions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
-  
-  -- Subscription
-  is_active BOOLEAN DEFAULT TRUE,
-  started_at TIMESTAMPTZ DEFAULT NOW(),
-  expires_at TIMESTAMPTZ,
-  
-  -- Pricing
-  monthly_rate DECIMAL(10, 2) DEFAULT 500.00,
-  last_payment_at TIMESTAMPTZ,
-  
-  -- Contact
-  direct_line VARCHAR(50),
-  priority_level INTEGER DEFAULT 1,
-  
-  -- Stats
-  total_alerts INTEGER DEFAULT 0,
-  last_alert_at TIMESTAMPTZ,
-  
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE INDEX idx_guardian_client ON guardian_subscriptions(client_id);
-CREATE INDEX idx_guardian_active ON guardian_subscriptions(is_active) WHERE is_active = TRUE;
-
--- Apply triggers for updated_at
-CREATE TRIGGER update_vault_updated_at
-  BEFORE UPDATE ON vault_items
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at();
-
-CREATE TRIGGER update_emergency_updated_at
-  BEFORE UPDATE ON emergency_protocols
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at();
-
-CREATE TRIGGER update_vetting_updated_at
-  BEFORE UPDATE ON vetting_records
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at();
-
--- RLS for new tables
-ALTER TABLE vault_items ENABLE ROW LEVEL SECURITY;
-ALTER TABLE destruction_logs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE client_codes ENABLE ROW LEVEL SECURITY;
-ALTER TABLE emergency_protocols ENABLE ROW LEVEL SECURITY;
-ALTER TABLE vetting_records ENABLE ROW LEVEL SECURITY;
 ALTER TABLE service_agreements ENABLE ROW LEVEL SECURITY;
-ALTER TABLE guardian_subscriptions ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Allow authenticated users" ON vault_items
-  FOR ALL USING (auth.role() = 'authenticated');
-
-CREATE POLICY "Allow authenticated users" ON destruction_logs
-  FOR ALL USING (auth.role() = 'authenticated');
-
-CREATE POLICY "Allow authenticated users" ON client_codes
-  FOR ALL USING (auth.role() = 'authenticated');
-
-CREATE POLICY "Allow authenticated users" ON emergency_protocols
-  FOR ALL USING (auth.role() = 'authenticated');
-
-CREATE POLICY "Allow authenticated users" ON vetting_records
-  FOR ALL USING (auth.role() = 'authenticated');
 
 CREATE POLICY "Allow authenticated users" ON service_agreements
   FOR ALL USING (auth.role() = 'authenticated');
 
-CREATE POLICY "Allow authenticated users" ON guardian_subscriptions
+-- ============================================
+-- DRIVER SESSIONS TABLE
+-- ============================================
+
+CREATE TABLE driver_sessions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  token VARCHAR(255) UNIQUE NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_driver_sessions_token ON driver_sessions(token);
+CREATE INDEX idx_driver_sessions_expires ON driver_sessions(expires_at);
+
+ALTER TABLE driver_sessions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow authenticated users" ON driver_sessions
   FOR ALL USING (auth.role() = 'authenticated');
 
 -- ============================================
--- END PREMIUM SERVICES TABLES
+-- GPS TRACKING TABLE
 -- ============================================
+
+CREATE TABLE gps_locations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  delivery_id UUID REFERENCES deliveries(id) ON DELETE CASCADE,
+  driver_id UUID,
+  
+  -- Location data
+  latitude DECIMAL(10, 8) NOT NULL,
+  longitude DECIMAL(11, 8) NOT NULL,
+  accuracy DECIMAL(10, 2), -- meters
+  speed DECIMAL(10, 2), -- km/h
+  heading DECIMAL(5, 2), -- degrees
+  altitude DECIMAL(10, 2), -- meters
+  
+  -- Status
+  is_active BOOLEAN DEFAULT TRUE,
+  
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_gps_delivery ON gps_locations(delivery_id);
+CREATE INDEX idx_gps_driver ON gps_locations(driver_id);
+CREATE INDEX idx_gps_created ON gps_locations(created_at DESC);
+
+ALTER TABLE gps_locations ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow authenticated users" ON gps_locations
+  FOR ALL USING (auth.role() = 'authenticated');
+
+-- ============================================
+-- SUBSCRIPTIONS TABLE
+-- ============================================
+
+CREATE TABLE subscriptions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
+  stripe_subscription_id VARCHAR(255) UNIQUE,
+  stripe_customer_id VARCHAR(255),
+  
+  -- Plan details
+  plan_key VARCHAR(50) NOT NULL,
+  status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'cancelled', 'past_due', 'trialing', 'paused')),
+  
+  -- Billing period
+  current_period_start TIMESTAMPTZ,
+  current_period_end TIMESTAMPTZ,
+  cancel_at_period_end BOOLEAN DEFAULT FALSE,
+  canceled_at TIMESTAMPTZ,
+  
+  -- Amount
+  amount DECIMAL(10, 2),
+  
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_subscriptions_client ON subscriptions(client_id);
+CREATE INDEX idx_subscriptions_stripe ON subscriptions(stripe_subscription_id);
+
+ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow authenticated users" ON subscriptions
+  FOR ALL USING (auth.role() = 'authenticated');
+
+-- ============================================
+-- PAYMENT LOGS TABLE
+-- ============================================
+
+CREATE TABLE payment_logs (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  event_type VARCHAR(50) NOT NULL,
+  stripe_payment_intent_id VARCHAR(255),
+  stripe_subscription_id VARCHAR(255),
+  amount DECIMAL(10, 2),
+  currency VARCHAR(3) DEFAULT 'usd',
+  status VARCHAR(20),
+  metadata JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_payment_logs_created ON payment_logs(created_at DESC);
+
+ALTER TABLE payment_logs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow authenticated users" ON payment_logs
+  FOR ALL USING (auth.role() = 'authenticated');
 
 -- Sample data for testing
 INSERT INTO clients (name, company, email, phone, privacy_level) VALUES

@@ -78,7 +78,7 @@ export default function RouteOptimizePage() {
         setStops(pendingStops)
       }
     } catch (error) {
-      console.error('Error fetching deliveries:', error)
+
     } finally {
       setLoading(false)
     }
