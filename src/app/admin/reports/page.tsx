@@ -9,7 +9,8 @@ import {
   Package,
   DollarSign,
   Users,
-  Clock
+  Clock,
+  LucideIcon
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -20,7 +21,7 @@ interface ReportConfig {
   type: ReportType
   title: string
   description: string
-  icon: React.ComponentType<{ size?: number; className?: string }>
+  icon: LucideIcon
 }
 
 const REPORT_TYPES: ReportConfig[] = [
