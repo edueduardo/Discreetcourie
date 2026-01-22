@@ -26,7 +26,8 @@ import {
   AlertCircle,
   Phone,
   Mail,
-  User
+  User,
+  CreditCard
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -105,6 +106,18 @@ export default function QuotePage() {
   const bookNow = () => {
     if (quoteData?.quote?.id) {
       router.push(`/concierge/request?quote_id=${quoteData.quote.id}`)
+    }
+  }
+
+  const payNow = () => {
+    if (quoteData?.quote?.id) {
+      const params = new URLSearchParams({
+        amount: quoteData.price.toFixed(2),
+        description: `Delivery: ${formData.pickup_address} → ${formData.delivery_address}`,
+        quote_id: quoteData.quote.id,
+        email: formData.contact_email || ''
+      })
+      router.push(`/checkout?${params.toString()}`)
     }
   }
 
@@ -347,19 +360,29 @@ export default function QuotePage() {
                 )}
 
                 {/* Actions */}
-                <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                  <Button
-                    onClick={bookNow}
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white text-lg py-6"
-                  >
-                    <CheckCircle2 className="h-5 w-5 mr-2" />
-                    Book This Delivery
-                    <ArrowRight className="h-5 w-5 ml-2" />
-                  </Button>
+                <div className="space-y-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button
+                      onClick={payNow}
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-lg py-6"
+                    >
+                      <CreditCard className="h-5 w-5 mr-2" />
+                      Pay Now & Book
+                      <ArrowRight className="h-5 w-5 ml-2" />
+                    </Button>
+                    <Button
+                      onClick={bookNow}
+                      variant="outline"
+                      className="flex-1 border-green-600 text-green-500 hover:bg-green-600/10 text-lg py-6"
+                    >
+                      <CheckCircle2 className="h-5 w-5 mr-2" />
+                      Book Later
+                    </Button>
+                  </div>
                   <Button
                     onClick={() => window.print()}
                     variant="outline"
-                    className="border-slate-700 text-slate-300 hover:bg-slate-800"
+                    className="w-full border-slate-700 text-slate-300 hover:bg-slate-800"
                   >
                     Save Quote
                   </Button>
