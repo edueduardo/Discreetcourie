@@ -34,8 +34,6 @@ export async function PATCH(
     'name', 'company', 'email', 'phone', 'address', 'notes',
     'privacy_level', 'is_vip', 'vip_tier', 'service_level',
     'nda_signed', 'direct_line', 'retainer_active', 'retainer_amount',
-    'guardian_mode_active', 'guardian_mode_until',
-    'vetting_status', 'vetting_notes',
     'preferred_payment', 'communication_preference'
   ]
   

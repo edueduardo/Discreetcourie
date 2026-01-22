@@ -11,21 +11,14 @@ import {
   Truck,
   Users,
   Phone,
-  DollarSign,
-  Settings,
   LogOut,
   Menu,
   X,
   UserCheck,
-  Archive,
-  Flame,
-  Shield,
   Eye,
-  AlertTriangle,
   Route,
   CreditCard,
-  MessageSquare,
-  Receipt
+  MessageSquare
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 

@@ -250,7 +250,7 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Analytics error:', error)
+
     return NextResponse.json({ 
       error: 'Failed to generate analytics',
       message: error.message 

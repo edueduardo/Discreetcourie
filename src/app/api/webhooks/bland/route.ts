@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (callError) {
-      console.error('Error storing call:', callError)
+      // Call storage failed
     }
 
     // Check if client exists by phone, or create new
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
           })
 
         if (taskError) {
-          console.error('Error creating concierge task:', taskError)
+          // Task creation failed
         }
       }
     } else if (extractedData.pickup_address && extractedData.delivery_address) {
@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
           })
 
         if (deliveryError) {
-          console.error('Error creating delivery:', deliveryError)
+          // Delivery creation failed
         }
 
         // Update call record with delivery reference
@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
           }
         })
       } catch (emailError) {
-        console.error('Failed to send admin notification:', emailError)
+        // Email notification failed
       }
     }
 
@@ -182,7 +182,7 @@ export async function POST(request: NextRequest) {
           })
         })
       } catch (pushError) {
-        console.error('Failed to send push notification:', pushError)
+        // Push notification failed
       }
     }
 
@@ -192,7 +192,6 @@ export async function POST(request: NextRequest) {
       task_category: taskCategory 
     })
   } catch (error) {
-    console.error('Webhook error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

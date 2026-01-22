@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
     })
     
   } catch (error: any) {
-    console.error('Bland.AI call error:', error)
+
     return NextResponse.json({ 
       error: 'Failed to initiate call',
       message: error.message 

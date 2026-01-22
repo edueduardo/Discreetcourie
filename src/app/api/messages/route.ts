@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       encryptedContent = encryptForStorage(content)
       isEncrypted = true
     } catch (err) {
-      console.error('Encryption failed, storing plaintext:', err)
+
     }
   }
   

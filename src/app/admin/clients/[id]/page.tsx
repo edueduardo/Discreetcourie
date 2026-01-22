@@ -95,8 +95,7 @@ export default function ClientDetailPage() {
 
   const handleSavePreferences = () => {
     setIsEditing(false)
-    // API call would go here
-    console.log('Saving preferences:', preferences)
+    // TODO: API call to save preferences
   }
 
   const handleAddTag = () => {

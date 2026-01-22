@@ -97,7 +97,7 @@ export default function NewDeliveryPage() {
       }, 1500)
 
     } catch (err: any) {
-      console.error('Error creating delivery:', err)
+
       setError(err.message || 'Failed to create delivery. Please try again.')
     } finally {
       setIsLoading(false)

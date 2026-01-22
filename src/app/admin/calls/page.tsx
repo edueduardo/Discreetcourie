@@ -68,7 +68,7 @@ export default function CallsPage() {
       setCalls(Array.isArray(callsData) ? callsData : [])
       setClients(clientsData.clients || [])
     } catch (error) {
-      console.error('Error:', error)
+
     } finally {
       setLoading(false)
     }

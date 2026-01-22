@@ -49,7 +49,7 @@ export function SecureChat({ taskId, clientId, onSendMessage, userType }: Secure
         setMessages(formattedMessages)
       }
     } catch (err) {
-      console.error('Failed to fetch messages:', err)
+
     } finally {
       setLoading(false)
     }
@@ -87,7 +87,7 @@ export function SecureChat({ taskId, clientId, onSendMessage, userType }: Secure
         await fetchMessages()
       }
     } catch (err) {
-      console.error('Failed to send message:', err)
+
     } finally {
       setSending(false)
     }

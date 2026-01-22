@@ -89,9 +89,49 @@ BLAND_API_KEY=
 
 ## Git Branches
 - `master` - Production branch
-- `claude/discreetcourier-phase-1-o0xQe` - Development branch
+- `claude` - Development branch
 
-Keep both branches in sync after significant changes.
+**Keep both branches in sync after significant changes.**
+
+## Recent Changes (Session Update)
+
+### Completed Tasks
+1. **Removed Ghost Code:**
+   - Deleted `/api/emergency/route.ts` and `/api/vetting/route.ts`
+   - Removed ghost types: `VaultItem`, `DestructionLog`, `guardian_mode_*`, `vetting_*`
+   - Cleaned email templates in `src/lib/email.ts`
+   - Removed references from Stripe webhook, subscriptions, and customers APIs
+
+2. **Database Schema Updates (`supabase/schema.sql`):**
+   - Added `gps_locations` table for GPS tracking persistence
+   - Added `subscriptions` table for Stripe subscriptions
+   - Added `payment_logs` table for payment event logging
+   - Added `driver_sessions` table for driver authentication
+
+3. **Driver App Authentication:**
+   - Created `/api/driver/auth/route.ts` for PIN-based login
+   - Created `/driver/login/page.tsx` login page
+   - Updated driver layout with auth check and logout
+
+4. **New Admin Pages:**
+   - `/admin/analytics` - Analytics dashboard with KPIs
+   - `/admin/reports` - Report generation (deliveries, revenue, clients, performance)
+   - `/admin/settings` - App settings management
+   - `/admin/invoices` - Invoice management
+
+5. **Updated `.env.example`:**
+   - Added Stripe keys (STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
+   - Added RESEND_API_KEY for emails
+   - Added VAPID keys for push notifications
+   - Added DRIVER_AUTH_SECRET for driver authentication
+
+### Pending Tasks
+- Sync `master` and `claude` branches
+- Configure real Twilio SMS
+- Configure real Resend emails
+- Implement real push notifications
+- Generate invoice PDFs
+- WhatsApp Business integration
 
 ## Color Scheme
 - Background: `#0a0a0f` (dark)

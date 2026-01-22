@@ -48,7 +48,7 @@ export default function PortalSubscriptions() {
         setSubscription(activeSub || null)
       }
     } catch (error) {
-      console.error('Failed to fetch subscriptions:', error)
+
     } finally {
       setLoading(false)
     }
@@ -73,7 +73,7 @@ export default function PortalSubscriptions() {
         await fetchData()
       }
     } catch (error) {
-      console.error('Subscribe error:', error)
+
     } finally {
       setActionLoading(null)
     }
@@ -94,7 +94,7 @@ export default function PortalSubscriptions() {
         window.location.href = data.url
       }
     } catch (error) {
-      console.error('Portal error:', error)
+
     } finally {
       setActionLoading(null)
     }
@@ -116,7 +116,7 @@ export default function PortalSubscriptions() {
       })
       await fetchData()
     } catch (error) {
-      console.error('Cancel error:', error)
+
     } finally {
       setActionLoading(null)
     }

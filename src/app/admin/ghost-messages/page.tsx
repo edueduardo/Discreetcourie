@@ -93,7 +93,7 @@ export default function GhostMessagesPage() {
       setMessages(messagesData)
       setClients(clientsData.clients || [])
     } catch (error) {
-      console.error('Error:', error)
+
     } finally {
       setLoading(false)
     }
@@ -155,7 +155,7 @@ export default function GhostMessagesPage() {
     try {
       const res = await fetch('/api/cron/auto-delete')
       const data = await res.json()
-      showToast(`CRON: Deleted ${data.messages_deleted} messages, ${data.vault_items_deleted} vault items`, 'success')
+      showToast(`CRON: Deleted ${data.messages_deleted} messages`, 'success')
       fetchData()
     } catch (error) {
       showToast('CRON failed', 'error')

@@ -311,7 +311,7 @@ export default function ConciergePage() {
               </Link>
             </div>
             <p className="text-slate-500 text-sm mt-6">
-              Available 24/7 for VIP clients • Columbus, OH and surrounding areas
+              Extended hours 8AM-8PM Mon-Sat • Columbus, OH and surrounding areas
             </p>
           </div>
         </div>

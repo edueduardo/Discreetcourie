@@ -69,7 +69,7 @@ export async function PATCH(
           })
         })
       } catch (e) {
-        console.error('SMS notification failed:', e)
+        // SMS notification failed
       }
     }
   }

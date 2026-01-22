@@ -176,7 +176,7 @@ export default function AdminDashboard() {
         setRecentCalls(calls || [])
 
       } catch (error) {
-        console.error('Error fetching dashboard data:', error)
+
       } finally {
         setLoading(false)
       }

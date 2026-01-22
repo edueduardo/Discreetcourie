@@ -96,7 +96,7 @@ export default function PaymentsPage() {
           })))
         }
       } catch (error) {
-        console.error('Error fetching payments:', error)
+
         setStripeConfigured(false)
       } finally {
         setLoading(false)

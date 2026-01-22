@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Push notification error:', error)
+
     return NextResponse.json({ 
       error: 'Failed to send push notification',
       message: error.message 
@@ -176,7 +176,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ success: true })
 
   } catch (error: any) {
-    console.error('Push subscription error:', error)
+
     return NextResponse.json({ 
       error: 'Failed to save subscription',
       message: error.message 

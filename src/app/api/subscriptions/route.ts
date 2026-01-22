@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ subscriptions: formattedSubs })
 
   } catch (error: any) {
-    console.error('Stripe subscriptions error:', error)
+
     return NextResponse.json({ 
       error: 'Failed to fetch subscriptions',
       message: error.message 
@@ -233,16 +233,6 @@ export async function POST(request: NextRequest) {
       amount: plan.price
     })
 
-    // Atualizar cliente com guardian_mode se aplicável
-    if (planKey.startsWith('guardian') && clientId) {
-      await supabase.from('clients')
-        .update({ 
-          guardian_mode_active: true,
-          guardian_subscription_id: subscription.id
-        })
-        .eq('id', clientId)
-    }
-
     const latestInvoice = subscription.latest_invoice as any
     const paymentIntent = latestInvoice?.payment_intent as any
 
@@ -256,7 +246,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Stripe subscription error:', error)
+
     return NextResponse.json({ 
       error: 'Failed to create subscription',
       message: error.message 
@@ -373,7 +363,7 @@ export async function PATCH(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Stripe subscription update error:', error)
+
     return NextResponse.json({ 
       error: 'Failed to update subscription',
       message: error.message 

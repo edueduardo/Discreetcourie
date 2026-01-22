@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
 
     if (insertError) {
       // Table might not exist, try alternative
-      console.error('Tracking insert error:', insertError)
+
     }
 
     // Update delivery with latest location
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Realtime tracking error:', error)
+
     return NextResponse.json({ 
       error: 'Failed to update location',
       message: error.message 
@@ -189,7 +189,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'No location data' }, { status: 404 })
 
   } catch (error: any) {
-    console.error('Get location error:', error)
+
     return NextResponse.json({ 
       error: 'Failed to get location',
       message: error.message 

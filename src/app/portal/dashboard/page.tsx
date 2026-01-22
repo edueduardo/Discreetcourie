@@ -41,8 +41,6 @@ interface ClientStats {
   activeDeliveries: number
   completedDeliveries: number
   pendingInvoices: number
-  guardianModeActive: boolean
-  vaultItems: number
 }
 
 const statusColors: Record<string, 'warning' | 'default' | 'success' | 'destructive'> = {
@@ -65,9 +63,7 @@ export default function ClientDashboard() {
   const [stats, setStats] = useState<ClientStats>({
     activeDeliveries: 0,
     completedDeliveries: 0,
-    pendingInvoices: 0,
-    guardianModeActive: false,
-    vaultItems: 0
+    pendingInvoices: 0
   })
   const [loading, setLoading] = useState(true)
 
@@ -112,15 +108,9 @@ export default function ClientDashboard() {
         }
       }
 
-      // Fetch vault items
-      const vaultRes = await fetch('/api/vault')
-      if (vaultRes.ok) {
-        const vaultData = await vaultRes.json()
-        setStats(prev => ({ ...prev, vaultItems: vaultData.length || 0 }))
-      }
-
+      
     } catch (error) {
-      console.error('Failed to fetch data:', error)
+
     } finally {
       setLoading(false)
     }
@@ -178,20 +168,7 @@ export default function ClientDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-800 border-slate-700">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-full bg-purple-600/20 flex items-center justify-center">
-                <Lock className="h-6 w-6 text-purple-500" />
-              </div>
-              <div>
-                <p className="text-slate-400 text-sm">Vault Items</p>
-                <p className="text-2xl font-bold text-white">{stats.vaultItems}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
+        
         <Card className="bg-slate-800 border-slate-700">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
@@ -267,32 +244,16 @@ export default function ClientDashboard() {
           </Card>
         </Link>
 
-        <Link href="/portal/vault">
+        <Link href="/portal/requests">
           <Card className="bg-slate-800 border-slate-700 hover:bg-slate-750 transition-colors cursor-pointer">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 rounded-full bg-purple-600/20 flex items-center justify-center">
-                  <Lock className="h-6 w-6 text-purple-500" />
+                  <FileText className="h-6 w-6 text-purple-500" />
                 </div>
                 <div>
-                  <h3 className="text-white font-medium">Human Vault</h3>
-                  <p className="text-slate-400 text-sm">Access secure storage</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/portal/guardian">
-          <Card className="bg-slate-800 border-slate-700 hover:bg-slate-750 transition-colors cursor-pointer">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-full bg-blue-600/20 flex items-center justify-center">
-                  <Shield className="h-6 w-6 text-blue-500" />
-                </div>
-                <div>
-                  <h3 className="text-white font-medium">Guardian Mode</h3>
-                  <p className="text-slate-400 text-sm">Check-in & alerts</p>
+                  <h3 className="text-white font-medium">New Request</h3>
+                  <p className="text-slate-400 text-sm">Submit delivery request</p>
                 </div>
               </div>
             </CardContent>

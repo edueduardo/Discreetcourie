@@ -40,7 +40,7 @@ export default function HistoryPage() {
         setDeliveries(data.deliveries || [])
       }
     } catch (error) {
-      console.error('Failed to fetch history:', error)
+
     } finally {
       setLoading(false)
     }

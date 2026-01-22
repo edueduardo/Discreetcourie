@@ -16,16 +16,8 @@ export type EmailTemplate =
   | 'payment_failed'
   | 'subscription_created'
   | 'subscription_cancelled'
-  | 'guardian_alert'
-  | 'guardian_checkin_reminder'
-  | 'last_will_triggered'
-  | 'last_will_reminder'
-  | 'time_capsule_delivered'
-  | 'time_capsule_reminder'
-  | 'vetting_approved'
-  | 'vetting_rejected'
-  | 'emergency_triggered'
-  | 'destruction_complete'
+  | 'admin_notification'
+  | 'client_reminder'
 
 interface EmailVariables {
   recipientName?: string
@@ -114,98 +106,21 @@ const EMAIL_TEMPLATES: Record<EmailTemplate, { subject: string; html: (vars: Ema
       <p>You will continue to have access until the end of your billing period.</p>
     `
   },
-  guardian_alert: {
-    subject: '🚨 GUARDIAN ALERT - Immediate Attention Required',
+  admin_notification: {
+    subject: '🔔 Admin Notification - #{subject}',
     html: (vars) => `
-      <h1 style="color: red;">GUARDIAN MODE ALERT</h1>
-      <p>Client: <strong>${vars.clientCode}</strong></p>
-      <p>${vars.message || 'A Guardian Mode alert has been triggered.'}</p>
-      <p>This requires immediate attention.</p>
-      <p><a href="${vars.actionUrl || '#'}">View Alert Details</a></p>
+      <h1>Admin Notification</h1>
+      <p>${vars.message || 'You have a new notification.'}</p>
+      ${vars.actionUrl ? `<p><a href="${vars.actionUrl}">View Details</a></p>` : ''}
     `
   },
-  guardian_checkin_reminder: {
-    subject: 'Guardian Mode Check-in Reminder',
+  client_reminder: {
+    subject: 'Reminder from Discreet Courier',
     html: (vars) => `
-      <h1>Check-in Reminder</h1>
-      <p>This is a reminder to complete your Guardian Mode check-in.</p>
-      <p>Days remaining: <strong>${vars.daysRemaining}</strong></p>
-      <p><a href="${vars.actionUrl || '#'}">Check In Now</a></p>
-    `
-  },
-  last_will_triggered: {
-    subject: 'Important Message - Last Will Delivery',
-    html: (vars) => `
-      <h1>You Have Received a Last Will Message</h1>
-      <p>Dear ${vars.recipientName || 'Recipient'},</p>
-      <p>You have received an important message from one of our clients.</p>
-      <div style="background: #f5f5f5; padding: 20px; margin: 20px 0; border-left: 4px solid #333;">
-        ${vars.message || 'Please contact us for details.'}
-      </div>
-      <p><a href="${vars.actionUrl || '#'}">View Full Message</a></p>
-    `
-  },
-  last_will_reminder: {
-    subject: 'Last Will Check-in Required - #{daysRemaining} Days Remaining',
-    html: (vars) => `
-      <h1>Check-in Required</h1>
-      <p>Your Last Will service requires a check-in.</p>
-      <p>Days remaining before automatic delivery: <strong>${vars.daysRemaining}</strong></p>
-      <p><a href="${vars.actionUrl || '#'}">Check In Now</a></p>
-    `
-  },
-  time_capsule_delivered: {
-    subject: 'Time Capsule Delivered',
-    html: (vars) => `
-      <h1>You Have Received a Time Capsule</h1>
-      <p>Dear ${vars.recipientName || 'Recipient'},</p>
-      <p>A time capsule message has been delivered to you.</p>
-      <div style="background: #f5f5f5; padding: 20px; margin: 20px 0; border-left: 4px solid #3b82f6;">
-        ${vars.message || 'Please contact us for details.'}
-      </div>
-    `
-  },
-  time_capsule_reminder: {
-    subject: 'Time Capsule Delivery Upcoming',
-    html: (vars) => `
-      <h1>Time Capsule Reminder</h1>
-      <p>Your time capsule is scheduled for delivery in <strong>${vars.daysRemaining} days</strong>.</p>
-      <p><a href="${vars.actionUrl || '#'}">View Time Capsule</a></p>
-    `
-  },
-  vetting_approved: {
-    subject: '✅ Vetting Approved - Welcome to Our Circle',
-    html: (vars) => `
-      <h1>Vetting Approved</h1>
-      <p>Congratulations! Your vetting process has been approved.</p>
-      <p>You now have access to our premium services.</p>
-      <p><a href="${vars.actionUrl || '#'}">Access Your Account</a></p>
-    `
-  },
-  vetting_rejected: {
-    subject: 'Vetting Application Update',
-    html: (vars) => `
-      <h1>Vetting Application Update</h1>
-      <p>After careful review, we are unable to approve your application at this time.</p>
-      ${vars.message ? `<p>Notes: ${vars.message}</p>` : ''}
-    `
-  },
-  emergency_triggered: {
-    subject: '🚨 EMERGENCY PROTOCOL ACTIVATED',
-    html: (vars) => `
-      <h1 style="color: red;">EMERGENCY PROTOCOL ACTIVATED</h1>
-      <p>Client: <strong>${vars.clientCode}</strong></p>
-      <p>An emergency protocol has been triggered.</p>
-      <p>${vars.message || 'Immediate action is being taken.'}</p>
-    `
-  },
-  destruction_complete: {
-    subject: 'Data Destruction Completed',
-    html: (vars) => `
-      <h1>Data Destruction Complete</h1>
-      <p>Your data destruction request has been completed.</p>
-      <p>Certificate ID: <strong>${vars.certificateId || 'N/A'}</strong></p>
-      ${vars.actionUrl ? `<p><a href="${vars.actionUrl}">View Certificate</a></p>` : ''}
+      <h1>Reminder</h1>
+      <p>Dear ${vars.recipientName || 'Valued Client'},</p>
+      <p>${vars.message || 'This is a reminder from Discreet Courier.'}</p>
+      ${vars.actionUrl ? `<p><a href="${vars.actionUrl}">Take Action</a></p>` : ''}
     `
   }
 }
@@ -228,7 +143,7 @@ export async function sendEmail(params: SendEmailParams): Promise<SendEmailResul
   const { to, template, variables = {}, customSubject, replyTo } = params
 
   if (!resend) {
-    console.log('[Email] Resend not configured. Would send:', { to, template, variables })
+
     return { 
       success: false, 
       error: 'Email service not configured. Add RESEND_API_KEY to environment.' 
@@ -255,15 +170,15 @@ export async function sendEmail(params: SendEmailParams): Promise<SendEmailResul
     })
 
     if (error) {
-      console.error('[Email] Send error:', error)
+
       return { success: false, error: error.message }
     }
 
-    console.log('[Email] Sent successfully:', data?.id)
+
     return { success: true, messageId: data?.id }
 
   } catch (err: any) {
-    console.error('[Email] Exception:', err)
+
     return { success: false, error: err.message }
   }
 }
