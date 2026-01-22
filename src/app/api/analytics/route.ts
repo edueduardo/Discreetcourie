@@ -69,22 +69,23 @@ export async function GET(request: NextRequest) {
         .select('*', { count: 'exact', head: true })
         .gte('created_at', periodStart)
 
+      // Note: clients table doesn't have 'status' field, using activity-based logic instead
       const { count: activeClients } = await supabase
         .from('clients')
         .select('*', { count: 'exact', head: true })
-        .eq('status', 'active')
+        .gte('last_activity', periodStart)
 
       const { count: vipClients } = await supabase
         .from('clients')
         .select('*', { count: 'exact', head: true })
-        .eq('vip', true)
+        .eq('is_vip', true)
 
-      // Churn rate (clients who became inactive this period)
+      // Churn rate (clients who haven't had activity in 90 days)
+      const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString()
       const { count: churnedClients } = await supabase
         .from('clients')
         .select('*', { count: 'exact', head: true })
-        .eq('status', 'inactive')
-        .gte('updated_at', periodStart)
+        .lt('last_activity', ninetyDaysAgo)
 
       const churnRate = activeClients && activeClients > 0 
         ? ((churnedClients || 0) / activeClients) * 100 
@@ -169,7 +170,7 @@ export async function GET(request: NextRequest) {
     if (metric === 'all' || metric === 'subscriptions') {
       const { data: subscriptions } = await supabase
         .from('subscriptions')
-        .select('status, plan_type, amount')
+        .select('status, plan_key, amount')
 
       const byStatus: Record<string, number> = {}
       const byPlan: Record<string, number> = {}
@@ -177,8 +178,8 @@ export async function GET(request: NextRequest) {
 
       for (const sub of subscriptions || []) {
         byStatus[sub.status] = (byStatus[sub.status] || 0) + 1
-        if (sub.plan_type) {
-          byPlan[sub.plan_type] = (byPlan[sub.plan_type] || 0) + 1
+        if (sub.plan_key) {
+          byPlan[sub.plan_key] = (byPlan[sub.plan_key] || 0) + 1
         }
         if (sub.status === 'active') {
           totalMRR += sub.amount || 0

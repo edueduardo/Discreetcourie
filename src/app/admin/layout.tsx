@@ -39,6 +39,7 @@ const navItems = [
   { href: '/admin/payments', icon: CreditCard, label: 'Payments' },
   { href: '/admin/notifications', icon: MessageSquare, label: 'SMS/WhatsApp' },
   { href: '/admin/tracking', icon: Eye, label: 'GPS Tracking' },
+  { href: '/admin/settings', icon: Settings, label: 'Settings' },
 ]
 
 export default function AdminLayout({
