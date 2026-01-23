@@ -8,6 +8,15 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    serverComponentsExternalPackages: ['pdfkit', 'sharp'],
+  },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals.push('pdfkit', 'sharp')
+    }
+    return config
+  },
 }
 
 module.exports = nextConfig
