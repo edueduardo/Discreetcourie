@@ -8,15 +8,10 @@ const nextConfig = {
       },
     ],
   },
+  // Disable file tracing to prevent stack overflow with pdfkit
+  outputFileTracing: false,
   experimental: {
     serverComponentsExternalPackages: ['pdfkit', 'sharp'],
-    outputFileTracingExcludes: {
-      '*': [
-        'node_modules/pdfkit/**/*',
-        'node_modules/sharp/**/*',
-        'node_modules/@types/pdfkit/**/*',
-      ],
-    },
   },
   webpack: (config, { isServer }) => {
     if (isServer) {
