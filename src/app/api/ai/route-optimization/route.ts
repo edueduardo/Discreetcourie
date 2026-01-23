@@ -92,12 +92,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Calculate distances between all points using Haversine formula
-    function calculateDistance(
+    const calculateDistance = (
       lat1: number,
       lng1: number,
       lat2: number,
       lng2: number
-    ): number {
+    ): number => {
       const R = 6371 // Earth's radius in km
       const dLat = ((lat2 - lat1) * Math.PI) / 180
       const dLng = ((lng2 - lng1) * Math.PI) / 180
@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Nearest Neighbor algorithm with priority consideration
-    function optimizeRoute(points: DeliveryPoint[], start: { lat: number; lng: number }) {
+    const optimizeRoute = (points: DeliveryPoint[], start: { lat: number; lng: number }) => {
       const unvisited = [...points]
       const route: DeliveryPoint[] = []
       let currentPos = start
