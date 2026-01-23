@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Head from 'next/head'
 import { Phone, Shield, Package, ChevronRight, Check, Clock, MapPin, Camera, FileText, Building2, Truck, Calculator } from 'lucide-react'
 import { AIChatbot } from '@/components/ai-chatbot'
+import { AIChatbotSimple } from '@/components/ai-chatbot-simple'
 
 export default function LandingPage() {
   const [hoveredTier, setHoveredTier] = useState<number | null>(null)
@@ -542,26 +543,7 @@ export default function LandingPage() {
         </footer>
 
         {/* AI Chatbot - 24/7 Customer Support */}
-        {/* TESTE: DIV vermelho para debug */}
-        <div style={{
-          position: 'fixed',
-          bottom: '24px',
-          right: '24px',
-          width: '100px',
-          height: '100px',
-          backgroundColor: 'red',
-          borderRadius: '50%',
-          zIndex: 9999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'white',
-          fontSize: '12px',
-          fontWeight: 'bold'
-        }}>
-          TESTE
-        </div>
-        <AIChatbot />
+        <AIChatbotSimple />
       </div>
     </>
   )
