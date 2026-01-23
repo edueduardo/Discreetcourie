@@ -57,6 +57,28 @@ export default function InvoicesPage() {
     }
   }
 
+  async function downloadPDF(invoiceId: string, invoiceNumber: string) {
+    try {
+      const response = await fetch(`/api/invoices/${invoiceId}/pdf`)
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF')
+      }
+
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `invoice-${invoiceNumber}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (error) {
+      console.error('PDF download error:', error)
+      alert('Failed to download PDF. Please try again.')
+    }
+  }
+
   function getMockInvoices(): Invoice[] {
     return [
       {
@@ -230,14 +252,19 @@ export default function InvoicesPage() {
                     <td className="p-4 text-slate-400">{new Date(invoice.due_date).toLocaleDateString()}</td>
                     <td className="p-4">
                       <div className="flex gap-2">
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => setSelectedInvoice(invoice)}
                         >
                           <Eye size={14} />
                         </Button>
-                        <Button size="sm" variant="outline">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => downloadPDF(invoice.id, invoice.invoice_number)}
+                          title="Download PDF"
+                        >
                           <Download size={14} />
                         </Button>
                       </div>
@@ -303,7 +330,11 @@ export default function InvoicesPage() {
                     Mark as Paid
                   </Button>
                 )}
-                <Button variant="outline" className="flex-1">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => downloadPDF(selectedInvoice.id, selectedInvoice.invoice_number)}
+                >
                   <Download size={16} className="mr-2" /> Download PDF
                 </Button>
               </div>

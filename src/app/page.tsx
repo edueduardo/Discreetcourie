@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Head from 'next/head'
-import { Phone, Shield, Package, ChevronRight, Check, Clock, MapPin, Camera, FileText, Building2, Truck } from 'lucide-react'
+import { Phone, Shield, Package, ChevronRight, Check, Clock, MapPin, Camera, FileText, Building2, Truck, Calculator } from 'lucide-react'
 
 export default function LandingPage() {
   const [hoveredTier, setHoveredTier] = useState<number | null>(null)
@@ -60,14 +60,21 @@ export default function LandingPage() {
             
             {/* CTAs - Primary action prominent */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a 
-                href="tel:+16145003080" 
+              <Link
+                href="/quote"
+                className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-lg text-lg font-semibold transition-all transform hover:scale-105"
+              >
+                <Calculator className="w-5 h-5" />
+                Get Instant Quote
+              </Link>
+              <a
+                href="tel:+16145003080"
                 className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#e94560] hover:bg-[#d63d56] rounded-lg text-lg font-semibold transition-all transform hover:scale-105"
               >
                 <Phone className="w-5 h-5" />
                 Call Now: (614) 500-3080
               </a>
-              <Link 
+              <Link
                 href="/concierge/request"
                 className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#1a1a2e] hover:bg-[#2d3748] border border-[#2d3748] rounded-lg text-lg font-semibold transition-all"
               >

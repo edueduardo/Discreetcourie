@@ -199,3 +199,61 @@ export async function sendBulkEmails(
 
   return { sent, failed, results }
 }
+
+/**
+ * Send Rich HTML Email Templates
+ * Uses the new professionally-designed templates from email-templates.ts
+ */
+import EmailTemplates, { EmailTemplate as RichEmailTemplate } from './email-templates'
+
+interface SendRichEmailParams {
+  to: string | string[]
+  template: RichEmailTemplate
+  replyTo?: string
+  attachments?: Array<{
+    filename: string
+    content: Buffer | string
+    contentType?: string
+  }>
+}
+
+export async function sendRichEmail({
+  to,
+  template,
+  replyTo,
+  attachments
+}: SendRichEmailParams): Promise<SendEmailResult> {
+  if (!resend) {
+    console.warn('Resend not configured - email not sent')
+    return {
+      success: false,
+      error: 'Resend not configured. Set RESEND_API_KEY environment variable.'
+    }
+  }
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: `${FROM_NAME} <${FROM_EMAIL}>`,
+      to: Array.isArray(to) ? to : [to],
+      subject: template.subject,
+      html: template.html,
+      text: template.text,
+      replyTo,
+      attachments
+    })
+
+    if (error) {
+      console.error('Email send error:', error)
+      return { success: false, error: error.message }
+    }
+
+    console.log('Email sent successfully:', data?.id)
+    return { success: true, messageId: data?.id }
+
+  } catch (err: any) {
+    console.error('Email send error:', err)
+    return { success: false, error: err.message }
+  }
+}
+
+export { EmailTemplates }

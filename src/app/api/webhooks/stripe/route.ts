@@ -17,17 +17,31 @@ export async function POST(request: NextRequest) {
   const body = await request.text()
   const signature = request.headers.get('stripe-signature')
 
+  // Webhook signature verification is REQUIRED for security
+  if (!webhookSecret) {
+    console.error('STRIPE_WEBHOOK_SECRET not configured')
+    return NextResponse.json({
+      error: 'Webhook secret not configured. Set STRIPE_WEBHOOK_SECRET environment variable.'
+    }, { status: 500 })
+  }
+
+  if (!signature) {
+    console.error('Missing stripe-signature header')
+    return NextResponse.json({
+      error: 'Missing stripe-signature header'
+    }, { status: 400 })
+  }
+
   let event: Stripe.Event
 
   try {
-    if (webhookSecret && signature) {
-      event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
-    } else {
-      // For testing without webhook signature verification
-      event = JSON.parse(body) as Stripe.Event
-    }
+    event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
   } catch (err: any) {
-    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
+    console.error('Webhook signature verification failed:', err.message)
+    return NextResponse.json({
+      error: 'Invalid signature',
+      message: err.message
+    }, { status: 400 })
   }
 
   const supabase = createClient()
@@ -91,10 +105,11 @@ export async function POST(request: NextRequest) {
               })
             })
           } catch (e) {
-            // SMS notification failed silently
+            console.error('SMS notification failed:', e)
           }
         }
 
+        console.log(`✅ Payment succeeded: ${paymentIntent.id}`)
         break
       }
 
@@ -126,6 +141,7 @@ export async function POST(request: NextRequest) {
           })
         }
 
+        console.log(`❌ Payment failed: ${paymentIntent.id}`)
         break
       }
 
@@ -139,6 +155,7 @@ export async function POST(request: NextRequest) {
           created_at: now
         })
 
+        console.log(`💰 Refund processed: ${charge.id}`)
         break
       }
 
@@ -146,7 +163,21 @@ export async function POST(request: NextRequest) {
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription & { current_period_end?: number }
         
-        // Log subscription event
+        // Update guardian mode subscription
+        if (subscription.metadata?.client_id) {
+          const isActive = subscription.status === 'active'
+          const periodEnd = subscription.current_period_end 
+            ? new Date(subscription.current_period_end * 1000).toISOString() 
+            : null
+          await supabase
+            .from('clients')
+            .update({
+              guardian_mode_active: isActive,
+              guardian_mode_until: isActive ? periodEnd : null
+            })
+            .eq('id', subscription.metadata.client_id)
+        }
+
         await supabase.from('payment_logs').insert({
           event_type: `subscription_${event.type.split('.')[2]}`,
           stripe_subscription_id: subscription.id,
@@ -154,30 +185,35 @@ export async function POST(request: NextRequest) {
           created_at: now
         })
 
+        console.log(`📅 Subscription ${event.type}: ${subscription.id}`)
         break
       }
 
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription
         
-        // Log subscription deletion
-        await supabase.from('payment_logs').insert({
-          event_type: 'subscription_deleted',
-          stripe_subscription_id: subscription.id,
-          metadata: subscription.metadata,
-          created_at: now
-        })
+        if (subscription.metadata?.client_id) {
+          await supabase
+            .from('clients')
+            .update({
+              guardian_mode_active: false,
+              guardian_mode_until: null
+            })
+            .eq('id', subscription.metadata.client_id)
+        }
 
+        console.log(`🚫 Subscription cancelled: ${subscription.id}`)
         break
       }
 
       default:
-        // Unhandled event type
+        console.log(`Unhandled event type: ${event.type}`)
     }
 
     return NextResponse.json({ received: true, type: event.type })
 
   } catch (error: any) {
+    console.error('Webhook processing error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

@@ -1,349 +1,215 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { 
-  Settings, 
-  Save, 
-  Bell, 
-  Globe, 
-  DollarSign, 
-  Shield,
-  Mail,
-  Phone,
-  MapPin,
-  Clock,
-  Check
-} from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
+import { Separator } from '@/components/ui/separator'
+import { Settings, Save, RefreshCw } from 'lucide-react'
+import { toast } from 'sonner'
 
-interface AppSettings {
-  company_name: string
-  company_phone: string
-  company_email: string
-  admin_email: string
-  base_price: number
-  per_mile_rate: number
-  express_surcharge: number
-  urgent_surcharge: number
-  after_hours_surcharge: number
-  coverage_radius_miles: number
-  max_daily_deliveries: number
-  operating_hours_start: string
-  operating_hours_end: string
-  notifications_enabled: boolean
-  sms_enabled: boolean
-  email_enabled: boolean
-  driver_pin: string
-}
-
-const DEFAULT_SETTINGS: AppSettings = {
-  company_name: 'Discreet Courier Columbus',
-  company_phone: '(614) 500-3080',
-  company_email: 'contact@discreetcourier.com',
-  admin_email: 'eduardo@discreetcourier.com',
-  base_price: 35,
-  per_mile_rate: 2.5,
-  express_surcharge: 15,
-  urgent_surcharge: 35,
-  after_hours_surcharge: 25,
-  coverage_radius_miles: 25,
-  max_daily_deliveries: 15,
-  operating_hours_start: '08:00',
-  operating_hours_end: '20:00',
-  notifications_enabled: true,
-  sms_enabled: false,
-  email_enabled: false,
-  driver_pin: '1234'
+interface Setting {
+  id: string
+  key: string
+  value: any
+  description: string | null
+  category: string
+  is_public: boolean
 }
 
 export default function SettingsPage() {
-  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS)
+  const [settings, setSettings] = useState<Record<string, Setting[]>>({})
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
 
   useEffect(() => {
     fetchSettings()
   }, [])
 
-  async function fetchSettings() {
+  const fetchSettings = async () => {
     try {
-      const res = await fetch('/api/settings')
-      if (res.ok) {
-        const data = await res.json()
-        setSettings({ ...DEFAULT_SETTINGS, ...data })
+      const response = await fetch('/api/settings')
+      const data = await response.json()
+
+      if (data.byCategory) {
+        setSettings(data.byCategory)
       }
     } catch (error) {
-      // Use defaults
+      console.error('Error fetching settings:', error)
+      toast.error('Failed to load settings')
     } finally {
       setLoading(false)
     }
   }
 
-  async function saveSettings() {
+  const updateSetting = async (key: string, value: any) => {
     setSaving(true)
-    setSaved(false)
-    
     try {
-      const res = await fetch('/api/settings', {
-        method: 'POST',
+      const response = await fetch('/api/settings', {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings)
+        body: JSON.stringify({ key, value })
       })
-      
-      if (res.ok) {
-        setSaved(true)
-        setTimeout(() => setSaved(false), 3000)
+
+      const data = await response.json()
+
+      if (response.ok) {
+        toast.success(data.message || 'Setting updated')
+        fetchSettings() // Refresh
+      } else {
+        toast.error(data.error || 'Failed to update setting')
       }
     } catch (error) {
-      // Handle error
+      console.error('Error updating setting:', error)
+      toast.error('Failed to update setting')
     } finally {
       setSaving(false)
     }
   }
 
-  function updateSetting<K extends keyof AppSettings>(key: K, value: AppSettings[K]) {
-    setSettings(prev => ({ ...prev, [key]: value }))
+  const handleInputChange = (key: string, value: string, type: 'string' | 'number' | 'boolean') => {
+    let processedValue: any = value
+
+    if (type === 'number') {
+      processedValue = parseFloat(value) || 0
+    } else if (type === 'boolean') {
+      processedValue = value === 'true'
+    }
+
+    updateSetting(key, processedValue)
+  }
+
+  const renderSettingInput = (setting: Setting) => {
+    const value = setting.value
+
+    // Determine input type based on value
+    if (typeof value === 'boolean') {
+      return (
+        <div className="flex items-center space-x-2">
+          <Switch
+            checked={value}
+            onCheckedChange={(checked) => updateSetting(setting.key, checked)}
+          />
+          <Label>{value ? 'Enabled' : 'Disabled'}</Label>
+        </div>
+      )
+    }
+
+    if (typeof value === 'number') {
+      return (
+        <Input
+          type="number"
+          defaultValue={value}
+          onBlur={(e) => handleInputChange(setting.key, e.target.value, 'number')}
+          className="bg-slate-800 border-slate-700"
+        />
+      )
+    }
+
+    // String (remove quotes if JSON string)
+    const stringValue = typeof value === 'string' ? value : JSON.stringify(value).replace(/^"|"$/g, '')
+
+    return (
+      <Input
+        type="text"
+        defaultValue={stringValue}
+        onBlur={(e) => updateSetting(setting.key, `"${e.target.value}"`)}
+        className="bg-slate-800 border-slate-700"
+      />
+    )
+  }
+
+  const categoryLabels: Record<string, string> = {
+    general: 'General',
+    operations: 'Operations',
+    pricing: 'Pricing',
+    integrations: 'Integrations',
+    privacy: 'Privacy'
   }
 
   if (loading) {
-    return <div className="p-6 text-center">Loading settings...</div>
+    return (
+      <div className="p-6 lg:p-8">
+        <div className="flex items-center gap-2 mb-6">
+          <RefreshCw className="h-5 w-5 text-blue-500 animate-spin" />
+          <span className="text-slate-400">Loading settings...</span>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Settings /> Settings
-        </h1>
-        <Button 
-          onClick={saveSettings} 
-          disabled={saving}
-          className={saved ? 'bg-green-600' : 'bg-blue-600 hover:bg-blue-700'}
+    <div className="p-6 lg:p-8">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            <Settings className="h-6 w-6 text-blue-500" />
+            System Settings
+          </h1>
+          <p className="text-slate-400 mt-1">Configure your courier system</p>
+        </div>
+        <Button
+          onClick={fetchSettings}
+          variant="outline"
+          className="border-slate-700 text-slate-400"
         >
-          {saved ? <><Check size={16} className="mr-2" /> Saved!</> : 
-           saving ? 'Saving...' : <><Save size={16} className="mr-2" /> Save Changes</>}
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Refresh
         </Button>
       </div>
 
-      {/* Company Info */}
-      <Card className="bg-slate-800 border-slate-700">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Globe size={18} /> Company Information
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm text-slate-400 block mb-1">Company Name</label>
-            <Input
-              value={settings.company_name}
-              onChange={(e) => updateSetting('company_name', e.target.value)}
-              className="bg-slate-700 border-slate-600"
-            />
-          </div>
-          <div>
-            <label className="text-sm text-slate-400 block mb-1 flex items-center gap-1">
-              <Phone size={14} /> Phone
-            </label>
-            <Input
-              value={settings.company_phone}
-              onChange={(e) => updateSetting('company_phone', e.target.value)}
-              className="bg-slate-700 border-slate-600"
-            />
-          </div>
-          <div>
-            <label className="text-sm text-slate-400 block mb-1 flex items-center gap-1">
-              <Mail size={14} /> Email
-            </label>
-            <Input
-              type="email"
-              value={settings.company_email}
-              onChange={(e) => updateSetting('company_email', e.target.value)}
-              className="bg-slate-700 border-slate-600"
-            />
-          </div>
-          <div>
-            <label className="text-sm text-slate-400 block mb-1">Admin Email</label>
-            <Input
-              type="email"
-              value={settings.admin_email}
-              onChange={(e) => updateSetting('admin_email', e.target.value)}
-              className="bg-slate-700 border-slate-600"
-            />
-          </div>
-        </CardContent>
-      </Card>
+      {/* Settings Cards by Category */}
+      <div className="space-y-6">
+        {Object.entries(settings).map(([category, categorySettings]) => (
+          <Card key={category} className="bg-slate-800 border-slate-700">
+            <CardHeader>
+              <CardTitle className="text-white">
+                {categoryLabels[category] || category}
+              </CardTitle>
+              <CardDescription>
+                {category === 'general' && 'Basic business information'}
+                {category === 'operations' && 'Operational limits and hours'}
+                {category === 'pricing' && 'Pricing and surcharges'}
+                {category === 'integrations' && 'Third-party service status'}
+                {category === 'privacy' && 'Privacy and data retention'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {categorySettings.map((setting, index) => (
+                <div key={setting.id}>
+                  {index > 0 && <Separator className="bg-slate-700 my-4" />}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-slate-300">
+                        {setting.key.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
+                      </Label>
+                      {setting.is_public && (
+                        <span className="text-xs bg-blue-600/20 text-blue-400 px-2 py-1 rounded">
+                          Public
+                        </span>
+                      )}
+                    </div>
+                    {setting.description && (
+                      <p className="text-xs text-slate-500">{setting.description}</p>
+                    )}
+                    {renderSettingInput(setting)}
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-      {/* Pricing */}
-      <Card className="bg-slate-800 border-slate-700">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <DollarSign size={18} /> Pricing
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="text-sm text-slate-400 block mb-1">Base Price ($)</label>
-            <Input
-              type="number"
-              value={settings.base_price}
-              onChange={(e) => updateSetting('base_price', parseFloat(e.target.value) || 0)}
-              className="bg-slate-700 border-slate-600"
-            />
-          </div>
-          <div>
-            <label className="text-sm text-slate-400 block mb-1">Per Mile Rate ($)</label>
-            <Input
-              type="number"
-              step="0.1"
-              value={settings.per_mile_rate}
-              onChange={(e) => updateSetting('per_mile_rate', parseFloat(e.target.value) || 0)}
-              className="bg-slate-700 border-slate-600"
-            />
-          </div>
-          <div>
-            <label className="text-sm text-slate-400 block mb-1">Express Surcharge ($)</label>
-            <Input
-              type="number"
-              value={settings.express_surcharge}
-              onChange={(e) => updateSetting('express_surcharge', parseFloat(e.target.value) || 0)}
-              className="bg-slate-700 border-slate-600"
-            />
-          </div>
-          <div>
-            <label className="text-sm text-slate-400 block mb-1">Urgent Surcharge ($)</label>
-            <Input
-              type="number"
-              value={settings.urgent_surcharge}
-              onChange={(e) => updateSetting('urgent_surcharge', parseFloat(e.target.value) || 0)}
-              className="bg-slate-700 border-slate-600"
-            />
-          </div>
-          <div>
-            <label className="text-sm text-slate-400 block mb-1">After Hours Surcharge ($)</label>
-            <Input
-              type="number"
-              value={settings.after_hours_surcharge}
-              onChange={(e) => updateSetting('after_hours_surcharge', parseFloat(e.target.value) || 0)}
-              className="bg-slate-700 border-slate-600"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Operations */}
-      <Card className="bg-slate-800 border-slate-700">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <MapPin size={18} /> Operations
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm text-slate-400 block mb-1">Coverage Radius (miles)</label>
-            <Input
-              type="number"
-              value={settings.coverage_radius_miles}
-              onChange={(e) => updateSetting('coverage_radius_miles', parseInt(e.target.value) || 0)}
-              className="bg-slate-700 border-slate-600"
-            />
-          </div>
-          <div>
-            <label className="text-sm text-slate-400 block mb-1">Max Daily Deliveries</label>
-            <Input
-              type="number"
-              value={settings.max_daily_deliveries}
-              onChange={(e) => updateSetting('max_daily_deliveries', parseInt(e.target.value) || 0)}
-              className="bg-slate-700 border-slate-600"
-            />
-          </div>
-          <div>
-            <label className="text-sm text-slate-400 block mb-1 flex items-center gap-1">
-              <Clock size={14} /> Operating Hours Start
-            </label>
-            <Input
-              type="time"
-              value={settings.operating_hours_start}
-              onChange={(e) => updateSetting('operating_hours_start', e.target.value)}
-              className="bg-slate-700 border-slate-600"
-            />
-          </div>
-          <div>
-            <label className="text-sm text-slate-400 block mb-1 flex items-center gap-1">
-              <Clock size={14} /> Operating Hours End
-            </label>
-            <Input
-              type="time"
-              value={settings.operating_hours_end}
-              onChange={(e) => updateSetting('operating_hours_end', e.target.value)}
-              className="bg-slate-700 border-slate-600"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Notifications */}
-      <Card className="bg-slate-800 border-slate-700">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Bell size={18} /> Notifications
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={settings.notifications_enabled}
-              onChange={(e) => updateSetting('notifications_enabled', e.target.checked)}
-              className="w-5 h-5 rounded"
-            />
-            <span>Enable Push Notifications</span>
-          </label>
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={settings.sms_enabled}
-              onChange={(e) => updateSetting('sms_enabled', e.target.checked)}
-              className="w-5 h-5 rounded"
-            />
-            <span>Enable SMS Notifications (requires Twilio)</span>
-          </label>
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={settings.email_enabled}
-              onChange={(e) => updateSetting('email_enabled', e.target.checked)}
-              className="w-5 h-5 rounded"
-            />
-            <span>Enable Email Notifications (requires Resend)</span>
-          </label>
-        </CardContent>
-      </Card>
-
-      {/* Security */}
-      <Card className="bg-slate-800 border-slate-700">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Shield size={18} /> Security
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm text-slate-400 block mb-1">Driver PIN</label>
-            <Input
-              type="password"
-              value={settings.driver_pin}
-              onChange={(e) => updateSetting('driver_pin', e.target.value)}
-              className="bg-slate-700 border-slate-600"
-              placeholder="Enter driver PIN"
-            />
-            <p className="text-xs text-slate-500 mt-1">PIN used to access the driver app</p>
-          </div>
-        </CardContent>
-      </Card>
+      {saving && (
+        <div className="fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
+          <RefreshCw className="h-4 w-4 animate-spin" />
+          Saving...
+        </div>
+      )}
     </div>
   )
 }
