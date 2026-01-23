@@ -170,8 +170,14 @@ export const updateOrderStatusSchema = z.object({
  */
 export const searchParamsSchema = z.object({
   status: deliveryStatusSchema.optional(),
-  limit: z.string().regex(/^\d+$/).transform(Number).refine(n => n > 0 && n <= 100).optional(),
-  offset: z.string().regex(/^\d+$/).transform(Number).refine(n => n >= 0).optional(),
+  limit: z.preprocess(
+    (val) => val ? Number(val) : undefined,
+    z.number().min(1).max(100).optional()
+  ),
+  offset: z.preprocess(
+    (val) => val ? Number(val) : undefined,
+    z.number().min(0).optional()
+  ),
   search: z.string().max(255).transform(val => sanitizeString(val, 255)).optional()
 })
 
