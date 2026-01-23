@@ -82,7 +82,7 @@ Dados operacionais atuais:
     // Try to parse suggestions from response
     let suggestions = undefined
     try {
-      const suggestionMatch = result.message.match(/\[SUGGESTIONS\](.*?)\[\/SUGGESTIONS\]/s)
+      const suggestionMatch = result.message.match(/\[SUGGESTIONS\]([\s\S]*?)\[\/SUGGESTIONS\]/)
       if (suggestionMatch) {
         suggestions = JSON.parse(suggestionMatch[1])
       }
