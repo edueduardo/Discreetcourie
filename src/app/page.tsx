@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Head from 'next/head'
 import { Phone, Shield, Package, ChevronRight, Check, Clock, MapPin, Camera, FileText, Building2, Truck, Calculator } from 'lucide-react'
+import { AIChatbot } from '@/components/ai-chatbot'
 
 export default function LandingPage() {
   const [hoveredTier, setHoveredTier] = useState<number | null>(null)
@@ -539,6 +540,9 @@ export default function LandingPage() {
             </div>
           </div>
         </footer>
+
+        {/* AI Chatbot - 24/7 Customer Support */}
+        <AIChatbot />
       </div>
     </>
   )

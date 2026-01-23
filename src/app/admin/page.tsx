@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { AdminCopilot } from '@/components/admin-copilot'
 
 interface DashboardStats {
   today_deliveries: number
@@ -411,6 +412,9 @@ export default function AdminDashboard() {
           </div>
         </CardContent>
       </Card>
+
+      {/* AI Admin Copilot - Proactive Insights */}
+      <AdminCopilot />
     </div>
   )
 }
