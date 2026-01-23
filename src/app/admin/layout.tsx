@@ -18,7 +18,8 @@ import {
   Eye,
   Route,
   CreditCard,
-  MessageSquare
+  MessageSquare,
+  Settings
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
