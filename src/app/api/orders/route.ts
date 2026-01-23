@@ -30,6 +30,10 @@ export async function GET(request: NextRequest) {
 
   const { status, limit, offset, search } = validationResult.data
 
+  // Ensure limit and offset are numbers
+  const limitValue = typeof limit === 'number' ? limit : 50
+  const offsetValue = typeof offset === 'number' ? offset : 0
+
   let query = supabase
     .from('deliveries')
     .select(`
@@ -37,14 +41,14 @@ export async function GET(request: NextRequest) {
       clients (id, code_name, name, phone, email)
     `)
     .order('created_at', { ascending: false })
-    .limit(limit || 50)
+    .limit(limitValue)
 
   if (status) {
     query = query.eq('status', status)
   }
 
-  if (offset) {
-    query = query.range(offset, offset + (limit || 50) - 1)
+  if (offsetValue > 0) {
+    query = query.range(offsetValue, offsetValue + limitValue - 1)
   }
 
   if (search) {
