@@ -542,6 +542,25 @@ export default function LandingPage() {
         </footer>
 
         {/* AI Chatbot - 24/7 Customer Support */}
+        {/* TESTE: DIV vermelho para debug */}
+        <div style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '24px',
+          width: '100px',
+          height: '100px',
+          backgroundColor: 'red',
+          borderRadius: '50%',
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'white',
+          fontSize: '12px',
+          fontWeight: 'bold'
+        }}>
+          TESTE
+        </div>
         <AIChatbot />
       </div>
     </>
