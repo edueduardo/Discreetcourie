@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>DIAGNÓSTICO - DiscreetCourie</title>
+    <style>
+        body {
+            background: #000;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            padding: 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #0ff;
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 30px;
+        }
+        .section {
+            background: #111;
+            border: 2px solid #0f0;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+        .section h2 {
+            color: #ff0;
+            margin-top: 0;
+        }
+        .critical {
+            background: #300;
+            border-color: #f00;
+        }
+        .critical h2 {
+            color: #f00;
+        }
+        .success {
+            background: #030;
+            border-color: #0f0;
+        }
+        .success h2 {
+            color: #0f0;
+        }
+        a {
+            color: #0ff;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        ol, ul {
+            font-size: 16px;
+            line-height: 2;
+        }
+        code {
+            background: #222;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #ff0;
+        }
+        .btn {
+            display: inline-block;
+            background: #0f0;
+            color: #000;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .btn:hover {
+            background: #0ff;
+        }
+        .btn-danger {
+            background: #f00;
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #f50;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 DIAGNÓSTICO - POR QUE LOGIN NÃO FUNCIONA</h1>
+
+    <div class="section critical">
+        <h2>🚨 PROBLEMA IDENTIFICADO:</h2>
+        <p style="font-size: 20px;">Você está testando no <strong>PREVIEW</strong>, mas adicionou ENV vars apenas para <strong>PRODUCTION</strong>!</p>
+        <p>Vercel separa ENV vars por ambiente (Production / Preview / Development)</p>
+    </div>
+
+    <div class="section">
+        <h2>🎯 PASSO 1: DIAGNÓSTICO RÁPIDO</h2>
+        <p>Clique no botão abaixo para verificar se as ENV vars estão configuradas:</p>
+        <p style="text-align: center;">
+            <a href="/api/diagnostic" target="_blank" class="btn">
+                🔍 ABRIR DIAGNÓSTICO
+            </a>
+        </p>
+        <p><strong>O que você deve ver:</strong></p>
+        <ul>
+            <li>✅ <code>nextauth_secret: "✅ SET"</code> → Tudo certo!</li>
+            <li>❌ <code>nextauth_secret: "❌ MISSING"</code> → ENV var NÃO configurada neste ambiente!</li>
+        </ul>
+        <p style="color: #ff0;"><strong>SE VER "❌ MISSING":</strong> As ENV vars não estão no Preview! Siga OPÇÃO 1 ou 2 abaixo.</p>
+    </div>
+
+    <div class="section success">
+        <h2>✅ OPÇÃO 1: ADICIONAR ENV VARS PARA PREVIEW (RÁPIDO - 5 MIN)</h2>
+        <ol>
+            <li>
+                <a href="https://vercel.com/radar-narcisista-brs-projects/discreet-courier/settings/environment-variables" target="_blank">
+                    → CLIQUE AQUI PARA ABRIR ENV VARS NO VERCEL
+                </a>
+            </li>
+            <li>Para <strong>CADA</strong> variável (NEXTAUTH_SECRET, NEXTAUTH_URL):
+                <ul>
+                    <li>Clique: <strong>Edit</strong> (ícone de lápis)</li>
+                    <li>Marque <strong>TODAS</strong> as caixas:
+                        <ul>
+                            <li>✅ Production</li>
+                            <li>✅ Preview</li>
+                            <li>✅ Development</li>
+                        </ul>
+                    </li>
+                    <li>Clique: <strong>Save</strong></li>
+                </ul>
+            </li>
+            <li>
+                Depois vá para:
+                <a href="https://vercel.com/radar-narcisista-brs-projects/discreet-courier/deployments" target="_blank">
+                    Deployments
+                </a>
+            </li>
+            <li>Encontre o deployment mais recente da branch <code>claude/solo-operator-system-11P1o</code></li>
+            <li>Clique: <strong>... (três pontos)</strong> → <strong>Redeploy</strong></li>
+            <li>Aguarde redeploy terminar (1-2 minutos)</li>
+            <li>Teste login novamente no preview URL</li>
+        </ol>
+    </div>
+
+    <div class="section success">
+        <h2>✅ OPÇÃO 2: FAZER MERGE PARA PRODUCTION (RECOMENDADO)</h2>
+        <p style="text-align: center; margin: 20px 0;">
+            <a href="https://github.com/edueduardo/Discreetcourie/compare/master...claude/solo-operator-system-11P1o?expand=1" target="_blank" class="btn btn-danger">
+                🚀 CRIAR PULL REQUEST NO GITHUB
+            </a>
+        </p>
+        <ol>
+            <li>Clique no botão acima</li>
+            <li>Title: <code>feat: NextAuth + RBAC + Login System</code></li>
+            <li>Clique: <strong>Create pull request</strong></li>
+            <li>Clique: <strong>Merge pull request</strong></li>
+            <li>Clique: <strong>Confirm merge</strong></li>
+            <li>✅ Deploy automático para production!</li>
+            <li>Teste em: <a href="https://discreet-courier.vercel.app/login" target="_blank">https://discreet-courier.vercel.app/login</a></li>
+        </ol>
+        <p><strong>Credenciais:</strong></p>
+        <ul>
+            <li>Email: <code>admin@discreetcourie.com</code></li>
+            <li>Password: <code>Admin123!</code></li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>📖 DOCUMENTAÇÃO COMPLETA</h2>
+        <p>Para mais detalhes, leia:</p>
+        <ul>
+            <li><code>DIAGNOSTICO_COMPLETO.md</code></li>
+            <li><code>COMO_FAZER_DEPLOY.md</code></li>
+            <li><code>PROXIMOS_PASSOS.md</code></li>
+        </ul>
+    </div>
+
+    <div class="section critical">
+        <h2>🚨 SE AINDA NÃO FUNCIONAR:</h2>
+        <ol>
+            <li>Abra: <a href="/api/diagnostic" target="_blank">/api/diagnostic</a> e copie TODO o JSON</li>
+            <li>Abra DevTools (F12) → Console → Tente login → Copie TODOS os erros</li>
+            <li>Me mande as duas coisas</li>
+        </ol>
+    </div>
+</body>
+</html>
