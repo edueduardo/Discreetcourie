@@ -8,7 +8,7 @@
  * - Generate signed URLs for temporary access
  */
 
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/lib/supabase/client'
 import { v4 as uuidv4 } from 'uuid'
 
 const BUCKET_NAME = 'vault-files'
@@ -29,7 +29,7 @@ export interface DownloadResult {
  * Get Supabase client
  */
 function getSupabase() {
-  return createClientComponentClient()
+  return createClient()
 }
 
 /**

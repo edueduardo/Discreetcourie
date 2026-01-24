@@ -17,7 +17,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/lib/supabase/client'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { sha256Hex } from '@/lib/vault/encryption'
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     const userId = session?.user?.id || null
 
     // Get file metadata
-    const supabase = createClientComponentClient()
+    const supabase = createClient()
     const { data: vaultFile, error: fileError } = await supabase
       .from('vault_files')
       .select('id, nda_template_id, requires_nda')
@@ -218,7 +218,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const supabase = createClientComponentClient()
+    const supabase = createClient()
 
     let query = supabase
       .from('nda_signatures')
