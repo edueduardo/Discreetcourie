@@ -15,7 +15,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/lib/supabase/client'
 import { deleteFile } from '@/lib/vault/storage'
 
 export const runtime = 'nodejs'
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const supabase = createClientComponentClient()
+    const supabase = createClient()
     const now = new Date().toISOString()
 
     // Find files that should be auto-destructed
@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json().catch(() => ({}))
     const fileId = body.file_id
 
-    const supabase = createClientComponentClient()
+    const supabase = createClient()
     const now = new Date().toISOString()
 
     if (fileId) {

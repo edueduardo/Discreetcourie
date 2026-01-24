@@ -14,7 +14,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/lib/supabase/client'
 import { downloadEncryptedFile, deleteFile } from '@/lib/vault/storage'
 import {
   logSuccessfulAccess,
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get file metadata from database
-    const supabase = createClientComponentClient()
+    const supabase = createClient()
     const { data: vaultFile, error: fetchError } = await supabase
       .from('vault_files')
       .select('*')
@@ -249,7 +249,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get file metadata
-    const supabase = createClientComponentClient()
+    const supabase = createClient()
     const { data: vaultFile, error } = await supabase
       .from('vault_files')
       .select('id, file_name, file_type, file_size, requires_nda, created_at, destruct_at, is_destructed, download_count, max_downloads, watermark_enabled')

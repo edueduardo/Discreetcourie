@@ -53,6 +53,16 @@ const KEY_LENGTH = 256
 // ============================================
 
 /**
+ * Convert Uint8Array to ArrayBuffer
+ */
+function uint8ArrayToArrayBuffer(arr: Uint8Array): ArrayBuffer {
+  const buffer = new ArrayBuffer(arr.byteLength)
+  const view = new Uint8Array(buffer)
+  view.set(arr)
+  return buffer
+}
+
+/**
  * Convert ArrayBuffer to Base64 string
  */
 export function arrayBufferToBase64(buffer: ArrayBuffer): string {
@@ -143,7 +153,7 @@ export async function deriveKeyFromPassword(
   const key = await crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
-      salt: keySalt,
+      salt: keySalt as BufferSource,
       iterations: PBKDF2_ITERATIONS,
       hash: 'SHA-256'
     },
@@ -210,7 +220,7 @@ export async function encryptData(
   const ciphertext = await crypto.subtle.encrypt(
     {
       name: 'AES-GCM',
-      iv: encryptionIv
+      iv: encryptionIv as BufferSource
     },
     key,
     data
@@ -230,7 +240,7 @@ export async function decryptData(
   return await crypto.subtle.decrypt(
     {
       name: 'AES-GCM',
-      iv
+      iv: iv as BufferSource
     },
     key,
     ciphertext
@@ -268,8 +278,8 @@ export async function encryptFile(
   return {
     encryptedContent,
     encryptedKey: arrayBufferToBase64(encryptedKeyBuffer),
-    iv: arrayBufferToBase64(iv),
-    salt: arrayBufferToBase64(salt),
+    iv: arrayBufferToBase64(uint8ArrayToArrayBuffer(iv)),
+    salt: arrayBufferToBase64(uint8ArrayToArrayBuffer(salt)),
     fileName: file.name,
     fileType: file.type,
     fileSize: file.size
@@ -340,8 +350,8 @@ export async function wrapEncryptionKey(
 
   return {
     wrappedKey: arrayBufferToBase64(ciphertext),
-    iv: arrayBufferToBase64(iv),
-    salt: arrayBufferToBase64(salt)
+    iv: arrayBufferToBase64(uint8ArrayToArrayBuffer(iv)),
+    salt: arrayBufferToBase64(uint8ArrayToArrayBuffer(salt))
   }
 }
 
@@ -430,10 +440,10 @@ export async function encryptFileInChunks(
   )
 
   return {
-    encryptedContent: combined.buffer,
+    encryptedContent: uint8ArrayToArrayBuffer(combined),
     encryptedKey: arrayBufferToBase64(encryptedKeyBuffer),
-    iv: arrayBufferToBase64(iv),
-    salt: arrayBufferToBase64(salt),
+    iv: arrayBufferToBase64(uint8ArrayToArrayBuffer(iv)),
+    salt: arrayBufferToBase64(uint8ArrayToArrayBuffer(salt)),
     fileName: file.name,
     fileType: file.type,
     fileSize: file.size

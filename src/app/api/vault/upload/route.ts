@@ -16,7 +16,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/lib/supabase/client'
 import { uploadEncryptedFile } from '@/lib/vault/storage'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
     const accessToken = uuidv4()
 
     // Create vault file record
-    const supabase = createClientComponentClient()
+    const supabase = createClient()
     const { data: vaultFile, error: dbError } = await supabase
       .from('vault_files')
       .insert([
@@ -200,7 +200,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const supabase = createClientComponentClient()
+    const supabase = createClient()
 
     // Get all vault files uploaded by user
     const { data: vaultFiles, error } = await supabase

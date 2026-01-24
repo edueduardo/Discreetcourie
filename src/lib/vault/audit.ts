@@ -9,7 +9,7 @@
  * - Access analytics
  */
 
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/lib/supabase/client'
 
 export interface AccessLogData {
   vault_file_id: string
@@ -58,7 +58,7 @@ export interface AccessLog {
  * Get Supabase client
  */
 function getSupabase() {
-  return createClientComponentClient()
+  return createClient()
 }
 
 /**
