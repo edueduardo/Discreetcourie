@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -8,80 +9,39 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Package, ArrowLeft, AlertCircle, Loader2 } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
-  const [isAdmin, setIsAdmin] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
-  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
-    
-    const supabase = createClient()
-    
+
     try {
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
+      const result = await signIn('credentials', {
         email,
         password,
+        redirect: false,
       })
-      
-      if (authError) {
-        setError(authError.message)
+
+      if (result?.error) {
+        setError('Invalid email or password')
         setIsLoading(false)
         return
       }
-      
-      if (data.user) {
-        // Redirect based on role selection
-        if (isAdmin) {
-          router.push('/admin')
-        } else {
-          router.push('/portal')
-        }
+
+      if (result?.ok) {
+        // Successful login - redirect to admin
+        router.push('/admin')
         router.refresh()
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.')
-      setIsLoading(false)
-    }
-  }
-
-  const handleSignUp = async () => {
-    setIsLoading(true)
-    setError(null)
-    
-    const supabase = createClient()
-    
-    try {
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        }
-      })
-      
-      if (signUpError) {
-        setError(signUpError.message)
-        setIsLoading(false)
-        return
-      }
-      
-      if (data.user) {
-        setError(null)
-        setSuccessMessage('Check your email for the confirmation link!')
-        setTimeout(() => setSuccessMessage(null), 5000)
-      }
-    } catch (err) {
-      setError('An unexpected error occurred. Please try again.')
-    } finally {
       setIsLoading(false)
     }
   }
@@ -111,43 +71,10 @@ export default function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {/* Toggle Admin/Client */}
-            <div className="flex mb-6 bg-slate-900 rounded-lg p-1">
-              <button
-                type="button"
-                onClick={() => setIsAdmin(false)}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                  !isAdmin
-                    ? 'bg-blue-600 text-white'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                Client Portal
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsAdmin(true)}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                  isAdmin
-                    ? 'bg-blue-600 text-white'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                Admin
-              </button>
-            </div>
-
             {error && (
               <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg flex items-center gap-2 text-red-400">
                 <AlertCircle className="h-4 w-4 flex-shrink-0" />
                 <span className="text-sm">{error}</span>
-              </div>
-            )}
-
-            {successMessage && (
-              <div className="mb-4 p-3 bg-green-500/20 border border-green-500/50 rounded-lg flex items-center gap-2 text-green-400">
-                <Package className="h-4 w-4 flex-shrink-0" />
-                <span className="text-sm">{successMessage}</span>
               </div>
             )}
 
@@ -157,11 +84,12 @@ export default function LoginPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder="admin@discreetcourie.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
                   required
+                  autoComplete="email"
                 />
               </div>
               <div className="space-y-2">
@@ -174,8 +102,10 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
                   required
+                  autoComplete="current-password"
                 />
               </div>
+
               <Button
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700"
@@ -190,19 +120,13 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            <div className="mt-4">
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full border-slate-600 text-slate-300 hover:bg-slate-700"
-                onClick={handleSignUp}
-                disabled={isLoading || !email || !password}
-              >
-                Create Account
-              </Button>
+            <div className="mt-6 text-center">
+              <p className="text-slate-500 text-sm">
+                Default credentials: admin@discreetcourie.com / Admin123!
+              </p>
             </div>
 
-            <div className="mt-6 text-center">
+            <div className="mt-4 text-center">
               <p className="text-slate-500 text-sm">
                 Don't have an account?{' '}
                 <Link href="/track" className="text-blue-500 hover:text-blue-400">
