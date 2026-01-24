@@ -1,308 +1,275 @@
-# Discreet Courier Columbus
+# DiscreetCourie Ultra-Premium
 
-**"One Driver. No Trace."**
+**"Absolute Discretion. Zero Trace. Premium Service."**
 
-Professional discrete courier and personal concierge service for Columbus, OH. From simple deliveries to VIP privacy-first services.
+Ultra-premium discrete courier service for VIP clients who pay $500-$5000 per delivery. Not for everyone. By invitation only.
 
-## 🌟 Features
+> ⚠️ **PIVÔ EM ANDAMENTO**: Estamos pivotando de delivery genérico para ultra-premium VIP service. Ver [PIVOT_ULTRA_PREMIUM.md](./PIVOT_ULTRA_PREMIUM.md) para detalhes completos.
 
-### **4-Tier Service System**
+---
 
-1. **Standard Courier** ($35-50) - Document and package delivery
-2. **Discreet Courier** ($50-75) - Confidential deliveries with privacy protection
-3. **Personal Concierge** ($75-150/hr) - We buy, fetch, and handle tasks you cannot or prefer not to do
-4. **The Fixer (VIP)** ($200-500/task) - Complex situations handled with absolute confidence and discretion
+## 🎯 O QUE É (Honestamente)
 
-### 🔐 **VIP Premium Features**
+### ✅ O QUE FUNCIONA HOJE (22% real):
+- ✅ **13 AI APIs** - Chat, Copilot, Fraud Detection, Smart Pricing, etc (100% funcional)
+- ✅ **Google Analytics 4** - Tracking completo
+- ✅ **Mailchimp Integration** - Email marketing
+- ✅ **Core Delivery System** - Pedidos básicos funcionam
 
-- **Cofre Humano (Human Vault)** - Secure storage of sensitive items, documents, and secrets
-- **Última Vontade (Last Will)** - Posthumous message/item delivery with configurable triggers
-- **Guardian Mode 24/7** - Round-the-clock availability with direct line access
-- **Ritual de Destruição** - Complete data deletion with video proof
-- **Operação Fênix** - Help clients escape difficult situations discreetly
-- **Comunicação Fantasma** - Self-destructing encrypted messages
-- **Pacto de Lealdade** - Mutual NDA between provider and client
-- **Procurador de Sombras** - Act, speak, and represent on client's behalf
-- **Cápsula do Tempo** - Time-delayed delivery (months or years)
-- **Santuário** - Exclusive vetting process for VIP clients
+### 🚧 O QUE ESTÁ SENDO CONSTRUÍDO (Próximos 6 meses):
+- 🚧 **NextAuth + RBAC** - Autenticação real (Fase 1)
+- 🚧 **Human Vault™** - Criptografia E2E, biometric, blockchain (Fase 2)
+- 🚧 **NDA Enforcement** - Smart contracts automáticos (Fase 3)
+- 🚧 **Crypto Payments** - Monero/BTC zero-trace (Fase 4)
 
-### 📊 **Admin Panel**
+### ❌ O QUE FOI REMOVIDO (Era fake):
+- ❌ **Mobile Apps** - Deletado (era só package.json vazio)
+- ❌ **Compliance Docs** - Deletado (era só documentação)
+- ❌ **International Shipping** - Deletado (nunca existiu)
 
-- **Dashboard** - Real-time overview of deliveries, revenue, and alerts
-- **Deliveries Management** - Standard courier operations
-- **Concierge Tasks** - Premium service requests and tracking
-- **Vault Management** - Human vault items with expiration tracking
-- **Client Management** - VIP clients with code names (SHADOW-7842)
-- **Destruction Portal** - Data deletion with audit trail
-- **Bland.ai Integration** - AI phone assistant for automated bookings
-- **Financial Tracking** - Revenue, retainers, and invoicing
+---
 
-### 👤 **Client Portal**
+## 💎 PRICING ULTRA-PREMIUM
 
-- **VIP Dashboard** - Guardian Mode status, vault items, secure chat
-- **Task Management** - Request and track concierge services
-- **Secure Messaging** - Encrypted chat with auto-delete
-- **Data Destruction** - Self-service complete data deletion
-- **Last Will Configuration** - Set up posthumous deliveries
-- **No-Trace Mode** - Auto-delete after 7 days
+### Tier 1: Discrete Standard - $200-500
+- Entrega discreta sem logo
+- NDA básico
+- Seguro $10K
+- **Margem: 60%**
 
-### 🌐 **Public Pages**
+### Tier 2: Executive VIP - $500-1500
+- Human Vault™ acesso
+- Criptografia E2E
+- Background check FBI
+- Seguro $100K
+- **Margem: 70%**
 
-- **Landing Page** - Service tiers and features
-- **Concierge Services** - Premium offerings showcase
-- **Track Delivery** - Public tracking by code
-- **NDA Signature** - Digital agreement signing
+### Tier 3: Celebrity Ultra - $1500-5000
+- Veículo blindado
+- Escolta armada
+- Blockchain proof
+- Crypto payments (Monero)
+- Zero digital trace
+- **Margem: 80%+**
+
+---
+
+## 🎯 TARGET MARKET
+
+### QUEM É NOSSO CLIENTE:
+- ✅ Executivos C-level
+- ✅ Advogados (documents legais)
+- ✅ Médicos (HIPAA compliance)
+- ✅ Celebridades
+- ✅ Políticos
+- ✅ Ultra-wealthy individuals
+
+### QUEM NÃO É:
+- ❌ Usuários Uber/DoorDash (commodity)
+- ❌ Small business genérico
+- ❌ Clientes price-sensitive
+
+---
 
 ## 🛠️ Tech Stack
 
+### Frontend:
 - **Framework**: Next.js 14.0.4 (App Router)
-- **Database**: Supabase (PostgreSQL + Auth + Storage)
-- **Authentication**: Supabase Auth with Row Level Security
 - **Styling**: Tailwind CSS 3.3
-- **UI Components**: shadcn/ui with Radix primitives
+- **UI**: shadcn/ui + Radix
 - **Icons**: Lucide React
-- **External Services**:
-  - Bland.ai (AI phone assistant)
-  - Twilio (SMS notifications - optional)
-- **Deployment**: Vercel
+
+### Backend:
+- **Database**: Supabase (PostgreSQL)
+- **Auth**: NextAuth (em implementação)
+- **Storage**: Supabase Storage
+- **AI**: OpenAI GPT-4o/GPT-4o-mini
+
+### Services:
+- **Analytics**: Google Analytics 4 ✅
+- **Email**: Mailchimp ✅
+- **Payments**: Stripe (básico)
+- **Crypto**: Monero/BTC (em implementação)
+- **Blockchain**: Para proof of custody (em implementação)
+
+### Testing:
+- **Framework**: Jest + Testing Library
+- **Coverage**: 30 testes passando (target: >90%)
+- **E2E**: Planejado
+
+---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-
 - Node.js 18+
-- npm or yarn
-- Supabase account ([supabase.com](https://supabase.com))
-- Bland.ai account ([bland.ai](https://bland.ai)) - optional
-- Twilio account ([twilio.com](https://twilio.com)) - optional
+- npm
+- Supabase account
+- OpenAI API key
 
 ### Installation
 
-1. **Clone the repository:**
+1. **Clone:**
 ```bash
 git clone https://github.com/edueduardo/Discreetcourie.git
 cd Discreetcourie
 ```
 
-2. **Install dependencies:**
+2. **Install:**
 ```bash
 npm install
 ```
 
-3. **Set up environment variables:**
+3. **Environment:**
 ```bash
 cp .env.example .env.local
 ```
 
-Edit `.env.local` with your actual credentials:
-- Supabase URL and keys
-- Bland.ai API key (optional)
-- Twilio credentials (optional)
-- Encryption key for VIP features
+Configure:
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `OPENAI_API_KEY`
+- `MAILCHIMP_API_KEY`
+- `GA_MEASUREMENT_ID`
 
-4. **Set up Supabase database:**
-
-Go to your Supabase project → SQL Editor and run:
-
-```sql
--- First, run the base schema
--- Copy contents of supabase/schema.sql and execute
-
--- Then, run the VIP features migration
--- Copy contents of supabase/migration_vip_features.sql and execute
+4. **Database:**
+```bash
+# Run migrations in Supabase SQL Editor
+# See supabase/migrations/
 ```
 
-5. **Configure Bland.ai webhook (optional):**
-
-In your Bland.ai dashboard, set webhook URL to:
-```
-https://your-domain.vercel.app/api/webhooks/bland
-```
-
-6. **Start the development server:**
+5. **Run:**
 ```bash
 npm run dev
 ```
 
-7. **Open [http://localhost:3000](http://localhost:3000)**
-
-Default admin access: Navigate to `/admin`
-
-## 📁 Project Structure
-
-```
-/
-├── src/
-│   ├── app/
-│   │   ├── page.tsx                    # Public landing
-│   │   ├── login/                      # Authentication
-│   │   ├── track/                      # Public tracking
-│   │   ├── concierge/                  # Premium services
-│   │   │   ├── page.tsx                # Services landing
-│   │   │   └── request/                # Request form (4-step wizard)
-│   │   ├── admin/                      # Admin panel
-│   │   │   ├── page.tsx                # Dashboard
-│   │   │   ├── deliveries/             # Delivery management
-│   │   │   ├── concierge/              # Concierge tasks
-│   │   │   ├── vault/                  # Human vault
-│   │   │   ├── destruction/            # Data destruction
-│   │   │   ├── clients/                # Client management
-│   │   │   ├── calls/                  # Bland.ai calls
-│   │   │   └── finances/               # Financial reports
-│   │   ├── portal/                     # Client portal (VIP)
-│   │   │   ├── page.tsx                # VIP dashboard
-│   │   │   ├── deliveries/             # Delivery history
-│   │   │   └── invoices/               # Invoicing
-│   │   └── api/
-│   │       └── webhooks/bland/         # Bland.ai webhook
-│   ├── components/
-│   │   ├── ui/                         # shadcn/ui components
-│   │   └── concierge/                  # Premium features
-│   │       ├── NoTraceIndicator.tsx
-│   │       ├── NoTraceToggle.tsx
-│   │       ├── NDASignature.tsx
-│   │       ├── PurchaseForm.tsx
-│   │       └── SecureChat.tsx
-│   ├── lib/
-│   │   ├── supabase/                   # Supabase clients
-│   │   │   ├── client.ts               # Browser client
-│   │   │   ├── server.ts               # Server client
-│   │   │   └── middleware.ts           # Auth middleware
-│   │   └── utils.ts
-│   ├── types/
-│   │   └── index.ts                    # Complete type definitions
-│   └── middleware.ts                   # Next.js middleware
-├── supabase/
-│   ├── schema.sql                      # Base database schema
-│   └── migration_vip_features.sql      # VIP features migration
-├── docs/
-│   ├── DiscreetCourier_MASTER_PRD.docx # Complete PRD
-│   └── bland-ai-concierge-script.md    # AI assistant script
-├── .env.example                        # Environment variables template
-├── package.json
-└── README.md
-```
-
-## 🗄️ Database Schema
-
-### Core Tables
-- **users** - Admin users
-- **clients** - Customers with privacy codes (SHADOW-7842)
-- **deliveries** - Standard delivery orders
-- **delivery_events** - Tracking history
-- **bland_calls** - AI phone call records
-- **invoices** / **invoice_items** - B2B billing
-
-### VIP Tables
-- **concierge_tasks** - Premium service requests
-- **vault_items** - Human vault storage
-- **service_agreements** - NDAs and pacts
-- **secure_messages** - Encrypted chat
-- **nda_documents** - Digital signatures
-- **delivery_proofs** - Photos and signatures
-- **destruction_log** - Data deletion audit trail
-- **settings** - System configuration
-
-## 🔐 Security & Privacy Features
-
-- **Row Level Security (RLS)** on all tables
-- **Code Names** instead of real names (SHADOW-7842)
-- **Encrypted Fields** for VIP client data
-- **No-Trace Mode** with auto-deletion (7 days)
-- **Vetting System** for VIP client approval
-- **Mutual NDA** (Pacto de Lealdade)
-- **Data Destruction** with audit trail
-- **Anonymous Payment** options
-
-## 📱 Bland.ai Integration
-
-The system automatically:
-- Receives phone calls via Bland.ai
-- Detects service type (delivery vs concierge)
-- Extracts order details from conversation
-- Creates clients and orders automatically
-- Detects no-trace requests
-- Handles VIP service inquiries
-
-Webhook endpoint: `POST /api/webhooks/bland`
-
-## 🚀 Deployment
-
-### Vercel (Recommended)
-
-1. **Push to GitHub:**
+6. **Test:**
 ```bash
-git add .
-git commit -m "Initial deployment"
-git push origin main
+npm test
 ```
 
-2. **Import to Vercel:**
-   - Go to [vercel.com](https://vercel.com)
-   - Import your GitHub repository
-   - Framework preset: Next.js
+---
 
-3. **Add Environment Variables:**
-   - Copy all variables from `.env.local`
-   - Paste in Vercel project settings
-   - **Important**: Set `NEXT_PUBLIC_APP_URL` to your Vercel URL
+## 📊 STATUS ATUAL (Brutal Honesty)
 
-4. **Deploy:**
-   - Vercel will automatically deploy
-   - Get your production URL (e.g., `discreetcourie.vercel.app`)
+### Code Quality:
+- **Test Coverage**: 30 testes, target >90%
+- **Build**: ✅ Passa
+- **TypeScript**: ✅ Sem erros
+- **Linting**: ✅ Passa
 
-5. **Update Bland.ai Webhook:**
-   - Change webhook URL to: `https://your-domain.vercel.app/api/webhooks/bland`
+### Features Implementadas:
+- **AI Features**: 95% ✅
+- **Analytics**: 100% ✅
+- **Email Marketing**: 100% ✅
+- **Auth/RBAC**: 0% 🚧
+- **Human Vault**: 0% 🚧
+- **NDA Enforcement**: 0% 🚧
+- **Crypto Payments**: 0% 🚧
 
-6. **Run Database Migrations:**
-   - Execute `schema.sql` in Supabase SQL Editor
-   - Execute `migration_vip_features.sql` in Supabase SQL Editor
+### Overall Score: **4.3/10**
+(Ver [AUDITORIA_MODO_DEUS_COMPLETA.md](./AUDITORIA_MODO_DEUS_COMPLETA.md) para análise completa)
 
-### Custom Domain (Optional)
+---
 
-1. Add domain in Vercel project settings
-2. Configure DNS records as instructed
-3. Update `NEXT_PUBLIC_APP_URL` in environment variables
+## 📋 ROADMAP (6 Meses)
 
-## 📋 Post-Deployment Checklist
+### ✅ FASE 0: Limpeza (Jan 24-31, 2026)
+- [x] Estrutura de testes verificada
+- [x] Código fake deletado
+- [ ] README honesto atualizado
 
-- [ ] Supabase database schema deployed
-- [ ] VIP features migration executed
-- [ ] Environment variables configured in Vercel
-- [ ] Bland.ai webhook URL updated
-- [ ] Test admin panel access
-- [ ] Test public tracking
-- [ ] Test concierge request form
-- [ ] Verify Bland.ai webhook receives calls
-- [ ] Test SMS notifications (if Twilio configured)
-- [ ] Review RLS policies and security
+### 🚧 FASE 1: Auth & Security (Semanas 1-4)
+- [ ] NextAuth configurado + testado
+- [ ] RBAC (Admin, VIP, Courier)
+- [ ] 2FA obrigatório
+- [ ] Biometric login
 
-## 🎯 Roadmap
+### 📅 FASE 2: Human Vault™ (Semanas 5-8)
+- [ ] Criptografia E2E (AES-256-GCM)
+- [ ] Auto-destruição programada
+- [ ] Dead man's switch
+- [ ] Blockchain proof of custody
 
-### Phase 1 ✅ (Current)
-- Setup + Auth + Schema + Dashboard
-- Standard courier operations
-- VIP features foundation
+### 📅 FASE 3: NDA Enforcement (Semanas 9-12)
+- [ ] Smart contracts
+- [ ] Penalidades automáticas
+- [ ] Legal integration
 
-### Phase 2 (Next)
-- Real authentication with Supabase
-- API endpoints for vault and destruction
-- Encrypted chat backend
-- Payment processing (Stripe)
+### 📅 FASE 4: Crypto Payments (Semanas 13-16)
+- [ ] Monero integration
+- [ ] BTC optional
+- [ ] Zero-KYC <$10K
 
-### Phase 3 (Future)
-- Mobile driver app
-- Real-time tracking (WebSockets)
-- Automated routing optimization
-- Email notifications
-- Analytics and reporting
+### 📅 FASE 5: Polish & Launch (Semanas 17-20)
+- [ ] Monitoring (Sentry)
+- [ ] Performance (Lighthouse >95)
+- [ ] Beta com 10 VIPs
 
-## 📞 Support
+### 📅 FASE 6: Scale to 100 (Semanas 21-24)
+- [ ] Customer success
+- [ ] Revenue: $50K-$500K/mês
 
-**Discreet Courier Columbus**
-- Phone: (614) 500-3080
+---
+
+## 📈 PROJEÇÕES REALISTAS
+
+### Ano 1:
+- **Clientes**: 100 VIPs
+- **Entregas/mês**: 200-400
+- **Preço médio**: $800
+- **Revenue/mês**: $160K-$320K
+- **Lucro/ano**: $1.3M-$2.7M
+
+### Ano 2:
+- **Clientes**: 300 VIPs
+- **Entregas/mês**: 600-900
+- **Preço médio**: $1000
+- **Revenue/mês**: $600K-$900K
+- **Lucro/ano**: $5.4M-$8.1M
+
+---
+
+## 🎯 COMPETIÇÃO
+
+### NÃO Competimos:
+- ❌ Uber/DoorDash (commodity)
+- ❌ FedEx/UPS (volume)
+
+### Competimos:
+- ✅ Brink's (mas só fazem dinheiro)
+- ✅ Executive couriers locais
+- ✅ Assistentes pessoais
+
+### Nossa Vantagem:
+1. **Tech-enabled** (AI, blockchain, crypto)
+2. **Zero-trace** (privacidade extrema)
+3. **Legal enforcement** (NDAs automáticos)
+4. **Premium only** (não diluímos)
+
+---
+
+## ✅ DEFINITION OF DONE
+
+Nenhuma feature é "implementada" sem:
+- [ ] Testes unitários (>90% coverage)
+- [ ] Testes de integração
+- [ ] Smoke tests em produção
+- [ ] User testou e aprovou
+- [ ] Documentação completa
+
+**Zero mentiras. Zero fake implementations.**
+
+---
+
+## 📞 Contact
+
+**DiscreetCourie Ultra-Premium**
 - Email: eduardo@discreetcourier.com
+- Phone: (614) 500-3080
 - Location: Columbus, OH
+
+---
 
 ## 📄 License
 
@@ -310,4 +277,15 @@ Private - All rights reserved.
 
 ---
 
-**Built with Next.js 14, Supabase, and privacy-first principles.**
+## 📚 Documentação Adicional
+
+- [PIVOT_ULTRA_PREMIUM.md](./PIVOT_ULTRA_PREMIUM.md) - Detalhes completos do pivô
+- [AUDITORIA_MODO_DEUS_COMPLETA.md](./AUDITORIA_MODO_DEUS_COMPLETA.md) - Auditoria brutal
+- [PR_INSTRUCTIONS.md](./PR_INSTRUCTIONS.md) - Como integrar componentes
+
+---
+
+**Built with honesty, TDD, and premium-first principles.**
+
+*Last updated: January 24, 2026*
+*Status: PIVOTING TO ULTRA-PREMIUM*

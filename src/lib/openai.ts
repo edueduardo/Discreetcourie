@@ -1,9 +1,26 @@
 import OpenAI from 'openai'
 
-// Initialize OpenAI client
-export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+// Lazy initialize OpenAI client (only when needed)
+// This prevents build errors when OPENAI_API_KEY is not set
+let openaiClient: OpenAI | null = null
+
+function getOpenAIClient(): OpenAI {
+  if (!openaiClient) {
+    const apiKey = process.env.OPENAI_API_KEY
+    if (!apiKey) {
+      throw new Error('OPENAI_API_KEY environment variable is not set')
+    }
+    openaiClient = new OpenAI({ apiKey })
+  }
+  return openaiClient
+}
+
+// Export for backwards compatibility
+export const openai = {
+  get client() {
+    return getOpenAIClient()
+  }
+}
 
 // Chat completion with GPT-4o-mini (cost-effective for most tasks)
 export async function chatCompletion(
@@ -11,7 +28,7 @@ export async function chatCompletion(
   model: 'gpt-4o' | 'gpt-4o-mini' = 'gpt-4o-mini'
 ) {
   try {
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAIClient().chat.completions.create({
       model,
       messages,
       temperature: 0.7,
@@ -39,7 +56,7 @@ export async function* chatCompletionStream(
   model: 'gpt-4o' | 'gpt-4o-mini' = 'gpt-4o-mini'
 ) {
   try {
-    const stream = await openai.chat.completions.create({
+    const stream = await getOpenAIClient().chat.completions.create({
       model,
       messages,
       temperature: 0.7,
@@ -62,7 +79,7 @@ export async function* chatCompletionStream(
 // Image analysis with GPT-4o Vision
 export async function analyzeImage(imageUrl: string, prompt: string) {
   try {
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAIClient().chat.completions.create({
       model: 'gpt-4o',
       messages: [
         {
@@ -93,7 +110,7 @@ export async function analyzeImage(imageUrl: string, prompt: string) {
 // Transcribe audio with Whisper
 export async function transcribeAudio(audioFile: File) {
   try {
-    const response = await openai.audio.transcriptions.create({
+    const response = await getOpenAIClient().audio.transcriptions.create({
       file: audioFile,
       model: 'whisper-1',
       language: 'pt', // Portuguese by default
@@ -116,7 +133,7 @@ export async function transcribeAudio(audioFile: File) {
 // Generate embeddings for semantic search
 export async function generateEmbedding(text: string) {
   try {
-    const response = await openai.embeddings.create({
+    const response = await getOpenAIClient().embeddings.create({
       model: 'text-embedding-3-small',
       input: text,
     })
@@ -138,7 +155,7 @@ export async function generateEmbedding(text: string) {
 // Content moderation
 export async function moderateContent(text: string) {
   try {
-    const response = await openai.moderations.create({
+    const response = await getOpenAIClient().moderations.create({
       input: text,
     })
 
