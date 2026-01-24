@@ -1,12 +1,45 @@
-import { type NextRequest } from 'next/server'
-import { updateSession } from '@/lib/supabase/middleware'
+import { withAuth } from 'next-auth/middleware'
+import { NextResponse } from 'next/server'
 
-export async function middleware(request: NextRequest) {
-  return await updateSession(request)
-}
+export default withAuth(
+  function middleware(req) {
+    const token = req.nextauth.token
+    const isAdmin = token?.role === 'admin'
+    const isOnAdminPanel = req.nextUrl.pathname.startsWith('/admin')
+
+    // If trying to access admin panel but not admin, redirect to home
+    if (isOnAdminPanel && !isAdmin) {
+      return NextResponse.redirect(new URL('/', req.url))
+    }
+
+    return NextResponse.next()
+  },
+  {
+    callbacks: {
+      authorized: ({ token, req }) => {
+        // Allow access to login page without auth
+        if (req.nextUrl.pathname.startsWith('/login')) {
+          return true
+        }
+
+        // Require auth for /admin routes
+        if (req.nextUrl.pathname.startsWith('/admin')) {
+          return !!token
+        }
+
+        // Allow all other routes
+        return true
+      },
+    },
+    pages: {
+      signIn: '/login',
+    },
+  }
+)
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/admin/:path*',
+    '/portal/:path*',
   ],
 }
