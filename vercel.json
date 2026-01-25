@@ -2,15 +2,5 @@
   "framework": "nextjs",
   "buildCommand": "npm run build",
   "installCommand": "npm install",
-  "devCommand": "npm run dev",
-  "crons": [
-    {
-      "path": "/api/cron/follow-ups",
-      "schedule": "0 9 * * *"
-    },
-    {
-      "path": "/api/vault/cron/auto-destruct",
-      "schedule": "0 * * * *"
-    }
-  ]
+  "devCommand": "npm run dev"
 }
