@@ -1,19 +1,13 @@
 #!/bin/bash
-
-# CLIQUE NESTE LINK PARA CRIAR PR E FAZER DEPLOY:
-# https://github.com/edueduardo/Discreetcourie/compare/master...claude/solo-operator-system-11P1o?expand=1
-
-echo "================================================"
-echo "ABRA ESTE LINK NO BROWSER:"
+echo "🚀 Abrindo GitHub para criar Pull Request..."
 echo ""
-echo "https://github.com/edueduardo/Discreetcourie/compare/master...claude/solo-operator-system-11P1o?expand=1"
+xdg-open "https://github.com/edueduardo/Discreetcourie/compare/master...claude/solo-operator-system-11P1o?expand=1" 2>/dev/null || \
+open "https://github.com/edueduardo/Discreetcourie/compare/master...claude/solo-operator-system-11P1o?expand=1" 2>/dev/null || \
+start "https://github.com/edueduardo/Discreetcourie/compare/master...claude/solo-operator-system-11P1o?expand=1" 2>/dev/null || \
+echo "🔗 Abra este link: https://github.com/edueduardo/Discreetcourie/compare/master...claude/solo-operator-system-11P1o?expand=1"
 echo ""
-echo "Depois clique: Create pull request → Merge pull request"
-echo "================================================"
-
-# Abre o link automaticamente (se tiver xdg-open)
-if command -v xdg-open > /dev/null; then
-    xdg-open "https://github.com/edueduardo/Discreetcourie/compare/master...claude/solo-operator-system-11P1o?expand=1"
-elif command -v open > /dev/null; then
-    open "https://github.com/edueduardo/Discreetcourie/compare/master...claude/solo-operator-system-11P1o?expand=1"
-fi
+echo "✅ Depois que a página abrir:"
+echo "   1. Clique em 'Create pull request'"
+echo "   2. Clique em 'Merge pull request'"
+echo "   3. Clique em 'Confirm merge'"
+echo "   4. PRONTO! Deploy em 30 segundos!"
