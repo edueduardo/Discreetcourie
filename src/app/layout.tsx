@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import ClientProviders from '@/components/ClientProviders'
 import GlobalSwitchers from '@/components/GlobalSwitchers'
+import CookieConsent from '@/components/CookieConsent'
 
 export const metadata: Metadata = {
   title: 'Discreet Courier Columbus',
@@ -19,6 +20,7 @@ export default function RootLayout({
         <ClientProviders>
           <GlobalSwitchers />
           {children}
+          <CookieConsent />
         </ClientProviders>
       </body>
     </html>
