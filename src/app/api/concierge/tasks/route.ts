@@ -1,9 +1,16 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { SOLO_LIMITS, validateBooking, calculateDeliveryPrice } from '@/lib/solo-limits'
+import { requireAuth } from '@/middleware/rbac'
 
-// GET - Lista tarefas concierge
+// GET - Lista tarefas concierge (requires auth)
 export async function GET(request: NextRequest) {
+  // ✅ SECURITY: Require authentication
+  const authResult = await requireAuth()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   const supabase = createClient()
   
   const { searchParams } = new URL(request.url)
@@ -30,8 +37,14 @@ export async function GET(request: NextRequest) {
   return NextResponse.json(data)
 }
 
-// POST - Criar tarefa concierge
+// POST - Criar tarefa concierge (requires auth)
 export async function POST(request: NextRequest) {
+  // ✅ SECURITY: Require authentication
+  const authResult = await requireAuth()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   const supabase = createClient()
   const body = await request.json()
   

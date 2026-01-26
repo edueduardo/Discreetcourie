@@ -3,9 +3,17 @@ import { NextRequest, NextResponse } from 'next/server'
 import { withRateLimit, addHeaders, withSecurityHeaders } from '@/lib/api-middleware'
 import { RateLimits } from '@/lib/rate-limit'
 import { searchParamsSchema, safeValidateData, formatValidationErrors } from '@/lib/validation'
+import { requireAuth, requireRole } from '@/middleware/rbac'
 
-// GET - Lista todos os pedidos
+// GET - Lista todos os pedidos (requires auth)
 export async function GET(request: NextRequest) {
+  // ✅ SECURITY: Require authentication
+  const authResult = await requireAuth()
+  if (authResult instanceof NextResponse) {
+    return authResult // Returns 401 if not authenticated
+  }
+  const { user } = authResult
+
   // Rate limiting: 120 requests per minute
   const rateLimitResult = withRateLimit(request, RateLimits.READ)
   if (!rateLimitResult.allowed) {
@@ -67,8 +75,15 @@ export async function GET(request: NextRequest) {
   return response
 }
 
-// POST - Criar novo pedido
+// POST - Criar novo pedido (requires auth)
 export async function POST(request: NextRequest) {
+  // ✅ SECURITY: Require authentication
+  const authResult = await requireAuth()
+  if (authResult instanceof NextResponse) {
+    return authResult // Returns 401 if not authenticated
+  }
+  const { user } = authResult
+
   // Rate limiting: 30 requests per minute (stricter for write operations)
   const rateLimitResult = withRateLimit(request, RateLimits.WRITE)
   if (!rateLimitResult.allowed) {

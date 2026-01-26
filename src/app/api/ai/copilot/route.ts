@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { chatCompletion } from '@/lib/openai'
 import { createClient } from '@/lib/supabase/server'
+import { requireAdmin } from '@/middleware/rbac'
 
 const COPILOT_SYSTEM_PROMPT = `Você é o Admin Copilot da DiscreetCourie, um assistente AI para administradores.
 
@@ -29,6 +30,12 @@ Quando fornecer sugestões, estruture como:
 }`
 
 export async function POST(request: NextRequest) {
+  // ✅ SECURITY: Only admins can use the copilot
+  const authResult = await requireAdmin()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   try {
     const { message, context } = await request.json()
     const supabase = await createClient()

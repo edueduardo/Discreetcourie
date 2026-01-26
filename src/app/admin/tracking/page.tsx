@@ -5,10 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { 
-  MapPin, Navigation, Battery, Clock, RefreshCw, 
-  Truck, Loader2, Signal, AlertCircle, Search
+import {
+  MapPin, Navigation, Battery, Clock, RefreshCw,
+  Truck, Loader2, Signal, AlertCircle, Search, Map
 } from 'lucide-react'
+import { GPSMap } from '@/components/tracking'
 
 interface GPSLocation {
   id: string
@@ -202,6 +203,17 @@ export default function TrackingPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* GPS Map - Full View */}
+      {trackedDelivery?.location && (
+        <GPSMap
+          trackingCode={trackingCode}
+          showControls={true}
+          height="400px"
+          autoRefresh={true}
+          refreshInterval={10000}
+        />
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
