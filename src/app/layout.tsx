@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import ClientProviders from '@/components/ClientProviders'
 
 export const metadata: Metadata = {
   title: 'Discreet Courier Columbus',
@@ -13,7 +14,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="font-sans">{children}</body>
+      <body className="font-sans">
+        <ClientProviders>
+          {children}
+        </ClientProviders>
+      </body>
     </html>
   )
 }
