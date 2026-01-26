@@ -1,8 +1,15 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { requireAdmin } from '@/middleware/rbac'
 
-// GET - List all expenses
+// GET - List all expenses (admin only)
 export async function GET(request: NextRequest) {
+  // ✅ SECURITY: Only admins can view expenses
+  const authResult = await requireAdmin()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   try {
     const supabase = await createClient()
     const { searchParams } = new URL(request.url)
@@ -32,8 +39,14 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Create new expense
+// POST - Create new expense (admin only)
 export async function POST(request: NextRequest) {
+  // ✅ SECURITY: Only admins can create expenses
+  const authResult = await requireAdmin()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   try {
     const supabase = await createClient()
     const body = await request.json()
@@ -71,8 +84,14 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// PATCH - Update expense status
+// PATCH - Update expense status (admin only)
 export async function PATCH(request: NextRequest) {
+  // ✅ SECURITY: Only admins can update expenses
+  const authResult = await requireAdmin()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   try {
     const supabase = await createClient()
     const body = await request.json()
@@ -101,8 +120,14 @@ export async function PATCH(request: NextRequest) {
   }
 }
 
-// DELETE - Delete expense
+// DELETE - Delete expense (admin only)
 export async function DELETE(request: NextRequest) {
+  // ✅ SECURITY: Only admins can delete expenses
+  const authResult = await requireAdmin()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   try {
     const supabase = await createClient()
     const { searchParams } = new URL(request.url)

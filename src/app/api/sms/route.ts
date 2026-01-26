@@ -3,14 +3,21 @@ import { createClient } from '@/lib/supabase/server'
 import { withRateLimit, addHeaders, withSecurityHeaders } from '@/lib/api-middleware'
 import { RateLimits } from '@/lib/rate-limit'
 import { sendSMSSchema, safeValidateData, formatValidationErrors } from '@/lib/validation'
+import { requireAdmin } from '@/middleware/rbac'
 
 // Twilio client (conditional)
 const accountSid = process.env.TWILIO_ACCOUNT_SID
 const authToken = process.env.TWILIO_AUTH_TOKEN
 const twilioPhone = process.env.TWILIO_PHONE_NUMBER
 
-// GET - List sent SMS from database
+// GET - List sent SMS from database (admin only)
 export async function GET(request: NextRequest) {
+  // ✅ SECURITY: Only admins can view SMS logs
+  const authResult = await requireAdmin()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   // Rate limiting: 120 requests per minute
   const rateLimitResult = withRateLimit(request, RateLimits.READ)
   if (!rateLimitResult.allowed) {
@@ -39,8 +46,14 @@ export async function GET(request: NextRequest) {
   return response
 }
 
-// POST - Send SMS via Twilio
+// POST - Send SMS via Twilio (admin only)
 export async function POST(request: NextRequest) {
+  // ✅ SECURITY: Only admins can send SMS
+  const authResult = await requireAdmin()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   // STRICT rate limiting: 5 requests per 15 minutes (SMS costs money!)
   const rateLimitResult = withRateLimit(request, RateLimits.STRICT)
   if (!rateLimitResult.allowed) {

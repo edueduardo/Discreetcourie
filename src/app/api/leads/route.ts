@@ -1,8 +1,15 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { requireAdmin } from '@/middleware/rbac'
 
-// GET - List all leads
+// GET - List all leads (admin only)
 export async function GET(request: NextRequest) {
+  // ✅ SECURITY: Only admins can view leads
+  const authResult = await requireAdmin()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   try {
     const supabase = await createClient()
     const { searchParams } = new URL(request.url)
@@ -32,8 +39,14 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Create new lead
+// POST - Create new lead (admin only)
 export async function POST(request: NextRequest) {
+  // ✅ SECURITY: Only admins can create leads
+  const authResult = await requireAdmin()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   try {
     const supabase = await createClient()
     const body = await request.json()
@@ -70,8 +83,14 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// PATCH - Update lead
+// PATCH - Update lead (admin only)
 export async function PATCH(request: NextRequest) {
+  // ✅ SECURITY: Only admins can update leads
+  const authResult = await requireAdmin()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   try {
     const supabase = await createClient()
     const body = await request.json()
@@ -97,8 +116,14 @@ export async function PATCH(request: NextRequest) {
   }
 }
 
-// DELETE - Delete lead
+// DELETE - Delete lead (admin only)
 export async function DELETE(request: NextRequest) {
+  // ✅ SECURITY: Only admins can delete leads
+  const authResult = await requireAdmin()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   try {
     const supabase = await createClient()
     const { searchParams } = new URL(request.url)

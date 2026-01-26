@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { requireAuth, requireAdmin } from '@/middleware/rbac'
 
 // Gerar código de cliente
 function generateClientCode(): string {
@@ -9,8 +10,14 @@ function generateClientCode(): string {
   return `${prefix}-${number}`
 }
 
-// GET - Lista clientes
+// GET - Lista clientes (admin only)
 export async function GET(request: NextRequest) {
+  // ✅ SECURITY: Only admins can view all customers
+  const authResult = await requireAdmin()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   const supabase = createClient()
   
   const { searchParams } = new URL(request.url)
@@ -34,8 +41,14 @@ export async function GET(request: NextRequest) {
   return NextResponse.json(data)
 }
 
-// POST - Criar cliente
+// POST - Criar cliente (admin only)
 export async function POST(request: NextRequest) {
+  // ✅ SECURITY: Only admins can create customers
+  const authResult = await requireAdmin()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   const supabase = createClient()
   const body = await request.json()
   

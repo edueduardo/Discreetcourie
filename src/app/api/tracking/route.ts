@@ -1,7 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { requireRole } from '@/middleware/rbac'
 
-// GET - Get tracking information for a delivery (supports ?code= parameter)
+// GET - Get tracking information for a delivery (PUBLIC - tracking by code allowed)
+// NOTE: This is intentionally public to allow customers to track with just their code
 export async function GET(request: NextRequest) {
   try {
     const supabase = createClient()
@@ -121,8 +123,14 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Save new location point
+// POST - Save new location point (courier or admin only)
 export async function POST(request: NextRequest) {
+  // ✅ SECURITY: Only couriers and admins can post tracking updates
+  const authResult = await requireRole(['admin', 'courier'])
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   try {
     const supabase = createClient()
     const body = await request.json()

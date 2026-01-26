@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { requireAdmin } from '@/middleware/rbac'
 
-// GET - Business metrics and analytics
+// GET - Business metrics and analytics (admin only)
 export async function GET(request: NextRequest) {
+  // ✅ SECURITY: Only admins can view analytics
+  const authResult = await requireAdmin()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   const supabase = createClient()
   const { searchParams } = new URL(request.url)
   

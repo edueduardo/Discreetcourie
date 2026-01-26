@@ -1,16 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
+import { requireAuth, requireAdmin } from '@/middleware/rbac'
 
 // Initialize Stripe (only if key is available)
-const stripe = process.env.STRIPE_SECRET_KEY 
+const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY)
   : null
 
-// GET - List recent payments from Stripe
+// GET - List recent payments from Stripe (admin only)
 export async function GET(request: NextRequest) {
+  // ✅ SECURITY: Only admins can view all payments
+  const authResult = await requireAdmin()
+  if (authResult instanceof NextResponse) {
+    return authResult // Returns 401/403
+  }
+
   if (!stripe) {
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Stripe not configured',
       message: 'Add STRIPE_SECRET_KEY to environment variables',
       payments: []
@@ -53,10 +60,16 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Create a new payment intent
+// POST - Create a new payment intent (requires auth)
 export async function POST(request: NextRequest) {
+  // ✅ SECURITY: Require authentication to create payments
+  const authResult = await requireAuth()
+  if (authResult instanceof NextResponse) {
+    return authResult // Returns 401 if not authenticated
+  }
+
   if (!stripe) {
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Stripe not configured',
       message: 'Add STRIPE_SECRET_KEY to environment variables'
     }, { status: 400 })

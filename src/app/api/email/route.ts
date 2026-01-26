@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sendEmail, sendBulkEmails, EmailTemplate } from '@/lib/email'
 import { createClient } from '@/lib/supabase/server'
+import { requireAdmin } from '@/middleware/rbac'
 
-// GET - Listar emails enviados (logs)
+// GET - Listar emails enviados (logs) - admin only
 export async function GET(request: NextRequest) {
+  // ✅ SECURITY: Only admins can view email logs
+  const authResult = await requireAdmin()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   const supabase = createClient()
   const { searchParams } = new URL(request.url)
   const clientId = searchParams.get('client_id')
@@ -39,8 +46,14 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Enviar email
+// POST - Enviar email (admin only)
 export async function POST(request: NextRequest) {
+  // ✅ SECURITY: Only admins can send emails
+  const authResult = await requireAdmin()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   try {
     const body = await request.json()
     const { 

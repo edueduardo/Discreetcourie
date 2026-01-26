@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { requireRole } from '@/middleware/rbac'
 
 // Map delivery status to SMS event type
 const STATUS_TO_SMS_EVENT: Record<string, string> = {
@@ -11,11 +12,17 @@ const STATUS_TO_SMS_EVENT: Record<string, string> = {
   'cancelled': 'delivery_failed'
 }
 
-// PATCH - Atualizar status do pedido
+// PATCH - Atualizar status do pedido (admin or courier)
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  // ✅ SECURITY: Only admin or courier can update status
+  const authResult = await requireRole(['admin', 'courier'])
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   const supabase = createClient()
   const { status, notes, send_sms = true } = await request.json()
   

@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { requireAuth, requireAdmin } from '@/middleware/rbac'
 
-// GET - Fetch all invoices or specific invoice
+// GET - Fetch all invoices or specific invoice (admin only)
 export async function GET(request: NextRequest) {
+  // ✅ SECURITY: Only admins can view invoices
+  const authResult = await requireAdmin()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   const supabase = createClient()
   const { searchParams } = new URL(request.url)
 
@@ -106,8 +113,14 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Create a new invoice
+// POST - Create a new invoice (admin only)
 export async function POST(request: NextRequest) {
+  // ✅ SECURITY: Only admins can create invoices
+  const authResult = await requireAdmin()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   const supabase = createClient()
   const body = await request.json()
 
@@ -190,8 +203,14 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// PUT - Update an invoice
+// PUT - Update an invoice (admin only)
 export async function PUT(request: NextRequest) {
+  // ✅ SECURITY: Only admins can update invoices
+  const authResult = await requireAdmin()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   const supabase = createClient()
   const body = await request.json()
 
@@ -243,8 +262,14 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-// DELETE - Delete an invoice
+// DELETE - Delete an invoice (admin only)
 export async function DELETE(request: NextRequest) {
+  // ✅ SECURITY: Only admins can delete invoices
+  const authResult = await requireAdmin()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   const supabase = createClient()
   const { searchParams } = new URL(request.url)
 

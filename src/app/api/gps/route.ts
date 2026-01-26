@@ -1,8 +1,15 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { requireAuth, requireRole } from '@/middleware/rbac'
 
-// POST - Receber atualização de GPS do motorista
+// POST - Receber atualização de GPS do motorista (courier or admin only)
 export async function POST(request: NextRequest) {
+  // ✅ SECURITY: Only couriers and admins can post GPS updates
+  const authResult = await requireRole(['admin', 'courier'])
+  if (authResult instanceof NextResponse) {
+    return authResult // Returns 401/403
+  }
+
   const supabase = createClient()
   const body = await request.json()
   
@@ -49,10 +56,16 @@ export async function POST(request: NextRequest) {
   })
 }
 
-// GET - Buscar localização atual
+// GET - Buscar localização atual (requires auth)
 export async function GET(request: NextRequest) {
+  // ✅ SECURITY: Require authentication for GPS data
+  const authResult = await requireAuth()
+  if (authResult instanceof NextResponse) {
+    return authResult // Returns 401 if not authenticated
+  }
+
   const supabase = createClient()
-  
+
   const { searchParams } = new URL(request.url)
   const driver_id = searchParams.get('driver_id')
   const delivery_id = searchParams.get('delivery_id')
