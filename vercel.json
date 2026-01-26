@@ -3,10 +3,34 @@
   "buildCommand": "npm run build",
   "installCommand": "npm install",
   "devCommand": "npm run dev",
+  "regions": ["cle1"],
+  "functions": {
+    "src/app/api/**/*.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/vault/**/*.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/ai/**/*.ts": {
+      "maxDuration": 60
+    }
+  },
   "crons": [
     {
       "path": "/api/vault/cron/auto-destruct",
       "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/cleanup-expired",
+      "schedule": "0 3 * * *"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, must-revalidate" }
+      ]
     }
   ]
 }

@@ -78,8 +78,10 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Validate role
-    const validRoles = ['admin', 'vip_client', 'courier', 'client'];
-    if (!validRoles.includes(newRole)) {
+    const validRoles = ['admin', 'vip_client', 'courier', 'client'] as const;
+    type ValidRole = typeof validRoles[number];
+
+    if (!validRoles.includes(newRole as ValidRole)) {
       return NextResponse.json(
         { error: 'Invalid role', validRoles },
         { status: 400 }
@@ -88,8 +90,9 @@ export async function PATCH(request: NextRequest) {
 
     // Update user role in Supabase
     const supabase = getSupabaseAdmin();
-    const { data, error } = await supabase
-      .from('users')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase
+      .from('users') as any)
       .update({ role: newRole })
       .eq('id', userId)
       .select('id, email, role')

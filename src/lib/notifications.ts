@@ -210,10 +210,20 @@ async function sendEmailNotification(
   subject?: string
 ): Promise<NotificationResult> {
   try {
+    // Convert NotificationVariables to EmailVariables format
+    const emailVars = {
+      recipientName: variables.recipientName,
+      trackingCode: variables.tracking_code,
+      status: variables.tracking_code ? 'Updated' : undefined,
+      amount: variables.amount ? parseFloat(variables.amount) : undefined,
+      message: variables.reason,
+      actionUrl: variables.tracking_url
+    }
+
     const result = await sendEmail({
       to: email,
       template,
-      variables,
+      variables: emailVars,
       customSubject: subject ? replaceVariables(subject, variables) : undefined
     })
 
