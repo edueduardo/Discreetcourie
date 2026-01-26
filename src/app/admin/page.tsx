@@ -18,7 +18,10 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { AdminCopilot } from '@/components/admin-copilot'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
+import CurrencySwitcher from '@/components/CurrencySwitcher'
+import { useTranslation } from '@/hooks/useTranslation'
+import { useCurrency } from '@/hooks/useCurrency'
 
 interface DashboardStats {
   today_deliveries: number
@@ -82,6 +85,9 @@ const statusLabels: Record<string, string> = {
 }
 
 export default function AdminDashboard() {
+  const { t } = useTranslation()
+  const { format, convert } = useCurrency()
+  
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState<DashboardStats>({
     today_deliveries: 0,
@@ -274,7 +280,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-slate-400 text-sm">Today's Revenue</p>
-                <p className="text-3xl font-bold text-white">${stats.revenue_today}</p>
+                <p className="text-3xl font-bold text-white">{format(convert(stats.revenue_today))}</p>
               </div>
               <div className="h-12 w-12 rounded-full bg-emerald-600/20 flex items-center justify-center">
                 <DollarSign className="h-6 w-6 text-emerald-500" />
@@ -412,9 +418,6 @@ export default function AdminDashboard() {
           </div>
         </CardContent>
       </Card>
-
-      {/* AI Admin Copilot - Proactive Insights */}
-      <AdminCopilot />
     </div>
   )
 }
