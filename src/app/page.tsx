@@ -7,6 +7,7 @@ import { Phone, Shield, Package, ChevronRight, Check, Clock, MapPin, Camera, Fil
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import CurrencySwitcher from '@/components/CurrencySwitcher'
 import InternationalShippingCalculator from '@/components/InternationalShippingCalculator'
+import { AIChatbot } from '@/components/ai-chatbot'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useCurrency } from '@/hooks/useCurrency'
 
@@ -555,6 +556,9 @@ export default function LandingPage() {
             </div>
           </div>
         </footer>
+
+        {/* AI Chatbot 24/7 */}
+        <AIChatbot />
       </div>
     </>
   )
