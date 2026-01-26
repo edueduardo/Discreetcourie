@@ -4,9 +4,12 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Head from 'next/head'
 import { Phone, Shield, Package, ChevronRight, Check, Clock, MapPin, Camera, FileText, Building2, Truck } from 'lucide-react'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
+import { useTranslation } from '@/hooks/useTranslation'
 
 export default function LandingPage() {
   const [hoveredTier, setHoveredTier] = useState<number | null>(null)
+  const { t } = useTranslation()
 
   return (
     <>
@@ -23,6 +26,11 @@ export default function LandingPage() {
 
       <div className="min-h-screen bg-[#0a0a0f] text-white">
         
+        {/* Language Switcher - Fixed top right */}
+        <div className="fixed top-6 right-6 z-50">
+          <LanguageSwitcher />
+        </div>
+        
         {/* ══════════════════════════════════════════════════════════════════
             SECTION 1: ATTENTION - Hero (AIDA Step 1)
             Psychology: Pattern interrupt, curiosity gap, immediate value proposition
@@ -38,24 +46,24 @@ export default function LandingPage() {
             {/* Trust Badge - Social Proof */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1a1a2e] border border-[#2d3748] mb-8">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-sm text-gray-400">Serving Columbus with discretion since 2024</span>
+              <span className="text-sm text-gray-400">{t('landing.hero.badge')}</span>
             </div>
             
             {/* Main Headline - Benefit-focused, curiosity-inducing */}
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
-              <span className="block">Your Package Delivered.</span>
-              <span className="block text-[#e94560]">No Questions Asked.</span>
+              <span className="block">{t('landing.hero.title1')}</span>
+              <span className="block text-[#e94560]">{t('landing.hero.title2')}</span>
             </h1>
             
             {/* Subheadline - Clarifies the service */}
             <p className="text-xl md:text-2xl text-gray-400 mb-8 max-w-2xl mx-auto">
-              Same-day confidential courier service in Columbus, Ohio.
+              {t('landing.hero.subtitle')}
             </p>
             
             <p className="text-lg text-gray-500 mb-12">
-              One driver. Complete discretion. Photo proof of every delivery.
+              {t('landing.hero.description')}
               <br />
-              <span className="text-white font-medium">Professional. Private. Punctual.</span>
+              <span className="text-white font-medium">{t('landing.hero.description2')}</span>
             </p>
             
             {/* CTAs - Primary action prominent */}
@@ -65,13 +73,13 @@ export default function LandingPage() {
                 className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#e94560] hover:bg-[#d63d56] rounded-lg text-lg font-semibold transition-all transform hover:scale-105"
               >
                 <Phone className="w-5 h-5" />
-                Call Now: (614) 500-3080
+                {t('landing.hero.cta.call')}
               </a>
               <Link 
                 href="/concierge/request"
                 className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#1a1a2e] hover:bg-[#2d3748] border border-[#2d3748] rounded-lg text-lg font-semibold transition-all"
               >
-                Book Online
+                {t('landing.hero.cta.book')}
                 <ChevronRight className="w-5 h-5" />
               </Link>
             </div>
@@ -80,15 +88,15 @@ export default function LandingPage() {
             <div className="mt-16 flex flex-wrap justify-center gap-8 text-sm text-gray-500">
               <div className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-green-500" />
-                <span>100% Confidential</span>
+                <span>{t('landing.hero.trust.confidential')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-green-500" />
-                <span>Same-Day Available</span>
+                <span>{t('landing.hero.trust.sameday')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-green-500" />
-                <span>Photo Proof Included</span>
+                <span>{t('landing.hero.trust.proof')}</span>
               </div>
             </div>
           </div>
@@ -109,10 +117,10 @@ export default function LandingPage() {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                What I Deliver For You
+                {t('landing.services.title')}
               </h2>
               <p className="text-gray-400 text-lg">
-                Professional courier services for people who value privacy.
+                {t('landing.services.subtitle')}
               </p>
             </div>
             
@@ -413,10 +421,10 @@ export default function LandingPage() {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                How It Works
+                {t('landing.howitworks.title')}
               </h2>
               <p className="text-gray-400 text-lg">
-                Three simple steps. That's it.
+                {t('landing.howitworks.subtitle')}
               </p>
             </div>
             
@@ -475,10 +483,9 @@ export default function LandingPage() {
               {/* Brand */}
               <div className="md:col-span-2">
                 <h3 className="text-2xl font-bold mb-2">Discreet Courier Columbus</h3>
-                <p className="text-[#e94560] font-medium mb-4">One Driver. No Trace.</p>
+                <p className="text-[#e94560] font-medium mb-4">{t('landing.footer.tagline')}</p>
                 <p className="text-gray-500 mb-4">
-                  Professional same-day delivery service for Columbus, Ohio. 
-                  Your package, your privacy, my priority.
+                  {t('landing.footer.description')}
                 </p>
                 <a 
                   href="tel:+16145003080" 
