@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import ClientProviders from '@/components/ClientProviders'
+import GlobalSwitchers from '@/components/GlobalSwitchers'
 
 export const metadata: Metadata = {
   title: 'Discreet Courier Columbus',
@@ -16,6 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="font-sans">
         <ClientProviders>
+          <GlobalSwitchers />
           {children}
         </ClientProviders>
       </body>

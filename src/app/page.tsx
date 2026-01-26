@@ -6,6 +6,7 @@ import Head from 'next/head'
 import { Phone, Shield, Package, ChevronRight, Check, Clock, MapPin, Camera, FileText, Building2, Truck } from 'lucide-react'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import CurrencySwitcher from '@/components/CurrencySwitcher'
+import InternationalShippingCalculator from '@/components/InternationalShippingCalculator'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useCurrency } from '@/hooks/useCurrency'
 
@@ -28,12 +29,6 @@ export default function LandingPage() {
       </Head>
 
       <div className="min-h-screen bg-[#0a0a0f] text-white">
-        
-        {/* Language & Currency Switchers - Fixed top right */}
-        <div className="fixed top-6 right-6 z-50 flex gap-3">
-          <CurrencySwitcher />
-          <LanguageSwitcher />
-        </div>
         
         {/* ══════════════════════════════════════════════════════════════════
             SECTION 1: ATTENTION - Hero (AIDA Step 1)
@@ -475,6 +470,23 @@ export default function LandingPage() {
             <p className="text-gray-500 text-sm mt-4">
               Outside 25 miles? <a href="tel:+16145003080" className="text-[#e94560] hover:underline">Call for a quote</a>.
             </p>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            SECTION 7: INTERNATIONAL SHIPPING
+        ══════════════════════════════════════════════════════════════════ */}
+        <section className="py-24 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                International Shipping
+              </h2>
+              <p className="text-gray-400 text-lg">
+                Calculate customs, duties, and shipping costs for international deliveries
+              </p>
+            </div>
+            <InternationalShippingCalculator />
           </div>
         </section>
 
