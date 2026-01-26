@@ -5,11 +5,14 @@ import Link from 'next/link'
 import Head from 'next/head'
 import { Phone, Shield, Package, ChevronRight, Check, Clock, MapPin, Camera, FileText, Building2, Truck } from 'lucide-react'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import CurrencySwitcher from '@/components/CurrencySwitcher'
 import { useTranslation } from '@/hooks/useTranslation'
+import { useCurrency } from '@/hooks/useCurrency'
 
 export default function LandingPage() {
   const [hoveredTier, setHoveredTier] = useState<number | null>(null)
   const { t } = useTranslation()
+  const { format, convert } = useCurrency()
 
   return (
     <>
@@ -26,8 +29,9 @@ export default function LandingPage() {
 
       <div className="min-h-screen bg-[#0a0a0f] text-white">
         
-        {/* Language Switcher - Fixed top right */}
-        <div className="fixed top-6 right-6 z-50">
+        {/* Language & Currency Switchers - Fixed top right */}
+        <div className="fixed top-6 right-6 z-50 flex gap-3">
+          <CurrencySwitcher />
           <LanguageSwitcher />
         </div>
         
@@ -134,7 +138,7 @@ export default function LandingPage() {
                 <p className="text-gray-400 mb-4">
                   Documents, packages, personal items. Picked up and delivered the same day within Columbus metro area.
                 </p>
-                <p className="text-[#e94560] font-semibold">From $35</p>
+                <p className="text-[#e94560] font-semibold">From {format(convert(35))}</p>
               </div>
               
               {/* Service 2: Confidential Delivery */}
@@ -146,7 +150,7 @@ export default function LandingPage() {
                 <p className="text-gray-400 mb-4">
                   When discretion matters. Optional NDA, no public tracking, direct communication only. Your business stays private.
                 </p>
-                <p className="text-[#e94560] font-semibold">From $55</p>
+                <p className="text-[#e94560] font-semibold">From {format(convert(55))}</p>
               </div>
               
               {/* Service 3: Discreet Shopping */}
@@ -158,7 +162,7 @@ export default function LandingPage() {
                 <p className="text-gray-400 mb-4">
                   I buy, I deliver. Pharmacy pickups, personal purchases, surprise gifts. No questions, no judgment.
                 </p>
-                <p className="text-[#e94560] font-semibold">$75/hour</p>
+                <p className="text-[#e94560] font-semibold">{format(convert(75))}/hour</p>
               </div>
               
               {/* Service 4: B2B Documents */}
@@ -170,7 +174,7 @@ export default function LandingPage() {
                 <p className="text-gray-400 mb-4">
                   Office-to-office delivery for law firms, medical offices, and businesses. Recurring schedules available.
                 </p>
-                <p className="text-[#e94560] font-semibold">From $40</p>
+                <p className="text-[#e94560] font-semibold">From {format(convert(40))}</p>
               </div>
               
               {/* Service 5: Photo Proof */}
@@ -293,7 +297,7 @@ export default function LandingPage() {
                   MOST POPULAR
                 </div>
                 <h3 className="text-xl font-bold mb-2 mt-4">Discreet Shopping</h3>
-                <div className="text-3xl font-bold mb-1">$75</div>
+                <div className="text-3xl font-bold mb-1">{format(convert(75)).split('.')[0]}</div>
                 <div className="text-gray-400 text-sm mb-6">per hour</div>
                 <ul className="space-y-3 mb-8 text-sm">
                   <li className="flex items-center gap-2">
@@ -328,7 +332,7 @@ export default function LandingPage() {
                 onMouseLeave={() => setHoveredTier(null)}
               >
                 <h3 className="text-xl font-bold mb-2">Confidential</h3>
-                <div className="text-3xl font-bold mb-1">$55</div>
+                <div className="text-3xl font-bold mb-1">{format(convert(55)).split('.')[0]}</div>
                 <div className="text-gray-400 text-sm mb-6">per delivery</div>
                 <ul className="space-y-3 mb-8 text-sm">
                   <li className="flex items-center gap-2">
@@ -363,7 +367,7 @@ export default function LandingPage() {
                 onMouseLeave={() => setHoveredTier(null)}
               >
                 <h3 className="text-xl font-bold mb-2">Standard</h3>
-                <div className="text-3xl font-bold mb-1">$35</div>
+                <div className="text-3xl font-bold mb-1">{format(convert(35)).split('.')[0]}</div>
                 <div className="text-gray-400 text-sm mb-6">per delivery</div>
                 <ul className="space-y-3 mb-8 text-sm">
                   <li className="flex items-center gap-2">
