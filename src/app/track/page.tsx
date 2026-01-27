@@ -49,14 +49,23 @@ export default function TrackPage() {
     setError('')
     
     try {
-      const res = await fetch(`/api/tracking?code=${encodeURIComponent(trackingCode.trim())}`)
+      const res = await fetch(`/api/track/${encodeURIComponent(trackingCode.trim())}`)
       const data = await res.json()
       
-      if (!res.ok || !data.delivery) {
+      if (!res.ok) {
         setError(data.error || 'Delivery not found. Please check your tracking code.')
         setDelivery(null)
       } else {
-        setDelivery(data.delivery)
+        // Transform API response to match component interface
+        setDelivery({
+          tracking_code: data.tracking_code,
+          status: data.status,
+          pickup_address: data.pickup_address || 'Hidden (Zero-trace)',
+          delivery_address: data.delivery_address || 'Hidden (Zero-trace)',
+          created_at: data.created_at,
+          estimated_delivery: data.estimated_arrival,
+          events: [] // TODO: Build from status history
+        })
       }
     } catch (err) {
       setError('Failed to track delivery. Please try again.')
