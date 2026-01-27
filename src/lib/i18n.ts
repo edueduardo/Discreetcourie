@@ -106,6 +106,27 @@ const translations: Record<Locale, Record<TranslationKey, TranslationValue>> = {
     'notification.deliveryUpdated': 'Delivery updated',
     'notification.paymentReceived': 'Payment received',
     'notification.paymentFailed': 'Payment failed',
+
+    // Landing Page
+    'landing.hero.badge': 'Serving Columbus with discretion since 2024',
+    'landing.hero.title1': 'Your Package Delivered.',
+    'landing.hero.title2': 'No Questions Asked.',
+    'landing.hero.subtitle': 'Same-day confidential courier service in Columbus, Ohio.',
+    'landing.hero.description': 'One driver. Complete discretion. Photo proof of every delivery.',
+    'landing.hero.description2': 'Professional. Private. Punctual.',
+    'landing.hero.cta.call': 'Call Now: (614) 500-3080',
+    'landing.hero.cta.book': 'Book Online',
+    'landing.hero.trust.confidential': '100% Confidential',
+    'landing.hero.trust.sameday': 'Same-Day Available',
+    'landing.hero.trust.proof': 'Photo Proof Included',
+    'landing.services.title': 'What I Deliver For You',
+    'landing.services.subtitle': 'Professional courier services for people who value privacy.',
+    'landing.pricing.title': 'Simple, Transparent Pricing',
+    'landing.pricing.subtitle': 'No hidden fees. No surprises. Price quoted before you book.',
+    'landing.howitworks.title': 'How It Works',
+    'landing.howitworks.subtitle': 'Three simple steps. That\'s it.',
+    'landing.footer.tagline': 'One Driver. No Trace.',
+    'landing.footer.description': 'Professional same-day delivery service for Columbus, Ohio. Your package, your privacy, my priority.',
   },
 
   pt: {
@@ -200,6 +221,27 @@ const translations: Record<Locale, Record<TranslationKey, TranslationValue>> = {
     'notification.deliveryUpdated': 'Entrega atualizada',
     'notification.paymentReceived': 'Pagamento recebido',
     'notification.paymentFailed': 'Pagamento falhou',
+
+    // Landing Page
+    'landing.hero.badge': 'Servindo Columbus com discrição desde 2024',
+    'landing.hero.title1': 'Seu Pacote Entregue.',
+    'landing.hero.title2': 'Sem Perguntas.',
+    'landing.hero.subtitle': 'Serviço de courier confidencial no mesmo dia em Columbus, Ohio.',
+    'landing.hero.description': 'Um motorista. Discrição completa. Prova fotográfica de cada entrega.',
+    'landing.hero.description2': 'Profissional. Privado. Pontual.',
+    'landing.hero.cta.call': 'Ligue Agora: (614) 500-3080',
+    'landing.hero.cta.book': 'Reservar Online',
+    'landing.hero.trust.confidential': '100% Confidencial',
+    'landing.hero.trust.sameday': 'Mesmo Dia Disponível',
+    'landing.hero.trust.proof': 'Prova Fotográfica Incluída',
+    'landing.services.title': 'O Que Eu Entrego Para Você',
+    'landing.services.subtitle': 'Serviços profissionais de courier para pessoas que valorizam privacidade.',
+    'landing.pricing.title': 'Preços Simples e Transparentes',
+    'landing.pricing.subtitle': 'Sem taxas ocultas. Sem surpresas. Preço cotado antes de reservar.',
+    'landing.howitworks.title': 'Como Funciona',
+    'landing.howitworks.subtitle': 'Três passos simples. Só isso.',
+    'landing.footer.tagline': 'Um Motorista. Sem Rastros.',
+    'landing.footer.description': 'Serviço profissional de entrega no mesmo dia para Columbus, Ohio. Seu pacote, sua privacidade, minha prioridade.',
   },
 
   es: {
@@ -294,6 +336,27 @@ const translations: Record<Locale, Record<TranslationKey, TranslationValue>> = {
     'notification.deliveryUpdated': 'Entrega actualizada',
     'notification.paymentReceived': 'Pago recibido',
     'notification.paymentFailed': 'Pago fallido',
+
+    // Landing Page
+    'landing.hero.badge': 'Sirviendo Columbus con discreción desde 2024',
+    'landing.hero.title1': 'Tu Paquete Entregado.',
+    'landing.hero.title2': 'Sin Preguntas.',
+    'landing.hero.subtitle': 'Servicio de mensajería confidencial el mismo día en Columbus, Ohio.',
+    'landing.hero.description': 'Un conductor. Discreción completa. Prueba fotográfica de cada entrega.',
+    'landing.hero.description2': 'Profesional. Privado. Puntual.',
+    'landing.hero.cta.call': 'Llame Ahora: (614) 500-3080',
+    'landing.hero.cta.book': 'Reservar En Línea',
+    'landing.hero.trust.confidential': '100% Confidencial',
+    'landing.hero.trust.sameday': 'Mismo Día Disponible',
+    'landing.hero.trust.proof': 'Prueba Fotográfica Incluida',
+    'landing.services.title': 'Lo Que Entrego Para Ti',
+    'landing.services.subtitle': 'Servicios profesionales de mensajería para personas que valoran la privacidad.',
+    'landing.pricing.title': 'Precios Simples y Transparentes',
+    'landing.pricing.subtitle': 'Sin tarifas ocultas. Sin sorpresas. Precio cotizado antes de reservar.',
+    'landing.howitworks.title': 'Cómo Funciona',
+    'landing.howitworks.subtitle': 'Tres pasos simples. Eso es todo.',
+    'landing.footer.tagline': 'Un Conductor. Sin Rastro.',
+    'landing.footer.description': 'Servicio profesional de entrega el mismo día para Columbus, Ohio. Tu paquete, tu privacidad, mi prioridad.',
   }
 }
 
