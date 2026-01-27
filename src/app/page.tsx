@@ -3,7 +3,10 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Head from 'next/head'
-import { Phone, Shield, Package, ChevronRight, Check, Clock, MapPin, Camera, FileText, Building2, Truck } from 'lucide-react'
+import { Phone, Shield, Package, ChevronRight, Check, Clock, MapPin, Camera, FileText, Building2, Truck, EyeOff, DollarSign, MessageSquare } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import CurrencySwitcher from '@/components/CurrencySwitcher'
 import InternationalShippingCalculator from '@/components/InternationalShippingCalculator'
@@ -420,6 +423,447 @@ export default function LandingPage() {
         </section>
 
         {/* ══════════════════════════════════════════════════════════════════
+            SECTION: SUBSCRIPTION PLANS FOR BUSINESS
+            Psychology: Recurring revenue, predictable costs, save money
+        ══════════════════════════════════════════════════════════════════ */}
+        <section className="py-24 px-6 bg-[#0a0a0f]">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Business Subscription Plans
+              </h2>
+              <p className="text-gray-400 text-lg mb-6">
+                Save money with monthly subscriptions. Perfect for law firms, medical offices, and businesses.
+              </p>
+              <Link 
+                href="/pricing"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[#e94560] hover:bg-[#d63d56] rounded-lg font-semibold transition-colors"
+              >
+                View All Plans <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* Starter Plan */}
+              <div className="p-8 rounded-2xl bg-[#1a1a2e] border border-[#2d3748]">
+                <h3 className="text-xl font-bold mb-2">Starter</h3>
+                <div className="text-3xl font-bold mb-1">$99<span className="text-lg text-gray-400">/mo</span></div>
+                <p className="text-gray-400 text-sm mb-6">10 deliveries per month</p>
+                <ul className="space-y-3 mb-8 text-sm">
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Same-day delivery
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Real-time GPS tracking
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Photo proof of delivery
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Save $151/month
+                  </li>
+                </ul>
+                <Link href="/pricing" className="block w-full py-3 text-center rounded-lg border border-[#2d3748] hover:bg-[#2d3748] font-semibold transition-colors">
+                  Learn More
+                </Link>
+              </div>
+
+              {/* Professional Plan - Most Popular */}
+              <div className="relative p-8 rounded-2xl bg-gradient-to-b from-[#e94560]/20 to-[#1a1a2e] border-2 border-[#e94560]">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-4 py-1 bg-[#e94560] rounded-full text-sm font-semibold">
+                  MOST POPULAR
+                </div>
+                <h3 className="text-xl font-bold mb-2 mt-4">Professional</h3>
+                <div className="text-3xl font-bold mb-1">$199<span className="text-lg text-gray-400">/mo</span></div>
+                <p className="text-gray-400 text-sm mb-6">25 deliveries per month</p>
+                <ul className="space-y-3 mb-8 text-sm">
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Priority same-day delivery
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Dedicated account manager
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Scheduled pickups
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Save $426/month
+                  </li>
+                </ul>
+                <Link href="/pricing" className="block w-full py-3 text-center rounded-lg bg-[#e94560] hover:bg-[#d63d56] font-semibold transition-colors">
+                  Get Started
+                </Link>
+              </div>
+
+              {/* Enterprise Plan */}
+              <div className="p-8 rounded-2xl bg-[#1a1a2e] border border-[#2d3748]">
+                <h3 className="text-xl font-bold mb-2">Enterprise</h3>
+                <div className="text-3xl font-bold mb-1">$399<span className="text-lg text-gray-400">/mo</span></div>
+                <p className="text-gray-400 text-sm mb-6">Unlimited deliveries</p>
+                <ul className="space-y-3 mb-8 text-sm">
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Unlimited deliveries
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    24/7 priority support
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Human Vault™ access
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    NDA enforcement
+                  </li>
+                </ul>
+                <Link href="/pricing" className="block w-full py-3 text-center rounded-lg border border-[#2d3748] hover:bg-[#2d3748] font-semibold transition-colors">
+                  Contact Sales
+                </Link>
+              </div>
+            </div>
+
+            <div className="mt-12 text-center">
+              <p className="text-gray-400 text-sm">
+                Perfect for law firms, medical offices, real estate agents, and small businesses in Columbus
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            SECTION: HUMAN VAULT - Bank-Grade Security
+        ══════════════════════════════════════════════════════════════════ */}
+        <section className="py-24 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                  Human Vault™ - Bank-Grade Security for Your Documents
+                </h2>
+                <p className="text-gray-400 text-lg mb-6">
+                  Store sensitive documents with military-grade encryption. Perfect for legal firms, medical offices, and high-value clients.
+                </p>
+                <ul className="space-y-4 mb-8">
+                  <li className="flex items-start gap-3">
+                    <Shield className="w-6 h-6 text-green-500 mt-1" />
+                    <div>
+                      <div className="font-semibold mb-1">End-to-End Encryption</div>
+                      <div className="text-sm text-gray-400">AES-256-GCM encryption - same as banks and military</div>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Clock className="w-6 h-6 text-blue-500 mt-1" />
+                    <div>
+                      <div className="font-semibold mb-1">Auto-Destruct Timer</div>
+                      <div className="text-sm text-gray-400">Set expiration dates - files delete automatically</div>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <FileText className="w-6 h-6 text-purple-500 mt-1" />
+                    <div>
+                      <div className="font-semibold mb-1">NDA Enforcement</div>
+                      <div className="text-sm text-gray-400">Digital signatures with legal binding</div>
+                    </div>
+                  </li>
+                </ul>
+                <Link 
+                  href="/portal/vault"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-semibold transition-colors"
+                >
+                  Access Vault <ChevronRight className="w-4 h-4" />
+                </Link>
+              </div>
+              <div className="bg-gradient-to-br from-green-600/20 to-blue-600/20 rounded-2xl p-8 border border-green-500/30">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 text-sm">
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    <span className="text-gray-300">Encrypted file upload in progress...</span>
+                  </div>
+                  <div className="bg-slate-900/50 rounded-lg p-4">
+                    <div className="text-xs text-gray-500 mb-2">Encryption Status</div>
+                    <div className="text-green-400 font-mono text-sm">AES-256-GCM ✓</div>
+                    <div className="text-green-400 font-mono text-sm">Zero-knowledge ✓</div>
+                    <div className="text-green-400 font-mono text-sm">Auto-destruct enabled ✓</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            SECTION: NDA ENFORCEMENT - Legal Protection
+        ══════════════════════════════════════════════════════════════════ */}
+        <section className="py-24 px-6 bg-[#0a0a0f]">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div className="order-2 md:order-1 bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-2xl p-8 border border-purple-500/30">
+                <div className="space-y-4">
+                  <div className="text-sm text-gray-400 mb-4">Digital Signature Verification</div>
+                  <div className="bg-slate-900/50 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span className="text-sm text-gray-300">Signature verified</span>
+                    </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span className="text-sm text-gray-300">Legally binding</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span className="text-sm text-gray-300">Timestamped & immutable</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="order-1 md:order-2">
+                <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                  NDA Enforcement - Legal Protection Built-In
+                </h2>
+                <p className="text-gray-400 text-lg mb-6">
+                  Require NDAs before delivery. Digital signatures with cryptographic verification and legal binding.
+                </p>
+                <ul className="space-y-4 mb-8">
+                  <li className="flex items-start gap-3">
+                    <FileText className="w-6 h-6 text-purple-500 mt-1" />
+                    <div>
+                      <div className="font-semibold mb-1">Custom NDA Templates</div>
+                      <div className="text-sm text-gray-400">Create and manage your own NDA templates</div>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Shield className="w-6 h-6 text-blue-500 mt-1" />
+                    <div>
+                      <div className="font-semibold mb-1">Digital Signatures</div>
+                      <div className="text-sm text-gray-400">Cryptographically signed and verified</div>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Clock className="w-6 h-6 text-green-500 mt-1" />
+                    <div>
+                      <div className="font-semibold mb-1">Audit Trail</div>
+                      <div className="text-sm text-gray-400">Complete history of all signatures and access</div>
+                    </div>
+                  </li>
+                </ul>
+                <Link 
+                  href="/admin/nda"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition-colors"
+                >
+                  Manage NDAs <ChevronRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            SECTION: ZERO-TRACE DELIVERY - Maximum Privacy
+        ══════════════════════════════════════════════════════════════════ */}
+        <section className="py-24 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                  Zero-Trace Delivery - Maximum Privacy
+                </h2>
+                <p className="text-gray-400 text-lg mb-6">
+                  Leave no digital footprint. VPN routing, crypto payments, and auto-delete for ultimate discretion.
+                </p>
+                <ul className="space-y-4 mb-8">
+                  <li className="flex items-start gap-3">
+                    <EyeOff className="w-6 h-6 text-purple-500 mt-1" />
+                    <div>
+                      <div className="font-semibold mb-1">VPN Routing</div>
+                      <div className="text-sm text-gray-400">All communications routed through VPN for IP anonymity</div>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <DollarSign className="w-6 h-6 text-green-500 mt-1" />
+                    <div>
+                      <div className="font-semibold mb-1">Crypto Payments</div>
+                      <div className="text-sm text-gray-400">Accept cryptocurrency for untraceable transactions</div>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Clock className="w-6 h-6 text-red-500 mt-1" />
+                    <div>
+                      <div className="font-semibold mb-1">Auto-Delete</div>
+                      <div className="text-sm text-gray-400">All records permanently deleted after delivery</div>
+                    </div>
+                  </li>
+                </ul>
+                <Link 
+                  href="/zero-trace"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition-colors"
+                >
+                  Create Zero-Trace Delivery <ChevronRight className="w-4 h-4" />
+                </Link>
+              </div>
+              <div className="bg-gradient-to-br from-purple-600/20 to-red-600/20 rounded-2xl p-8 border border-purple-500/30">
+                <div className="space-y-4">
+                  <div className="text-sm text-gray-400 mb-4">Privacy Features Active</div>
+                  <div className="bg-slate-900/50 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></div>
+                      <span className="text-sm text-gray-300">VPN routing enabled</span>
+                    </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                      <span className="text-sm text-gray-300">Crypto payment ready</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                      <span className="text-sm text-gray-300">Auto-delete in 24h</span>
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-500 text-center mt-4">
+                    No permanent records • No metadata • No traces
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            SECTION: PREMIUM SERVICES - VIP Features
+            Psychology: Exclusivity, unique value proposition
+        ══════════════════════════════════════════════════════════════════ */}
+        <section className="py-24 px-6 bg-gradient-to-b from-slate-900 to-slate-800">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <Badge className="mb-4 bg-purple-600 text-white">VIP Services</Badge>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Premium Services for Unique Needs
+              </h2>
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+                Beyond standard delivery - specialized services for sensitive situations
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {/* Ghost Messages */}
+              <Card className="bg-slate-800/50 border-slate-700 hover:border-purple-500 transition-all">
+                <CardContent className="p-6">
+                  <div className="w-12 h-12 rounded-lg bg-purple-600/20 flex items-center justify-center mb-4">
+                    <MessageSquare className="h-6 w-6 text-purple-400" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">Ghost Messages</h3>
+                  <p className="text-slate-400 mb-4">
+                    Send anonymous messages without revealing your identity. Perfect for sensitive communications.
+                  </p>
+                  <ul className="space-y-2 text-sm text-slate-400 mb-4">
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-400" />
+                      Complete anonymity
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-400" />
+                      No sender information
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-400" />
+                      Secure delivery
+                    </li>
+                  </ul>
+                  <Link href="/admin/ghost-messages">
+                    <Button variant="outline" className="w-full border-purple-500 text-purple-400 hover:bg-purple-500/10">
+                      Learn More
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Last Will Delivery */}
+              <Card className="bg-slate-800/50 border-slate-700 hover:border-blue-500 transition-all">
+                <CardContent className="p-6">
+                  <div className="w-12 h-12 rounded-lg bg-blue-600/20 flex items-center justify-center mb-4">
+                    <Clock className="h-6 w-6 text-blue-400" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">Last Will Delivery</h3>
+                  <p className="text-slate-400 mb-4">
+                    Automatic delivery if you don't check in. Peace of mind for important documents.
+                  </p>
+                  <ul className="space-y-2 text-sm text-slate-400 mb-4">
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-400" />
+                      Automatic trigger
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-400" />
+                      Secure storage
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-400" />
+                      Legal documents
+                    </li>
+                  </ul>
+                  <Link href="/concierge">
+                    <Button variant="outline" className="w-full border-blue-500 text-blue-400 hover:bg-blue-500/10">
+                      Learn More
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Time Capsule */}
+              <Card className="bg-slate-800/50 border-slate-700 hover:border-green-500 transition-all">
+                <CardContent className="p-6">
+                  <div className="w-12 h-12 rounded-lg bg-green-600/20 flex items-center justify-center mb-4">
+                    <Package className="h-6 w-6 text-green-400" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">Time Capsule</h3>
+                  <p className="text-slate-400 mb-4">
+                    Schedule delivery for future dates. Perfect for surprises, anniversaries, or planned reveals.
+                  </p>
+                  <ul className="space-y-2 text-sm text-slate-400 mb-4">
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-400" />
+                      Future scheduling
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-400" />
+                      Secure storage
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-400" />
+                      Guaranteed delivery
+                    </li>
+                  </ul>
+                  <Link href="/concierge">
+                    <Button variant="outline" className="w-full border-green-500 text-green-400 hover:bg-green-500/10">
+                      Learn More
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* CTA */}
+            <div className="text-center mt-12">
+              <p className="text-slate-400 mb-4">Need something unique? We handle special requests.</p>
+              <Link href="/concierge">
+                <Button size="lg" className="bg-purple-600 hover:bg-purple-700">
+                  Request VIP Service
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════
             SECTION 5: HOW IT WORKS - Reduce Friction
             Psychology: Simplicity, clear process, reduce anxiety
         ══════════════════════════════════════════════════════════════════ */}
@@ -546,6 +990,9 @@ export default function LandingPage() {
                   </Link>
                   <Link href="/admin/nda" className="hover:text-white transition-colors">
                     NDA Enforcement
+                  </Link>
+                  <Link href="/zero-trace" className="hover:text-white transition-colors">
+                    Zero-Trace Delivery
                   </Link>
                 </div>
               </div>

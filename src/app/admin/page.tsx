@@ -427,17 +427,51 @@ export default function AdminDashboard() {
       </Card>
 
       {/* AI Insights Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <RouteOptimizer deliveries={recentDeliveries} />
-        <DemandForecast />
-        <FraudDetector />
-        <SentimentAnalyzer />
-        <ChurnPredictor />
-        <ContentGenerator />
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-white">🤖 AI-Powered Insights</h2>
+            <p className="text-slate-400 mt-1">Intelligent tools to optimize your operations</p>
+          </div>
+        </div>
+
+        {/* Operations AI */}
+        <div>
+          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <Truck className="h-5 w-5 text-blue-400" />
+            Operations Intelligence
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <RouteOptimizer deliveries={recentDeliveries} />
+            <DemandForecast />
+            <FraudDetector />
+          </div>
+        </div>
+
+        {/* Customer AI */}
+        <div>
+          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <DollarSign className="h-5 w-5 text-green-400" />
+            Customer Intelligence
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <SentimentAnalyzer />
+            <ChurnPredictor />
+            <ContentGenerator />
+          </div>
+        </div>
       </div>
 
       {/* Admin Copilot AI */}
-      <AdminCopilot />
+      <div className="mt-8">
+        <div className="mb-4">
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+            💬 AI Assistant
+          </h2>
+          <p className="text-slate-400 mt-1">Your personal admin copilot for instant help</p>
+        </div>
+        <AdminCopilot />
+      </div>
     </div>
   )
 }

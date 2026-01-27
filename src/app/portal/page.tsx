@@ -242,42 +242,111 @@ export default function ClientPortal() {
       </Card>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="bg-slate-800 border-slate-700">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-full bg-slate-700 flex items-center justify-center">
-                <Package className="h-6 w-6 text-slate-400" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-white font-medium">Need a delivery?</h3>
-                <p className="text-slate-400 text-sm">Call us to schedule a pickup</p>
-              </div>
-              <Button variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-700">
-                (614) 500-3080
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-slate-800 border-slate-700">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-full bg-slate-700 flex items-center justify-center">
-                <FileText className="h-6 w-6 text-slate-400" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-white font-medium">View Invoices</h3>
-                <p className="text-slate-400 text-sm">See your billing history</p>
-              </div>
-              <Link href="/portal/invoices">
-                <Button variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-700">
-                  View
+      <div>
+        <h2 className="text-xl font-bold text-white mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Card className="bg-slate-800 border-slate-700 hover:border-blue-500 transition-colors">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 rounded-full bg-blue-600/20 flex items-center justify-center">
+                  <Package className="h-6 w-6 text-blue-400" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-white font-medium">Need a delivery?</h3>
+                  <p className="text-slate-400 text-sm">Call us to schedule</p>
+                </div>
+                <Button variant="outline" className="border-blue-600 text-blue-400 hover:bg-blue-600/10">
+                  Call
                 </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Link href="/portal/vault">
+            <Card className="bg-slate-800 border-slate-700 hover:border-purple-500 transition-colors cursor-pointer">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-full bg-purple-600/20 flex items-center justify-center">
+                    <FileText className="h-6 w-6 text-purple-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-white font-medium">Human Vault™</h3>
+                    <p className="text-slate-400 text-sm">Secure document storage</p>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-purple-400" />
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/zero-trace">
+            <Card className="bg-slate-800 border-slate-700 hover:border-green-500 transition-colors cursor-pointer">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-full bg-green-600/20 flex items-center justify-center">
+                    <Package className="h-6 w-6 text-green-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-white font-medium">Zero-Trace</h3>
+                    <p className="text-slate-400 text-sm">Maximum privacy delivery</p>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-green-400" />
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/portal/subscriptions">
+            <Card className="bg-slate-800 border-slate-700 hover:border-yellow-500 transition-colors cursor-pointer">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-full bg-yellow-600/20 flex items-center justify-center">
+                    <CheckCircle2 className="h-6 w-6 text-yellow-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-white font-medium">Subscriptions</h3>
+                    <p className="text-slate-400 text-sm">Save with recurring plans</p>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-yellow-400" />
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/portal/invoices">
+            <Card className="bg-slate-800 border-slate-700 hover:border-slate-500 transition-colors cursor-pointer">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-full bg-slate-700 flex items-center justify-center">
+                    <FileText className="h-6 w-6 text-slate-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-white font-medium">Invoices</h3>
+                    <p className="text-slate-400 text-sm">View billing history</p>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-slate-400" />
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/concierge">
+            <Card className="bg-slate-800 border-slate-700 hover:border-pink-500 transition-colors cursor-pointer">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-full bg-pink-600/20 flex items-center justify-center">
+                    <Clock className="h-6 w-6 text-pink-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-white font-medium">VIP Services</h3>
+                    <p className="text-slate-400 text-sm">Premium requests</p>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-pink-400" />
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
       </div>
 
       {/* AI Chatbot 24/7 */}
