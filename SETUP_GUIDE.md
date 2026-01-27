@@ -37,31 +37,38 @@
 3. Abra cada arquivo de migration na pasta `supabase/migrations/`
 4. Cole o conteúdo e execute na seguinte ordem:
 
-**ORDEM DE EXECUÇÃO**:
+**ORDEM DE EXECUÇÃO** (IMPORTANTE - Siga esta ordem exata):
 ```
-1. 20260123_ai_features.sql
+⚠️ CRÍTICO: Rode PRIMEIRO (cria tabelas base):
+1. 00000000_base_schema.sql  ← COMECE POR AQUI!
+
+Depois rode na ordem:
 2. 20260124_nextauth_users.sql
-3. 20260124_human_vault.sql
-4. add_subscriptions_table.sql
-5. add_ghost_communication_tables.sql
-6. add_gps_tracking_tables.sql
-7. add_delivery_proof_fields.sql
-8. add_analytics_push_tables.sql
-9. add_rbac_profiles.sql
-10. add_leads_table.sql
-11. add_quotes_table.sql
-12. add_settings_table.sql
-13. add_sms_event_logs_table.sql
-14. add_email_logs_table.sql
-15. add_payment_logs_table.sql
-16. add_bland_calls_table.sql
-17. add_emergency_logs_table.sql
-18. add_vetting_logs_table.sql
-19. add_new_tables_2025.sql
-20. fix_auto_delete_columns.sql
+3. 20260123_ai_features.sql
+4. 20260124_human_vault.sql
+5. add_subscriptions_table.sql
+6. add_ghost_communication_tables.sql
+7. add_gps_tracking_tables.sql
+8. add_delivery_proof_fields.sql
+9. add_analytics_push_tables.sql
+10. add_rbac_profiles.sql
+11. add_leads_table.sql
+12. add_quotes_table.sql
+13. add_settings_table.sql
+14. add_sms_event_logs_table.sql
+15. add_email_logs_table.sql
+16. add_payment_logs_table.sql
+17. add_bland_calls_table.sql
+18. add_emergency_logs_table.sql
+19. add_vetting_logs_table.sql
+20. add_new_tables_2025.sql
+21. fix_auto_delete_columns.sql
 ```
 
-**Dica**: Se houver erro "table already exists", ignore e continue.
+**Dicas**: 
+- Se houver erro "table already exists", ignore e continue
+- Se houver erro "column does not exist", você pulou o base_schema
+- Se houver erro "relation does not exist", verifique a ordem
 
 ### 1.4 Criar Storage Bucket
 1. Vá em: **Storage**

@@ -10,6 +10,16 @@
 ### Migrations Encontradas (20 arquivos)
 
 #### ✅ Migrations Críticas Confirmadas:
+- [x] `00000000_base_schema.sql` **⚠️ RODE PRIMEIRO!**
+  - ✅ Tabela `users` (autenticação)
+  - ✅ Tabela `clients` (clientes)
+  - ✅ View `customers` (compatibilidade)
+  - ✅ Tabela `deliveries` (pedidos)
+  - ✅ Tabela `invoices` (faturas)
+  - ✅ RLS policies configuradas
+  - ✅ Triggers para updated_at
+  - ✅ Função generate_tracking_code()
+
 - [x] `20260124_human_vault.sql` (451 linhas)
   - ✅ Tabela `nda_templates` com template padrão
   - ✅ Tabela `vault_files` com encryption
