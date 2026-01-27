@@ -181,14 +181,17 @@ export default function CheckoutPage() {
 
       try {
         // Create payment intent
-        const response = await fetch('/api/payments', {
+        const response = await fetch('/api/payments/create-intent', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             amount,
-            customerEmail: email,
-            description,
-            metadata
+            currency: 'usd',
+            metadata: {
+              ...metadata,
+              customer_email: email,
+              description
+            }
           })
         })
 
