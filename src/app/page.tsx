@@ -275,9 +275,15 @@ export default function LandingPage() {
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
                 Simple, Transparent Pricing
               </h2>
-              <p className="text-gray-400 text-lg">
+              <p className="text-gray-400 text-lg mb-6">
                 No hidden fees. No surprises. Price quoted before you book.
               </p>
+              <Link 
+                href="/pricing"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[#e94560] hover:bg-[#d63d56] rounded-lg font-semibold transition-colors"
+              >
+                View Subscription Plans <ChevronRight className="w-4 h-4" />
+              </Link>
             </div>
             
             {/* Pricing Cards - Anchoring: highest first */}
@@ -528,6 +534,22 @@ export default function LandingPage() {
                 </div>
               </div>
               
+              {/* Business */}
+              <div>
+                <h4 className="font-semibold mb-4">For Business</h4>
+                <div className="flex flex-col gap-2 text-gray-400">
+                  <Link href="/pricing" className="hover:text-white transition-colors">
+                    Subscription Plans
+                  </Link>
+                  <Link href="/portal/vault" className="hover:text-white transition-colors">
+                    Human Vault™
+                  </Link>
+                  <Link href="/admin/nda" className="hover:text-white transition-colors">
+                    NDA Enforcement
+                  </Link>
+                </div>
+              </div>
+
               {/* Legal */}
               <div>
                 <h4 className="font-semibold mb-4">Legal</h4>
