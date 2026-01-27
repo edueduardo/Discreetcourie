@@ -51,16 +51,16 @@ export default function ClientPortal() {
         setLoading(true)
         setError(null)
 
-        const res = await fetch('/api/orders')
+        const res = await fetch('/api/deliveries/list')
         const data = await res.json()
 
         if (data.error) {
           setError(data.error)
-        } else if (data.orders) {
-          setDeliveries(data.orders)
+        } else if (data.deliveries) {
+          setDeliveries(data.deliveries)
         }
       } catch (err) {
-
+        console.error('Error fetching deliveries:', err)
         setError('Failed to load deliveries')
       } finally {
         setLoading(false)
