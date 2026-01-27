@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { RouteOptimizerSolo } from '@/components/RouteOptimizerSolo'
 
 interface Delivery {
   id: string
@@ -144,6 +145,9 @@ export default function DriverDashboard() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Route Optimizer - Solo Driver Columbus */}
+      <RouteOptimizerSolo />
 
       {/* Active Deliveries */}
       <div>
