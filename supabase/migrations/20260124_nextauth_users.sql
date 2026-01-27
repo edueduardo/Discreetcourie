@@ -1,12 +1,18 @@
 -- NextAuth Users Table Migration
 -- Date: 2026-01-24
 -- Purpose: Add users table for NextAuth authentication with RBAC
+-- NOTE: base_schema already creates users table, this adds additional fields
 
--- Create role enum
-CREATE TYPE user_role AS ENUM ('admin', 'vip_client', 'client', 'courier');
+-- Create role enum (if not exists)
+DO $$ BEGIN
+  CREATE TYPE user_role AS ENUM ('admin', 'vip_client', 'client', 'courier');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
 
--- Users table for authentication
-CREATE TABLE IF NOT EXISTS users (
+-- Drop and recreate users table with all fields
+DROP TABLE IF EXISTS users CASCADE;
+CREATE TABLE users (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   email VARCHAR(255) UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
