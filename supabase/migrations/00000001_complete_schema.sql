@@ -231,8 +231,10 @@ CREATE POLICY "Clients can view own deliveries"
   ON deliveries FOR SELECT
   TO authenticated
   USING (
-    client_id IN (
-      SELECT id FROM clients WHERE user_id = auth.uid()
+    EXISTS (
+      SELECT 1 FROM clients c 
+      WHERE c.id = deliveries.client_id 
+      AND c.user_id = auth.uid()
     )
   );
 
@@ -277,8 +279,10 @@ CREATE POLICY "Clients can view own invoices"
   ON invoices FOR SELECT
   TO authenticated
   USING (
-    client_id IN (
-      SELECT id FROM clients WHERE user_id = auth.uid()
+    EXISTS (
+      SELECT 1 FROM clients c 
+      WHERE c.id = invoices.client_id 
+      AND c.user_id = auth.uid()
     )
   );
 
