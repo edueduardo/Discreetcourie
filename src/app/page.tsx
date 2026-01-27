@@ -420,6 +420,124 @@ export default function LandingPage() {
         </section>
 
         {/* ══════════════════════════════════════════════════════════════════
+            SECTION: SUBSCRIPTION PLANS FOR BUSINESS
+            Psychology: Recurring revenue, predictable costs, save money
+        ══════════════════════════════════════════════════════════════════ */}
+        <section className="py-24 px-6 bg-[#0a0a0f]">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Business Subscription Plans
+              </h2>
+              <p className="text-gray-400 text-lg mb-6">
+                Save money with monthly subscriptions. Perfect for law firms, medical offices, and businesses.
+              </p>
+              <Link 
+                href="/pricing"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[#e94560] hover:bg-[#d63d56] rounded-lg font-semibold transition-colors"
+              >
+                View All Plans <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* Starter Plan */}
+              <div className="p-8 rounded-2xl bg-[#1a1a2e] border border-[#2d3748]">
+                <h3 className="text-xl font-bold mb-2">Starter</h3>
+                <div className="text-3xl font-bold mb-1">$99<span className="text-lg text-gray-400">/mo</span></div>
+                <p className="text-gray-400 text-sm mb-6">10 deliveries per month</p>
+                <ul className="space-y-3 mb-8 text-sm">
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Same-day delivery
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Real-time GPS tracking
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Photo proof of delivery
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Save $151/month
+                  </li>
+                </ul>
+                <Link href="/pricing" className="block w-full py-3 text-center rounded-lg border border-[#2d3748] hover:bg-[#2d3748] font-semibold transition-colors">
+                  Learn More
+                </Link>
+              </div>
+
+              {/* Professional Plan - Most Popular */}
+              <div className="relative p-8 rounded-2xl bg-gradient-to-b from-[#e94560]/20 to-[#1a1a2e] border-2 border-[#e94560]">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-4 py-1 bg-[#e94560] rounded-full text-sm font-semibold">
+                  MOST POPULAR
+                </div>
+                <h3 className="text-xl font-bold mb-2 mt-4">Professional</h3>
+                <div className="text-3xl font-bold mb-1">$199<span className="text-lg text-gray-400">/mo</span></div>
+                <p className="text-gray-400 text-sm mb-6">25 deliveries per month</p>
+                <ul className="space-y-3 mb-8 text-sm">
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Priority same-day delivery
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Dedicated account manager
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Scheduled pickups
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Save $426/month
+                  </li>
+                </ul>
+                <Link href="/pricing" className="block w-full py-3 text-center rounded-lg bg-[#e94560] hover:bg-[#d63d56] font-semibold transition-colors">
+                  Get Started
+                </Link>
+              </div>
+
+              {/* Enterprise Plan */}
+              <div className="p-8 rounded-2xl bg-[#1a1a2e] border border-[#2d3748]">
+                <h3 className="text-xl font-bold mb-2">Enterprise</h3>
+                <div className="text-3xl font-bold mb-1">$399<span className="text-lg text-gray-400">/mo</span></div>
+                <p className="text-gray-400 text-sm mb-6">Unlimited deliveries</p>
+                <ul className="space-y-3 mb-8 text-sm">
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Unlimited deliveries
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    24/7 priority support
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    Human Vault™ access
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    NDA enforcement
+                  </li>
+                </ul>
+                <Link href="/pricing" className="block w-full py-3 text-center rounded-lg border border-[#2d3748] hover:bg-[#2d3748] font-semibold transition-colors">
+                  Contact Sales
+                </Link>
+              </div>
+            </div>
+
+            <div className="mt-12 text-center">
+              <p className="text-gray-400 text-sm">
+                Perfect for law firms, medical offices, real estate agents, and small businesses in Columbus
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════
             SECTION 5: HOW IT WORKS - Reduce Friction
             Psychology: Simplicity, clear process, reduce anxiety
         ══════════════════════════════════════════════════════════════════ */}

@@ -11,7 +11,9 @@ import {
   FileText,
   LogOut,
   Menu,
-  X
+  X,
+  Shield,
+  CreditCard
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
@@ -20,6 +22,8 @@ const navItems = [
   { href: '/portal', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/portal/deliveries', icon: Truck, label: 'My Deliveries' },
   { href: '/portal/invoices', icon: FileText, label: 'Invoices' },
+  { href: '/portal/vault', icon: Shield, label: 'Human Vault™' },
+  { href: '/portal/subscriptions', icon: CreditCard, label: 'Subscriptions' },
 ]
 
 export default function PortalLayout({

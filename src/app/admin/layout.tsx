@@ -19,7 +19,9 @@ import {
   Route,
   CreditCard,
   MessageSquare,
-  Settings
+  Settings,
+  FileSignature,
+  Repeat
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -28,6 +30,8 @@ const navItems = [
   { href: '/admin/deliveries', icon: Truck, label: 'Deliveries' },
   { href: '/admin/routes/optimize', icon: Route, label: 'Route Optimizer' },
   { href: '/admin/clients', icon: Users, label: 'Clients' },
+  { href: '/admin/nda', icon: FileSignature, label: 'NDA Enforcement' },
+  { href: '/admin/subscriptions', icon: Repeat, label: 'Subscriptions' },
   { href: '/admin/concierge', icon: UserCheck, label: 'Requests' },
   { href: '/admin/calls', icon: Phone, label: 'AI Phone Agent' },
   { href: '/admin/payments', icon: CreditCard, label: 'Payments' },
