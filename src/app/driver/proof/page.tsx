@@ -1,10 +1,11 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import { Camera, Upload, CheckCircle, X, MapPin } from 'lucide-react'
+import { Camera, Upload, CheckCircle, X, MapPin, AlertTriangle } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { ImageValidator } from '@/components/ImageValidator'
 
 export default function DriverProof() {
   const [photo, setPhoto] = useState<string | null>(null)
@@ -14,6 +15,8 @@ export default function DriverProof() {
   const [recipientName, setRecipientName] = useState('')
   const [notes, setNotes] = useState('')
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null)
+  const [validationResult, setValidationResult] = useState<any>(null)
+  const [showValidator, setShowValidator] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -32,9 +35,16 @@ export default function DriverProof() {
       const reader = new FileReader()
       reader.onload = (event) => {
         setPhoto(event.target?.result as string)
+        setShowValidator(true)
+        setValidationResult(null)
       }
       reader.readAsDataURL(file)
     }
+  }
+
+  function handleValidationComplete(result: any) {
+    setValidationResult(result)
+    setShowValidator(false)
   }
 
   async function uploadProof() {
@@ -120,6 +130,35 @@ export default function DriverProof() {
                   >
                     <X size={20} />
                   </button>
+                  
+                  {/* Validation Result */}
+                  {validationResult && (
+                    <div className={`mt-3 p-3 rounded-lg ${
+                      validationResult.isValid 
+                        ? 'bg-green-900/30 border border-green-700' 
+                        : 'bg-red-900/30 border border-red-700'
+                    }`}>
+                      <div className="flex items-center gap-2 mb-2">
+                        {validationResult.isValid ? (
+                          <>
+                            <CheckCircle className="h-5 w-5 text-green-400" />
+                            <span className="text-green-400 font-medium">Photo Validated ✓</span>
+                          </>
+                        ) : (
+                          <>
+                            <AlertTriangle className="h-5 w-5 text-red-400" />
+                            <span className="text-red-400 font-medium">Photo Quality Issue</span>
+                          </>
+                        )}
+                      </div>
+                      <p className="text-sm text-slate-300">{validationResult.message}</p>
+                      {validationResult.confidence && (
+                        <p className="text-xs text-slate-400 mt-1">
+                          Confidence: {(validationResult.confidence * 100).toFixed(0)}%
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div 
@@ -128,6 +167,7 @@ export default function DriverProof() {
                 >
                   <Camera className="mx-auto text-slate-400 mb-2" size={48} />
                   <p className="text-slate-400">Tap to take photo</p>
+                  <p className="text-xs text-slate-500 mt-2">AI validation enabled</p>
                 </div>
               )}
               <input
@@ -140,6 +180,14 @@ export default function DriverProof() {
               />
             </CardContent>
           </Card>
+
+          {/* Image Validator Component */}
+          {showValidator && photo && (
+            <ImageValidator 
+              imageUrl={photo}
+              onValidation={handleValidationComplete}
+            />
+          )}
 
           {/* Recipient Info */}
           <Card className="bg-slate-800 border-slate-700">

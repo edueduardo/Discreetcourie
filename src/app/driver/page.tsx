@@ -146,7 +146,35 @@ export default function DriverDashboard() {
         </CardContent>
       </Card>
 
-      {/* Route Optimizer - Solo Driver Columbus */}
+      {/* Route Optimizer - Solo Driver Columbus - FEATURED */}
+      <Card className="bg-gradient-to-r from-blue-600 to-purple-600 border-blue-500 shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Navigation className="h-6 w-6" />
+            🚀 Route Optimizer - Save 2-3 Hours Daily
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-white/90">
+          <p className="mb-3">
+            Optimize your deliveries with one click. Perfect for solo operators in Columbus, Ohio.
+          </p>
+          <div className="grid grid-cols-3 gap-2 text-sm mb-4">
+            <div className="bg-white/10 rounded p-2 text-center">
+              <div className="font-bold">-40%</div>
+              <div className="text-xs">Drive Time</div>
+            </div>
+            <div className="bg-white/10 rounded p-2 text-center">
+              <div className="font-bold">+2-3</div>
+              <div className="text-xs">Extra Deliveries</div>
+            </div>
+            <div className="bg-white/10 rounded p-2 text-center">
+              <div className="font-bold">$50-75</div>
+              <div className="text-xs">Extra Daily</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      
       <RouteOptimizerSolo />
 
       {/* Active Deliveries */}

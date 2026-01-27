@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Head from 'next/head'
-import { Phone, Shield, Package, ChevronRight, Check, Clock, MapPin, Camera, FileText, Building2, Truck } from 'lucide-react'
+import { Phone, Shield, Package, ChevronRight, Check, Clock, MapPin, Camera, FileText, Building2, Truck, EyeOff, DollarSign } from 'lucide-react'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import CurrencySwitcher from '@/components/CurrencySwitcher'
 import InternationalShippingCalculator from '@/components/InternationalShippingCalculator'
@@ -533,6 +533,202 @@ export default function LandingPage() {
               <p className="text-gray-400 text-sm">
                 Perfect for law firms, medical offices, real estate agents, and small businesses in Columbus
               </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            SECTION: HUMAN VAULT - Bank-Grade Security
+        ══════════════════════════════════════════════════════════════════ */}
+        <section className="py-24 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                  Human Vault™ - Bank-Grade Security for Your Documents
+                </h2>
+                <p className="text-gray-400 text-lg mb-6">
+                  Store sensitive documents with military-grade encryption. Perfect for legal firms, medical offices, and high-value clients.
+                </p>
+                <ul className="space-y-4 mb-8">
+                  <li className="flex items-start gap-3">
+                    <Shield className="w-6 h-6 text-green-500 mt-1" />
+                    <div>
+                      <div className="font-semibold mb-1">End-to-End Encryption</div>
+                      <div className="text-sm text-gray-400">AES-256-GCM encryption - same as banks and military</div>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Clock className="w-6 h-6 text-blue-500 mt-1" />
+                    <div>
+                      <div className="font-semibold mb-1">Auto-Destruct Timer</div>
+                      <div className="text-sm text-gray-400">Set expiration dates - files delete automatically</div>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <FileText className="w-6 h-6 text-purple-500 mt-1" />
+                    <div>
+                      <div className="font-semibold mb-1">NDA Enforcement</div>
+                      <div className="text-sm text-gray-400">Digital signatures with legal binding</div>
+                    </div>
+                  </li>
+                </ul>
+                <Link 
+                  href="/portal/vault"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-semibold transition-colors"
+                >
+                  Access Vault <ChevronRight className="w-4 h-4" />
+                </Link>
+              </div>
+              <div className="bg-gradient-to-br from-green-600/20 to-blue-600/20 rounded-2xl p-8 border border-green-500/30">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 text-sm">
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    <span className="text-gray-300">Encrypted file upload in progress...</span>
+                  </div>
+                  <div className="bg-slate-900/50 rounded-lg p-4">
+                    <div className="text-xs text-gray-500 mb-2">Encryption Status</div>
+                    <div className="text-green-400 font-mono text-sm">AES-256-GCM ✓</div>
+                    <div className="text-green-400 font-mono text-sm">Zero-knowledge ✓</div>
+                    <div className="text-green-400 font-mono text-sm">Auto-destruct enabled ✓</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            SECTION: NDA ENFORCEMENT - Legal Protection
+        ══════════════════════════════════════════════════════════════════ */}
+        <section className="py-24 px-6 bg-[#0a0a0f]">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div className="order-2 md:order-1 bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-2xl p-8 border border-purple-500/30">
+                <div className="space-y-4">
+                  <div className="text-sm text-gray-400 mb-4">Digital Signature Verification</div>
+                  <div className="bg-slate-900/50 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span className="text-sm text-gray-300">Signature verified</span>
+                    </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span className="text-sm text-gray-300">Legally binding</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span className="text-sm text-gray-300">Timestamped & immutable</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="order-1 md:order-2">
+                <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                  NDA Enforcement - Legal Protection Built-In
+                </h2>
+                <p className="text-gray-400 text-lg mb-6">
+                  Require NDAs before delivery. Digital signatures with cryptographic verification and legal binding.
+                </p>
+                <ul className="space-y-4 mb-8">
+                  <li className="flex items-start gap-3">
+                    <FileText className="w-6 h-6 text-purple-500 mt-1" />
+                    <div>
+                      <div className="font-semibold mb-1">Custom NDA Templates</div>
+                      <div className="text-sm text-gray-400">Create and manage your own NDA templates</div>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Shield className="w-6 h-6 text-blue-500 mt-1" />
+                    <div>
+                      <div className="font-semibold mb-1">Digital Signatures</div>
+                      <div className="text-sm text-gray-400">Cryptographically signed and verified</div>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Clock className="w-6 h-6 text-green-500 mt-1" />
+                    <div>
+                      <div className="font-semibold mb-1">Audit Trail</div>
+                      <div className="text-sm text-gray-400">Complete history of all signatures and access</div>
+                    </div>
+                  </li>
+                </ul>
+                <Link 
+                  href="/admin/nda"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition-colors"
+                >
+                  Manage NDAs <ChevronRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            SECTION: ZERO-TRACE DELIVERY - Maximum Privacy
+        ══════════════════════════════════════════════════════════════════ */}
+        <section className="py-24 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                  Zero-Trace Delivery - Maximum Privacy
+                </h2>
+                <p className="text-gray-400 text-lg mb-6">
+                  Leave no digital footprint. VPN routing, crypto payments, and auto-delete for ultimate discretion.
+                </p>
+                <ul className="space-y-4 mb-8">
+                  <li className="flex items-start gap-3">
+                    <EyeOff className="w-6 h-6 text-purple-500 mt-1" />
+                    <div>
+                      <div className="font-semibold mb-1">VPN Routing</div>
+                      <div className="text-sm text-gray-400">All communications routed through VPN for IP anonymity</div>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <DollarSign className="w-6 h-6 text-green-500 mt-1" />
+                    <div>
+                      <div className="font-semibold mb-1">Crypto Payments</div>
+                      <div className="text-sm text-gray-400">Accept cryptocurrency for untraceable transactions</div>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Clock className="w-6 h-6 text-red-500 mt-1" />
+                    <div>
+                      <div className="font-semibold mb-1">Auto-Delete</div>
+                      <div className="text-sm text-gray-400">All records permanently deleted after delivery</div>
+                    </div>
+                  </li>
+                </ul>
+                <Link 
+                  href="/zero-trace"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition-colors"
+                >
+                  Create Zero-Trace Delivery <ChevronRight className="w-4 h-4" />
+                </Link>
+              </div>
+              <div className="bg-gradient-to-br from-purple-600/20 to-red-600/20 rounded-2xl p-8 border border-purple-500/30">
+                <div className="space-y-4">
+                  <div className="text-sm text-gray-400 mb-4">Privacy Features Active</div>
+                  <div className="bg-slate-900/50 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></div>
+                      <span className="text-sm text-gray-300">VPN routing enabled</span>
+                    </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                      <span className="text-sm text-gray-300">Crypto payment ready</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                      <span className="text-sm text-gray-300">Auto-delete in 24h</span>
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-500 text-center mt-4">
+                    No permanent records • No metadata • No traces
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>

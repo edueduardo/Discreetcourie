@@ -258,6 +258,14 @@ export default function CheckoutPage() {
 
       <div className="max-w-2xl mx-auto px-6 py-12">
         <div className="space-y-6">
+          {/* Smart Pricing Calculator */}
+          {checkoutData.metadata?.distance && (
+            <SmartPricing 
+              distance={parseFloat(checkoutData.metadata.distance) || 5}
+              pickupTime={checkoutData.metadata.pickup_time}
+            />
+          )}
+
           {/* Order Summary */}
           <Card className="bg-slate-800 border-slate-700">
             <CardHeader>
