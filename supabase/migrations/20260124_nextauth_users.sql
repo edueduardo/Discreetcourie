@@ -42,10 +42,10 @@ CREATE TABLE users (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_role ON users(role);
-CREATE INDEX idx_users_password_reset_token ON users(password_reset_token);
-CREATE INDEX idx_users_email_verification_token ON users(email_verification_token);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+CREATE INDEX IF NOT EXISTS idx_users_password_reset_token ON users(password_reset_token);
+CREATE INDEX IF NOT EXISTS idx_users_email_verification_token ON users(email_verification_token);
 
 -- Row Level Security (RLS)
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
@@ -88,9 +88,9 @@ CREATE TABLE IF NOT EXISTS security_logs (
 );
 
 -- Index for querying logs
-CREATE INDEX idx_security_logs_user_id ON security_logs(user_id);
-CREATE INDEX idx_security_logs_timestamp ON security_logs(timestamp);
-CREATE INDEX idx_security_logs_action ON security_logs(action);
+CREATE INDEX IF NOT EXISTS idx_security_logs_user_id ON security_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_security_logs_timestamp ON security_logs(timestamp);
+CREATE INDEX IF NOT EXISTS idx_security_logs_action ON security_logs(action);
 
 -- RLS for security logs
 ALTER TABLE security_logs ENABLE ROW LEVEL SECURITY;
@@ -129,6 +129,7 @@ END;
 $$ language 'plpgsql';
 
 -- Trigger to auto-update updated_at
+DROP TRIGGER IF EXISTS update_users_updated_at ON users;
 CREATE TRIGGER update_users_updated_at
   BEFORE UPDATE ON users
   FOR EACH ROW
