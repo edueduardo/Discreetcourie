@@ -13,7 +13,8 @@ import {
   Menu,
   X,
   Shield,
-  CreditCard
+  CreditCard,
+  EyeOff
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
@@ -24,6 +25,7 @@ const navItems = [
   { href: '/portal/invoices', icon: FileText, label: 'Invoices' },
   { href: '/portal/vault', icon: Shield, label: 'Human Vault™' },
   { href: '/portal/subscriptions', icon: CreditCard, label: 'Subscriptions' },
+  { href: '/zero-trace', icon: EyeOff, label: 'Zero-Trace Delivery' },
 ]
 
 export default function PortalLayout({

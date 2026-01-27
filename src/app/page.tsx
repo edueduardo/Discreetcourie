@@ -3,7 +3,10 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Head from 'next/head'
-import { Phone, Shield, Package, ChevronRight, Check, Clock, MapPin, Camera, FileText, Building2, Truck, EyeOff, DollarSign } from 'lucide-react'
+import { Phone, Shield, Package, ChevronRight, Check, Clock, MapPin, Camera, FileText, Building2, Truck, EyeOff, DollarSign, MessageSquare } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import CurrencySwitcher from '@/components/CurrencySwitcher'
 import InternationalShippingCalculator from '@/components/InternationalShippingCalculator'
@@ -729,6 +732,133 @@ export default function LandingPage() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            SECTION: PREMIUM SERVICES - VIP Features
+            Psychology: Exclusivity, unique value proposition
+        ══════════════════════════════════════════════════════════════════ */}
+        <section className="py-24 px-6 bg-gradient-to-b from-slate-900 to-slate-800">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <Badge className="mb-4 bg-purple-600 text-white">VIP Services</Badge>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Premium Services for Unique Needs
+              </h2>
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+                Beyond standard delivery - specialized services for sensitive situations
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {/* Ghost Messages */}
+              <Card className="bg-slate-800/50 border-slate-700 hover:border-purple-500 transition-all">
+                <CardContent className="p-6">
+                  <div className="w-12 h-12 rounded-lg bg-purple-600/20 flex items-center justify-center mb-4">
+                    <MessageSquare className="h-6 w-6 text-purple-400" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">Ghost Messages</h3>
+                  <p className="text-slate-400 mb-4">
+                    Send anonymous messages without revealing your identity. Perfect for sensitive communications.
+                  </p>
+                  <ul className="space-y-2 text-sm text-slate-400 mb-4">
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-400" />
+                      Complete anonymity
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-400" />
+                      No sender information
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-400" />
+                      Secure delivery
+                    </li>
+                  </ul>
+                  <Link href="/admin/ghost-messages">
+                    <Button variant="outline" className="w-full border-purple-500 text-purple-400 hover:bg-purple-500/10">
+                      Learn More
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Last Will Delivery */}
+              <Card className="bg-slate-800/50 border-slate-700 hover:border-blue-500 transition-all">
+                <CardContent className="p-6">
+                  <div className="w-12 h-12 rounded-lg bg-blue-600/20 flex items-center justify-center mb-4">
+                    <Clock className="h-6 w-6 text-blue-400" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">Last Will Delivery</h3>
+                  <p className="text-slate-400 mb-4">
+                    Automatic delivery if you don't check in. Peace of mind for important documents.
+                  </p>
+                  <ul className="space-y-2 text-sm text-slate-400 mb-4">
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-400" />
+                      Automatic trigger
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-400" />
+                      Secure storage
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-400" />
+                      Legal documents
+                    </li>
+                  </ul>
+                  <Link href="/concierge">
+                    <Button variant="outline" className="w-full border-blue-500 text-blue-400 hover:bg-blue-500/10">
+                      Learn More
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Time Capsule */}
+              <Card className="bg-slate-800/50 border-slate-700 hover:border-green-500 transition-all">
+                <CardContent className="p-6">
+                  <div className="w-12 h-12 rounded-lg bg-green-600/20 flex items-center justify-center mb-4">
+                    <Package className="h-6 w-6 text-green-400" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">Time Capsule</h3>
+                  <p className="text-slate-400 mb-4">
+                    Schedule delivery for future dates. Perfect for surprises, anniversaries, or planned reveals.
+                  </p>
+                  <ul className="space-y-2 text-sm text-slate-400 mb-4">
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-400" />
+                      Future scheduling
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-400" />
+                      Secure storage
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-400" />
+                      Guaranteed delivery
+                    </li>
+                  </ul>
+                  <Link href="/concierge">
+                    <Button variant="outline" className="w-full border-green-500 text-green-400 hover:bg-green-500/10">
+                      Learn More
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* CTA */}
+            <div className="text-center mt-12">
+              <p className="text-slate-400 mb-4">Need something unique? We handle special requests.</p>
+              <Link href="/concierge">
+                <Button size="lg" className="bg-purple-600 hover:bg-purple-700">
+                  Request VIP Service
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
             </div>
           </div>
         </section>
