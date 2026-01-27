@@ -861,6 +861,9 @@ export default function LandingPage() {
                   <Link href="/admin/nda" className="hover:text-white transition-colors">
                     NDA Enforcement
                   </Link>
+                  <Link href="/zero-trace" className="hover:text-white transition-colors">
+                    Zero-Trace Delivery
+                  </Link>
                 </div>
               </div>
 
