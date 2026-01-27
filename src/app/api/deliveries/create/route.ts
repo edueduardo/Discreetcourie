@@ -115,8 +115,52 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // TODO: Send notification to operator (Twilio/SMTP)
-    // TODO: Send confirmation to customer
+    // Send notifications
+    try {
+      // Import notification helpers
+      const { sendOperatorNotification, SMS_TEMPLATES } = await import('@/lib/twilio')
+      const { sendEmail, sendOperatorEmail } = await import('@/lib/email')
+
+      // Notify operator via SMS
+      await sendOperatorNotification(
+        SMS_TEMPLATES.newDelivery(
+          tracking_code,
+          pickup_address,
+          delivery_address
+        )
+      )
+
+      // Notify operator via Email
+      await sendOperatorEmail(
+        'New Delivery Created',
+        `New delivery created!\n\nTracking: ${tracking_code}\nPickup: ${pickup_address}\nDelivery: ${delivery_address}\nPrice: $${price}\n\nCheck admin dashboard for details.`
+      )
+
+      // Send confirmation to customer if email provided
+      if (customer_email) {
+        await sendEmail({
+          to: customer_email,
+          template: 'delivery_created',
+          variables: {
+            recipientName: customer_name,
+            trackingCode: tracking_code,
+            actionUrl: `${process.env.NEXTAUTH_URL}/track?code=${tracking_code}`
+          }
+        })
+
+        // Send SMS to customer if phone provided
+        if (customer_phone) {
+          const { sendSMS, SMS_TEMPLATES } = await import('@/lib/twilio')
+          await sendSMS({
+            to: customer_phone,
+            message: SMS_TEMPLATES.deliveryConfirmation(tracking_code, 'Within 2 hours')
+          })
+        }
+      }
+    } catch (notifError) {
+      console.error('Notification error (non-blocking):', notifError)
+      // Don't fail the request if notifications fail
+    }
 
     return NextResponse.json(
       {

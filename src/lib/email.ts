@@ -1,11 +1,24 @@
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 
-const resend = process.env.RESEND_API_KEY 
-  ? new Resend(process.env.RESEND_API_KEY)
-  : null
-
-const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@discreetcourier.com'
+const FROM_EMAIL = process.env.SMTP_FROM || 'noreply@discreetcourier.com'
 const FROM_NAME = 'Discreet Courier'
+
+let transporter: nodemailer.Transporter | null = null
+
+function getTransporter() {
+  if (!transporter && process.env.SMTP_HOST) {
+    transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: process.env.SMTP_PORT === '465',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD
+      }
+    })
+  }
+  return transporter
+}
 
 export type EmailTemplate = 
   | 'welcome'
@@ -142,11 +155,12 @@ export interface SendEmailResult {
 export async function sendEmail(params: SendEmailParams): Promise<SendEmailResult> {
   const { to, template, variables = {}, customSubject, replyTo } = params
 
-  if (!resend) {
-
+  const smtp = getTransporter()
+  if (!smtp) {
+    console.warn('SMTP not configured, skipping email')
     return { 
       success: false, 
-      error: 'Email service not configured. Add RESEND_API_KEY to environment.' 
+      error: 'SMTP not configured. Add SMTP_HOST, SMTP_USER, SMTP_PASSWORD to environment.' 
     }
   }
 
@@ -161,24 +175,19 @@ export async function sendEmail(params: SendEmailParams): Promise<SendEmailResul
   const html = templateConfig.html(variables)
 
   try {
-    const { data, error } = await resend.emails.send({
+    const info = await smtp.sendMail({
       from: `${FROM_NAME} <${FROM_EMAIL}>`,
-      to: Array.isArray(to) ? to : [to],
+      to: Array.isArray(to) ? to.join(', ') : to,
       subject,
       html,
       replyTo
     })
 
-    if (error) {
-
-      return { success: false, error: error.message }
-    }
-
-
-    return { success: true, messageId: data?.id }
+    console.log('Email sent successfully:', info.messageId)
+    return { success: true, messageId: info.messageId }
 
   } catch (err: any) {
-
+    console.error('Email send error:', err)
     return { success: false, error: err.message }
   }
 }
@@ -200,60 +209,15 @@ export async function sendBulkEmails(
   return { sent, failed, results }
 }
 
-/**
- * Send Rich HTML Email Templates
- * Uses the new professionally-designed templates from email-templates.ts
- */
-import EmailTemplates, { EmailTemplate as RichEmailTemplate } from './email-templates'
-
-interface SendRichEmailParams {
-  to: string | string[]
-  template: RichEmailTemplate
-  replyTo?: string
-  attachments?: Array<{
-    filename: string
-    content: Buffer | string
-    contentType?: string
-  }>
-}
-
-export async function sendRichEmail({
-  to,
-  template,
-  replyTo,
-  attachments
-}: SendRichEmailParams): Promise<SendEmailResult> {
-  if (!resend) {
-    console.warn('Resend not configured - email not sent')
-    return {
-      success: false,
-      error: 'Resend not configured. Set RESEND_API_KEY environment variable.'
+export async function sendOperatorEmail(subject: string, message: string): Promise<SendEmailResult> {
+  const operatorEmail = process.env.OPERATOR_EMAIL || 'admin@discreetcourier.com'
+  
+  return sendEmail({
+    to: operatorEmail,
+    template: 'admin_notification',
+    variables: {
+      subject,
+      message
     }
-  }
-
-  try {
-    const { data, error } = await resend.emails.send({
-      from: `${FROM_NAME} <${FROM_EMAIL}>`,
-      to: Array.isArray(to) ? to : [to],
-      subject: template.subject,
-      html: template.html,
-      text: template.text,
-      replyTo,
-      attachments
-    })
-
-    if (error) {
-      console.error('Email send error:', error)
-      return { success: false, error: error.message }
-    }
-
-    console.log('Email sent successfully:', data?.id)
-    return { success: true, messageId: data?.id }
-
-  } catch (err: any) {
-    console.error('Email send error:', err)
-    return { success: false, error: err.message }
-  }
+  })
 }
-
-export { EmailTemplates }
