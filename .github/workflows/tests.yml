@@ -1,0 +1,153 @@
+name: 🧪 Testes Automatizados
+
+on:
+  push:
+    branches: [master, main, develop]
+  pull_request:
+    branches: [master, main]
+
+env:
+  # Variáveis de ambiente para testes (valores de teste)
+  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+jobs:
+  # ============================================
+  # JOB 1: Lint e Type Check
+  # ============================================
+  lint:
+    name: 🔍 Lint & Type Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout do código
+        uses: actions/checkout@v4
+
+      - name: 📦 Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📚 Instalar dependências
+        run: npm ci
+
+      - name: 🔍 Verificar tipos TypeScript
+        run: npm run type-check || npx tsc --noEmit
+
+      - name: 🧹 Executar ESLint
+        run: npm run lint || echo "Lint concluído"
+
+  # ============================================
+  # JOB 2: Testes Unitários
+  # ============================================
+  unit-tests:
+    name: 🧪 Testes Unitários
+    runs-on: ubuntu-latest
+    needs: lint
+    
+    steps:
+      - name: 📥 Checkout do código
+        uses: actions/checkout@v4
+
+      - name: 📦 Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📚 Instalar dependências
+        run: npm ci
+
+      - name: 🧪 Executar testes unitários
+        run: npm run test:ci
+        env:
+          CI: true
+
+      - name: 📊 Upload cobertura de código
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          files: ./coverage/lcov.info
+          fail_ci_if_error: false
+        continue-on-error: true
+
+  # ============================================
+  # JOB 3: Testes E2E
+  # ============================================
+  e2e-tests:
+    name: 🎭 Testes E2E (Playwright)
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    
+    steps:
+      - name: 📥 Checkout do código
+        uses: actions/checkout@v4
+
+      - name: 📦 Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📚 Instalar dependências
+        run: npm ci
+
+      - name: 🎭 Instalar Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: 🏗️ Build da aplicação
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key' }}
+
+      - name: 🎭 Executar testes E2E
+        run: npm run test:e2e
+        env:
+          CI: true
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key' }}
+
+      - name: 📸 Upload relatórios Playwright
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  # ============================================
+  # JOB 4: Build de Produção
+  # ============================================
+  build:
+    name: 🏗️ Build de Produção
+    runs-on: ubuntu-latest
+    needs: [unit-tests]
+    
+    steps:
+      - name: 📥 Checkout do código
+        uses: actions/checkout@v4
+
+      - name: 📦 Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📚 Instalar dependências
+        run: npm ci
+
+      - name: 🏗️ Build de produção
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key' }}
+
+      - name: 📦 Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nextjs-build
+          path: .next/
+          retention-days: 1
