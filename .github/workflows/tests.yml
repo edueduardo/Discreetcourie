@@ -1,0 +1,36 @@
+name: Testes Automatizados
+
+# Quando executar os testes
+on:
+  push:
+    branches: [main, develop]  # Roda quando fizer push nessas branches
+  pull_request:
+    branches: [main]           # Roda em PRs para main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest     # Máquina virtual Ubuntu
+
+    steps:
+      # 1. Baixa o código do repositório
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      # 2. Configura o Node.js
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'         # Cache das dependências (mais rápido)
+
+      # 3. Instala as dependências
+      - name: Instalar dependências
+        run: npm ci
+
+      # 4. Roda os testes unitários
+      - name: Executar testes unitários
+        run: npm run test
+
+      # 5. Roda os testes E2E (opcional)
+      - name: Executar testes E2E
+        run: npm run test:e2e
