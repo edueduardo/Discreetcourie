@@ -103,9 +103,41 @@ export default function QuotePage() {
     }
   }
 
-  const bookNow = () => {
-    if (quoteData?.quote?.id) {
-      router.push(`/concierge/request?quote_id=${quoteData.quote.id}`)
+  const bookNow = async () => {
+    if (!quoteData?.quote?.id) return
+
+    setCalculating(true)
+    try {
+      const response = await fetch('/api/deliveries/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pickup_address: formData.pickup_address,
+          delivery_address: formData.delivery_address,
+          pickup_time: formData.pickup_time,
+          urgency: formData.urgency,
+          service_type: formData.service_tier,
+          price: quoteData.price,
+          customer_name: formData.contact_name,
+          customer_email: formData.contact_email,
+          customer_phone: formData.contact_phone,
+          notes: `Quote ID: ${quoteData.quote.id}`
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create delivery')
+      }
+
+      toast.success(`Delivery booked! Tracking: ${data.delivery.tracking_code}`)
+      router.push(`/track?code=${data.delivery.tracking_code}`)
+    } catch (error: any) {
+      console.error('Booking error:', error)
+      toast.error(error.message || 'Failed to book delivery')
+    } finally {
+      setCalculating(false)
     }
   }
 
