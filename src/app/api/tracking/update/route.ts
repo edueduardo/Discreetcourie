@@ -74,9 +74,10 @@ export async function POST(request: NextRequest) {
           const { sendSMS, SMS_TEMPLATES } = await import('@/lib/twilio')
 
           // Email notification
-          if (delivery.clients.email) {
+          const client = Array.isArray(delivery.clients) ? delivery.clients[0] : delivery.clients
+          if (client?.email) {
             await sendEmail({
-              to: delivery.clients.email,
+              to: client.email,
               template: 'delivery_status',
               variables: {
                 trackingCode: delivery.tracking_code,
@@ -88,9 +89,9 @@ export async function POST(request: NextRequest) {
           }
 
           // SMS notification
-          if (delivery.clients.phone) {
+          if (client?.phone) {
             await sendSMS({
-              to: delivery.clients.phone,
+              to: client.phone,
               message: SMS_TEMPLATES.statusUpdate(delivery.tracking_code, status)
             })
           }

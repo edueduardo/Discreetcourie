@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { sendRichEmail, EmailTemplates } from '@/lib/email'
-import { notifyCustomer } from '@/lib/whatsapp'
+// import { sendRichEmail, EmailTemplates } from '@/lib/email' // TODO: Atualizar para usar sendEmail
+// import { notifyCustomer } from '@/lib/whatsapp' // TODO: Implementar WhatsApp
 
 /**
  * Automated Follow-Up System (SEMANA 3.3)
@@ -23,6 +23,13 @@ import { notifyCustomer } from '@/lib/whatsapp'
 
 export async function GET(request: NextRequest) {
   try {
+    // TODO: Reativar após implementar sendEmail e WhatsApp
+    return NextResponse.json({ 
+      success: false, 
+      message: 'Follow-ups temporariamente desabilitado - aguardando implementação de email/WhatsApp' 
+    }, { status: 503 })
+
+    /* CÓDIGO TEMPORARIAMENTE DESABILITADO
     // Verify cron secret for security
     const authHeader = request.headers.get('authorization')
     const cronSecret = process.env.CRON_SECRET
@@ -242,6 +249,7 @@ export async function GET(request: NextRequest) {
       timestamp: now.toISOString(),
       results
     })
+    */
 
   } catch (error: any) {
     console.error('Follow-ups cron error:', error)

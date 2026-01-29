@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { sendRichEmail, EmailTemplates } from '@/lib/email'
-import { sendWhatsApp, WhatsAppTemplates } from '@/lib/whatsapp'
+// import { sendRichEmail, EmailTemplates } from '@/lib/email' // TODO: Atualizar
+// import { sendWhatsApp, WhatsAppTemplates } from '@/lib/whatsapp' // TODO: Implementar
 
 /**
  * Automatically send delivery proof to customer
@@ -10,6 +10,13 @@ import { sendWhatsApp, WhatsAppTemplates } from '@/lib/whatsapp'
 
 export async function POST(request: NextRequest) {
   try {
+    // TODO: Reativar após implementar email e WhatsApp
+    return NextResponse.json({ 
+      success: false, 
+      message: 'Proof sending temporariamente desabilitado' 
+    }, { status: 503 })
+
+    /* CÓDIGO TEMPORARIAMENTE DESABILITADO
     const { deliveryId, photoUrl } = await request.json()
 
     if (!deliveryId || !photoUrl) {
@@ -102,20 +109,20 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      results,
-      message: `Proof sent via ${results.email.success ? 'email' : ''} ${results.whatsapp.success ? 'WhatsApp' : ''}`.trim()
+      results
     })
+    */
 
   } catch (error: any) {
     console.error('Proof send error:', error)
     return NextResponse.json({
-      error: 'Failed to send delivery proof',
+      error: 'Failed to send proof',
       message: error.message
     }, { status: 500 })
   }
 }
 
-// GET - Check if proof has been sent for a delivery
+// Check if proof has been sent
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)

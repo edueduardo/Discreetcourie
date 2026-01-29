@@ -52,7 +52,7 @@ export async function GET(
     }
 
     // Get GPS tracking history (if not zero-trace)
-    let gpsHistory = []
+    let gpsHistory: any[] = []
     if (!delivery.is_zero_trace) {
       const { data: gpsData } = await supabase
         .from('gps_tracking')
