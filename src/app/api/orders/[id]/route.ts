@@ -1,11 +1,18 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { requireAuth } from '@/middleware/rbac'
 
-// GET - Detalhes de um pedido
+// GET - Detalhes de um pedido (requires auth)
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  // ✅ SECURITY: Require authentication
+  const authResult = await requireAuth()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   const supabase = createClient()
   
   const { data, error } = await supabase
@@ -26,11 +33,17 @@ export async function GET(
   return NextResponse.json(data)
 }
 
-// PATCH - Atualizar pedido
+// PATCH - Atualizar pedido (requires auth)
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  // ✅ SECURITY: Require authentication
+  const authResult = await requireAuth()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   const supabase = createClient()
   const body = await request.json()
   
@@ -51,11 +64,17 @@ export async function PATCH(
   return NextResponse.json(data)
 }
 
-// DELETE - Deletar pedido
+// DELETE - Deletar pedido (admin only)
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  // ✅ SECURITY: Only admins can delete orders
+  const authResult = await requireAuth()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   const supabase = createClient()
   
   const { error } = await supabase

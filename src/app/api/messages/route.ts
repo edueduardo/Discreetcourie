@@ -1,9 +1,16 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { encryptForStorage, decryptFromStorage, isEncryptionConfigured } from '@/lib/encryption'
+import { requireAuth } from '@/middleware/rbac'
 
-// POST - Enviar mensagem
+// POST - Enviar mensagem (requires auth)
 export async function POST(request: NextRequest) {
+  // ✅ SECURITY: Require authentication
+  const authResult = await requireAuth()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   const supabase = createClient()
   const body = await request.json()
   
@@ -56,8 +63,14 @@ export async function POST(request: NextRequest) {
   return NextResponse.json(data, { status: 201 })
 }
 
-// GET - Buscar mensagens
+// GET - Buscar mensagens (requires auth)
 export async function GET(request: NextRequest) {
+  // ✅ SECURITY: Require authentication
+  const authResult = await requireAuth()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   const supabase = createClient()
   const { searchParams } = new URL(request.url)
   const clientId = searchParams.get('client_id')

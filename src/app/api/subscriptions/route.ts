@@ -2,13 +2,20 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
 import { SUBSCRIPTION_PLANS } from '@/lib/subscription-plans'
+import { requireAuth } from '@/middleware/rbac'
 
-const stripe = process.env.STRIPE_SECRET_KEY 
+const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY)
   : null
 
-// GET - Listar assinaturas do cliente ou todas (admin)
+// GET - Listar assinaturas (requires auth)
 export async function GET(request: NextRequest) {
+  // ✅ SECURITY: Require authentication
+  const authResult = await requireAuth()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   if (!stripe) {
     return NextResponse.json({ 
       error: 'Stripe not configured',
@@ -83,10 +90,16 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Criar nova assinatura
+// POST - Criar nova assinatura (requires auth)
 export async function POST(request: NextRequest) {
+  // ✅ SECURITY: Require authentication
+  const authResult = await requireAuth()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   if (!stripe) {
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Stripe not configured'
     }, { status: 400 })
   }
@@ -254,8 +267,14 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// PATCH - Atualizar/Cancelar assinatura
+// PATCH - Atualizar/Cancelar assinatura (requires auth)
 export async function PATCH(request: NextRequest) {
+  // ✅ SECURITY: Require authentication
+  const authResult = await requireAuth()
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
   if (!stripe) {
     return NextResponse.json({ error: 'Stripe not configured' }, { status: 400 })
   }
